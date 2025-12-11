@@ -1,9 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { OrderItem, CustomerInfo } from '@/types/product';
+
+interface OrderData {
+  customer: CustomerInfo;
+  items: OrderItem[];
+  subtotal?: number;
+  shippingCost?: number;
+  total?: number;
+  paymentMethod: 'cash' | 'credit_card' | 'bank_transfer';
+  shippingMethod?: 'standard' | 'express' | 'pickup';
+  createdAt: string;
+}
 
 // Mail gönderme fonksiyonu
-async function sendOrderEmails(order: any, orderNumber: string) {
+async function sendOrderEmails(order: OrderData, orderNumber: string) {
   try {
     const adminEmail = process.env.ADMIN_EMAIL || 'info@celenkdiyari.com';
     const customerEmail = order.customer?.email;
@@ -14,7 +26,7 @@ async function sendOrderEmails(order: any, orderNumber: string) {
     }
 
     // Sipariş özeti oluştur
-    const itemsList = order.items.map((item: any) => 
+    const itemsList = order.items.map((item: OrderItem) => 
       `- ${item.productName}${item.variantName ? ` (${item.variantName})` : ''} x${item.quantity} = ${(item.price * item.quantity).toFixed(2)} ₺`
     ).join('\n');
 

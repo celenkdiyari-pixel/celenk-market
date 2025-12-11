@@ -4,7 +4,7 @@ interface EmailData {
   to: string;
   subject: string;
   templateId: string;
-  templateParams: Record<string, any>;
+  templateParams: Record<string, string | number | boolean>;
 }
 
 export async function POST(request: NextRequest) {
