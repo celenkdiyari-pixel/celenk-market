@@ -432,28 +432,34 @@ export default function OrdersPage() {
                     <div>
                       <label className="text-sm font-medium text-gray-500">Adres</label>
                       {selectedOrder.customer.address ? (
-                        <p className="text-gray-900">
-                          {typeof selectedOrder.customer.address === 'string' ? (
-                            selectedOrder.customer.address
-                          ) : (
-                            <>
-                              {selectedOrder.customer.address.street && (
-                                <>{selectedOrder.customer.address.street}<br /></>
-                              )}
-                              {selectedOrder.customer.address.district && selectedOrder.customer.address.city ? (
-                                <>{selectedOrder.customer.address.district}, {selectedOrder.customer.address.city}<br /></>
-                              ) : selectedOrder.customer.address.city ? (
-                                <>{selectedOrder.customer.address.city}<br /></>
-                              ) : null}
-                              {selectedOrder.customer.address.postalCode && (
-                                <>{selectedOrder.customer.address.postalCode} </>
-                              )}
-                              {selectedOrder.customer.address.country && (
-                                selectedOrder.customer.address.country
-                              )}
-                            </>
-                          )}
-                        </p>
+                        (typeof selectedOrder.customer.address === 'string' && selectedOrder.customer.address.trim() !== '' && selectedOrder.customer.address !== '-') ? (
+                          <p className="text-gray-900">{selectedOrder.customer.address}</p>
+                        ) : (typeof selectedOrder.customer.address === 'object' && (
+                          selectedOrder.customer.address.street || 
+                          selectedOrder.customer.address.city || 
+                          selectedOrder.customer.address.district
+                        )) ? (
+                          <p className="text-gray-900">
+                            {selectedOrder.customer.address.street && (
+                              <>{selectedOrder.customer.address.street}<br /></>
+                            )}
+                            {selectedOrder.customer.address.district && selectedOrder.customer.address.city ? (
+                              <>{selectedOrder.customer.address.district}, {selectedOrder.customer.address.city}<br /></>
+                            ) : selectedOrder.customer.address.city ? (
+                              <>{selectedOrder.customer.address.city}<br /></>
+                            ) : selectedOrder.customer.address.district ? (
+                              <>{selectedOrder.customer.address.district}<br /></>
+                            ) : null}
+                            {selectedOrder.customer.address.postalCode && (
+                              <>{selectedOrder.customer.address.postalCode} </>
+                            )}
+                            {selectedOrder.customer.address.country && (
+                              selectedOrder.customer.address.country
+                            )}
+                          </p>
+                        ) : (
+                          <p className="text-gray-500 italic">Adres bilgisi bulunamadı</p>
+                        )
                       ) : (
                         <p className="text-gray-500 italic">Adres bilgisi bulunamadı</p>
                       )}

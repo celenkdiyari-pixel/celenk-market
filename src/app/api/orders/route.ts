@@ -106,38 +106,52 @@ async function sendOrderEmails(order: OrderData, orderNumber: string) {
       }
     };
 
-    // Email gönderme fonksiyonunu direkt import edip kullanmak yerine
-    // internal API route'u çağırıyoruz (Vercel'de çalışması için)
-    // Vercel'de internal API call için doğru URL kullanıyoruz
-    const getBaseUrl = () => {
-      // Vercel production'da
-      if (process.env.VERCEL_URL) {
-        return `https://${process.env.VERCEL_URL}`;
-      }
-      // Local development
-      return process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    };
+    // EmailJS servis bilgileri
+    const serviceId = process.env.EMAILJS_SERVICE_ID || process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+    const publicKey = process.env.EMAILJS_PUBLIC_KEY || process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || process.env.EMAILJS_USER_ID;
 
-    const baseUrl = getBaseUrl();
-    
+    if (!serviceId || !publicKey) {
+      console.error('❌ EmailJS configuration missing');
+      console.error('Service ID:', serviceId ? 'Found' : 'Missing');
+      console.error('Public Key:', publicKey ? 'Found' : 'Missing');
+      return; // EmailJS yapılandırması yoksa mail gönderme
+    }
+
+    // EmailJS API endpoint
+    const emailjsUrl = 'https://api.emailjs.com/api/v1.0/email/send';
+
     // Her iki maili de paralel gönder
     const emailPromises = [];
     
     // Customer email
     if (customerTemplateId) {
+      const customerEmailPayload = {
+        service_id: serviceId,
+        template_id: customerTemplateId,
+        user_id: publicKey,
+        template_params: {
+          ...customerEmailData.templateParams,
+          to_email: customerEmail,
+          subject: customerEmailData.subject,
+          reply_to: customerEmail,
+        }
+      };
+
       emailPromises.push(
-        fetch(`${baseUrl}/api/email`, {
+        fetch(emailjsUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(customerEmailData)
+          body: JSON.stringify(customerEmailPayload)
         }).then(async (res) => {
-          const result = await res.json();
+          const responseText = await res.text();
           if (res.ok) {
             console.log('✅ Customer email sent successfully');
+            return { ok: true, result: responseText };
           } else {
-            console.error('❌ Failed to send customer email:', result);
+            console.error('❌ Failed to send customer email:', responseText);
+            console.error('❌ Status:', res.status);
+            return { ok: false, result: responseText, status: res.status };
           }
-          return { ok: res.ok, result };
         }).catch(err => {
           console.error('❌ Customer email fetch error:', err);
           return { ok: false, error: err.message };
@@ -147,19 +161,33 @@ async function sendOrderEmails(order: OrderData, orderNumber: string) {
     
     // Admin email
     if (adminTemplateId) {
+      const adminEmailPayload = {
+        service_id: serviceId,
+        template_id: adminTemplateId,
+        user_id: publicKey,
+        template_params: {
+          ...adminEmailData.templateParams,
+          to_email: adminEmail,
+          subject: adminEmailData.subject,
+          reply_to: customerEmail,
+        }
+      };
+
       emailPromises.push(
-        fetch(`${baseUrl}/api/email`, {
+        fetch(emailjsUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(adminEmailData)
+          body: JSON.stringify(adminEmailPayload)
         }).then(async (res) => {
-          const result = await res.json();
+          const responseText = await res.text();
           if (res.ok) {
             console.log('✅ Admin email sent successfully');
+            return { ok: true, result: responseText };
           } else {
-            console.error('❌ Failed to send admin email:', result);
+            console.error('❌ Failed to send admin email:', responseText);
+            console.error('❌ Status:', res.status);
+            return { ok: false, result: responseText, status: res.status };
           }
-          return { ok: res.ok, result };
         }).catch(err => {
           console.error('❌ Admin email fetch error:', err);
           return { ok: false, error: err.message };
