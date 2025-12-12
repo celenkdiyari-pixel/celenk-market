@@ -92,12 +92,41 @@ export default function OrdersPage() {
       const response = await fetch('/api/orders');
       if (response.ok) {
         const data = await response.json();
-        setOrders(data.orders || []);
+        // Validate and sanitize orders data
+        const validOrders = (data.orders || []).map((order: any) => ({
+          ...order,
+          customer: order.customer || {
+            firstName: 'Bilinmiyor',
+            lastName: '',
+            email: 'N/A',
+            phone: 'N/A',
+            address: {
+              street: '',
+              city: '',
+              district: '',
+              postalCode: '',
+              country: 'Türkiye'
+            }
+          },
+          items: order.items || [],
+          subtotal: order.subtotal || 0,
+          shippingCost: order.shippingCost || 0,
+          total: order.total || 0,
+          status: order.status || 'pending',
+          paymentStatus: order.paymentStatus || 'pending',
+          paymentMethod: order.paymentMethod || 'cash',
+          shippingMethod: order.shippingMethod || 'standard',
+          createdAt: order.createdAt || new Date().toISOString(),
+          updatedAt: order.updatedAt || new Date().toISOString()
+        }));
+        setOrders(validOrders);
       } else {
-        console.error('Failed to load orders');
+        console.error('Failed to load orders:', response.status, response.statusText);
+        setOrders([]);
       }
     } catch (error) {
       console.error('Error loading orders:', error);
+      setOrders([]);
     } finally {
       setIsLoading(false);
     }
@@ -171,11 +200,13 @@ export default function OrdersPage() {
   };
 
   const filteredOrders = orders.filter(order => {
+    if (!order || !order.customer) return false;
+    
     const matchesSearch = 
-      order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer.email.toLowerCase().includes(searchTerm.toLowerCase());
+      (order.orderNumber || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (order.customer.firstName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (order.customer.lastName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (order.customer.email || '').toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     
@@ -268,26 +299,30 @@ export default function OrdersPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
                           <div className="flex items-center space-x-2">
                             <User className="h-4 w-4" />
-                            <span>{order.customer.firstName} {order.customer.lastName}</span>
+                            <span>{order.customer?.firstName || 'Bilinmiyor'} {order.customer?.lastName || ''}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Mail className="h-4 w-4" />
-                            <span>{order.customer.email}</span>
+                            <span>{order.customer?.email || 'N/A'}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Phone className="h-4 w-4" />
-                            <span>{order.customer.phone}</span>
+                            <span>{order.customer?.phone || 'N/A'}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Calendar className="h-4 w-4" />
-                            <span>{new Date(order.createdAt).toLocaleDateString('tr-TR')}</span>
+                            <span>
+                              {order.createdAt 
+                                ? new Date(order.createdAt).toLocaleDateString('tr-TR')
+                                : 'Tarih yok'}
+                            </span>
                           </div>
                         </div>
                         
                         <div className="mt-3">
                           <div className="flex items-center space-x-2 text-sm text-gray-600">
                             <Package className="h-4 w-4" />
-                            <span>{order.items.length} ürün</span>
+                            <span>{(order.items || []).length} ürün</span>
                             <span className="mx-2">•</span>
                             <CreditCard className="h-4 w-4" />
                             <span className="capitalize">
@@ -303,10 +338,10 @@ export default function OrdersPage() {
                       <div className="flex flex-col items-end space-y-3">
                         <div className="text-right">
                           <p className="text-2xl font-bold text-green-600">
-                            {order.total.toFixed(2)} ₺
+                            {(order.total || 0).toFixed(2)} ₺
                           </p>
                           <p className="text-sm text-gray-500">
-                            Kargo: {order.shippingCost.toFixed(2)} ₺
+                            Kargo: {(order.shippingCost || 0).toFixed(2)} ₺
                           </p>
                         </div>
                         
@@ -392,25 +427,27 @@ export default function OrdersPage() {
                   <CardContent className="space-y-3">
                     <div>
                       <label className="text-sm font-medium text-gray-500">Ad Soyad</label>
-                      <p className="text-gray-900">{selectedOrder.customer.firstName} {selectedOrder.customer.lastName}</p>
+                      <p className="text-gray-900">
+                        {selectedOrder.customer?.firstName || 'Bilinmiyor'} {selectedOrder.customer?.lastName || ''}
+                      </p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-500">E-posta</label>
-                      <p className="text-gray-900">{selectedOrder.customer.email}</p>
+                      <p className="text-gray-900">{selectedOrder.customer?.email || 'N/A'}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-500">Telefon</label>
-                      <p className="text-gray-900">{selectedOrder.customer.phone}</p>
+                      <p className="text-gray-900">{selectedOrder.customer?.phone || 'N/A'}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-500">Adres</label>
                       <p className="text-gray-900">
-                        {selectedOrder.customer.address.street}<br />
-                        {selectedOrder.customer.address.district}, {selectedOrder.customer.address.city}<br />
-                        {selectedOrder.customer.address.postalCode} {selectedOrder.customer.address.country}
+                        {selectedOrder.customer?.address?.street || ''}<br />
+                        {selectedOrder.customer?.address?.district || ''}, {selectedOrder.customer?.address?.city || ''}<br />
+                        {selectedOrder.customer?.address?.postalCode || ''} {selectedOrder.customer?.address?.country || ''}
                       </p>
                     </div>
-                    {selectedOrder.customer.notes && (
+                    {selectedOrder.customer?.notes && (
                       <div>
                         <label className="text-sm font-medium text-gray-500">Notlar</label>
                         <p className="text-gray-900">{selectedOrder.customer.notes}</p>
@@ -454,11 +491,19 @@ export default function OrdersPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm font-medium text-gray-500">Sipariş Tarihi:</span>
-                      <span>{new Date(selectedOrder.createdAt).toLocaleString('tr-TR')}</span>
+                      <span>
+                        {selectedOrder.createdAt 
+                          ? new Date(selectedOrder.createdAt).toLocaleString('tr-TR')
+                          : 'Tarih yok'}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm font-medium text-gray-500">Son Güncelleme:</span>
-                      <span>{new Date(selectedOrder.updatedAt).toLocaleString('tr-TR')}</span>
+                      <span>
+                        {selectedOrder.updatedAt 
+                          ? new Date(selectedOrder.updatedAt).toLocaleString('tr-TR')
+                          : 'Tarih yok'}
+                      </span>
                     </div>
                   </CardContent>
                 </Card>
@@ -471,7 +516,7 @@ export default function OrdersPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {selectedOrder.items.map((item, index) => (
+                    {(selectedOrder.items || []).map((item, index) => (
                       <div key={index} className="flex items-center space-x-4 p-4 border rounded-lg">
                         <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
                           {item.image ? (
@@ -509,15 +554,15 @@ export default function OrdersPage() {
                   <div className="border-t pt-4 mt-4">
                     <div className="flex justify-between text-sm mb-2">
                       <span>Ara Toplam:</span>
-                      <span>{selectedOrder.subtotal.toFixed(2)} ₺</span>
+                      <span>{(selectedOrder.subtotal || 0).toFixed(2)} ₺</span>
                     </div>
                     <div className="flex justify-between text-sm mb-2">
                       <span>Kargo:</span>
-                      <span>{selectedOrder.shippingCost.toFixed(2)} ₺</span>
+                      <span>{(selectedOrder.shippingCost || 0).toFixed(2)} ₺</span>
                     </div>
                     <div className="flex justify-between text-lg font-bold border-t pt-2">
                       <span>Toplam:</span>
-                      <span className="text-green-600">{selectedOrder.total.toFixed(2)} ₺</span>
+                      <span className="text-green-600">{(selectedOrder.total || 0).toFixed(2)} ₺</span>
                     </div>
                   </div>
                 </CardContent>
