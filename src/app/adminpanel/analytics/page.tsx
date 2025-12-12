@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import {
   BarChart3,
   TrendingUp,
@@ -12,18 +11,15 @@ import {
   DollarSign,
   ShoppingCart,
   Users,
-  Package,
   Calendar,
   Download,
   Filter,
   ArrowLeft,
   Home,
-  Eye,
   PieChart,
   Activity,
   Target,
   Award,
-  Clock,
   Star
 } from 'lucide-react';
 import Link from 'next/link';
@@ -63,7 +59,6 @@ interface CategoryAnalytics {
 
 export default function AnalyticsPage() {
   const [dateRange, setDateRange] = useState('30');
-  const [selectedMetric, setSelectedMetric] = useState('revenue');
   const [isLoading, setIsLoading] = useState(true);
   const [salesData, setSalesData] = useState<SalesData[]>([]);
   const [productPerformance, setProductPerformance] = useState<ProductPerformance[]>([]);
@@ -462,7 +457,7 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {salesData.slice(-7).map((data, index) => (
+                {salesData.slice(-7).map((data) => (
                   <div key={data.date} className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Calendar className="h-4 w-4 text-gray-400" />
