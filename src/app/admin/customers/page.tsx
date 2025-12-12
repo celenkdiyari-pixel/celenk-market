@@ -85,13 +85,14 @@ export default function CustomersPage() {
     const loadCustomers = async () => {
       try {
         setIsLoading(true);
-        // TODO: Implement real API call to fetch customers
-        // const response = await fetch('/api/customers');
-        // if (response.ok) {
-        //   const data = await response.json();
-        //   setCustomers(data.customers || []);
-        // }
-        setCustomers([]);
+        const response = await fetch('/api/customers');
+        if (response.ok) {
+          const data = await response.json();
+          setCustomers(data.customers || []);
+        } else {
+          console.error('Failed to load customers');
+          setCustomers([]);
+        }
       } catch (error) {
         console.error('Error loading customers:', error);
         setCustomers([]);
@@ -137,21 +138,28 @@ export default function CustomersPage() {
     }
 
     try {
-      // TODO: Implement real API call to save customer
-      // const response = await fetch('/api/customers', {
-      //   method: isEditingCustomer ? 'PUT' : 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(newCustomer)
-      // });
-      // if (!response.ok) throw new Error('Failed to save customer');
+      const url = isEditingCustomer 
+        ? `/api/customers/${editingCustomerId}`
+        : '/api/customers';
       
-      const customerData = {
+      const response = await fetch(url, {
+        method: isEditingCustomer ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newCustomer)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save customer');
+      }
+      
+      const data = await response.json();
+      const customerData = data.customer || {
         ...newCustomer,
-        id: isEditingCustomer ? editingCustomerId : Date.now().toString(),
+        id: data.id || editingCustomerId,
         totalOrders: 0,
         totalSpent: 0,
-        registrationDate: new Date().toISOString(),
-        lastOrderDate: undefined
+        registrationDate: new Date().toISOString()
       };
 
       if (isEditingCustomer) {
@@ -210,7 +218,16 @@ export default function CustomersPage() {
     }
 
     try {
-      setCustomers(prev => prev.filter(c => c.id !== customerId));
+      const response = await fetch(`/api/customers/${customerId}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        setCustomers(prev => prev.filter(c => c.id !== customerId));
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'Müşteri silinirken hata oluştu');
+      }
     } catch (error) {
       console.error('Error deleting customer:', error);
       alert('Müşteri silinirken hata oluştu');

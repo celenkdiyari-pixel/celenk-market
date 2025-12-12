@@ -87,21 +87,26 @@ export default function InventoryPage() {
     const loadInventory = async () => {
       try {
         setIsLoading(true);
-        // TODO: Implement real API calls to fetch inventory and stock movements
-        // const [inventoryResponse, movementsResponse] = await Promise.all([
-        //   fetch('/api/inventory'),
-        //   fetch('/api/inventory/movements')
-        // ]);
-        // if (inventoryResponse.ok) {
-        //   const inventoryData = await inventoryResponse.json();
-        //   setInventory(inventoryData.items || []);
-        // }
-        // if (movementsResponse.ok) {
-        //   const movementsData = await movementsResponse.json();
-        //   setStockMovements(movementsData.movements || []);
-        // }
-        setInventory([]);
-        setStockMovements([]);
+        const [inventoryResponse, movementsResponse] = await Promise.all([
+          fetch('/api/inventory'),
+          fetch('/api/inventory/movements')
+        ]);
+        
+        if (inventoryResponse.ok) {
+          const inventoryData = await inventoryResponse.json();
+          setInventory(inventoryData.items || []);
+        } else {
+          console.error('Failed to load inventory');
+          setInventory([]);
+        }
+        
+        if (movementsResponse.ok) {
+          const movementsData = await movementsResponse.json();
+          setStockMovements(movementsData.movements || []);
+        } else {
+          console.error('Failed to load stock movements');
+          setStockMovements([]);
+        }
       } catch (error) {
         console.error('Error loading inventory:', error);
         setInventory([]);

@@ -74,19 +74,20 @@ export default function AnalyticsPage() {
     const loadAnalytics = async () => {
       try {
         setIsLoading(true);
-        // TODO: Implement real API calls to fetch analytics data
-        // const response = await fetch(`/api/analytics?dateRange=${dateRange}`);
-        // const data = await response.json();
-        // setSalesData(data.salesData || []);
-        // setProductPerformance(data.productPerformance || []);
-        // setCustomerAnalytics(data.customerAnalytics || null);
-        // setCategoryAnalytics(data.categoryAnalytics || []);
-        
-        // Initialize with empty data
-        setSalesData([]);
-        setProductPerformance([]);
-        setCustomerAnalytics(null);
-        setCategoryAnalytics([]);
+        const response = await fetch(`/api/analytics?dateRange=${dateRange}`);
+        if (response.ok) {
+          const data = await response.json();
+          setSalesData(data.salesData || []);
+          setProductPerformance(data.productPerformance || []);
+          setCustomerAnalytics(data.customerAnalytics || null);
+          setCategoryAnalytics(data.categoryAnalytics || []);
+        } else {
+          console.error('Failed to load analytics');
+          setSalesData([]);
+          setProductPerformance([]);
+          setCustomerAnalytics(null);
+          setCategoryAnalytics([]);
+        }
       } catch (error) {
         console.error('Error loading analytics:', error);
         setSalesData([]);

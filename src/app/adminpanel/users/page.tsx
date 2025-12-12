@@ -88,21 +88,26 @@ export default function UsersPage() {
     const loadUsers = async () => {
       try {
         setIsLoading(true);
-        // TODO: Implement real API calls to fetch users and roles
-        // const [usersResponse, rolesResponse] = await Promise.all([
-        //   fetch('/api/users'),
-        //   fetch('/api/users/roles')
-        // ]);
-        // if (usersResponse.ok) {
-        //   const usersData = await usersResponse.json();
-        //   setUsers(usersData.users || []);
-        // }
-        // if (rolesResponse.ok) {
-        //   const rolesData = await rolesResponse.json();
-        //   setRoles(rolesData.roles || []);
-        // }
-        setUsers([]);
-        setRoles([]);
+        const [usersResponse, rolesResponse] = await Promise.all([
+          fetch('/api/users'),
+          fetch('/api/users/roles')
+        ]);
+        
+        if (usersResponse.ok) {
+          const usersData = await usersResponse.json();
+          setUsers(usersData.users || []);
+        } else {
+          console.error('Failed to load users');
+          setUsers([]);
+        }
+        
+        if (rolesResponse.ok) {
+          const rolesData = await rolesResponse.json();
+          setRoles(rolesData.roles || []);
+        } else {
+          console.error('Failed to load roles');
+          setRoles([]);
+        }
       } catch (error) {
         console.error('Error loading users:', error);
         setUsers([]);

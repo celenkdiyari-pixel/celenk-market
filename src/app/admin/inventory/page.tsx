@@ -87,21 +87,26 @@ export default function InventoryPage() {
     const loadInventory = async () => {
       try {
         setIsLoading(true);
-        // TODO: Implement real API calls to fetch inventory and stock movements
-        // const [inventoryResponse, movementsResponse] = await Promise.all([
-        //   fetch('/api/inventory'),
-        //   fetch('/api/inventory/movements')
-        // ]);
-        // if (inventoryResponse.ok) {
-        //   const inventoryData = await inventoryResponse.json();
-        //   setInventory(inventoryData.items || []);
-        // }
-        // if (movementsResponse.ok) {
-        //   const movementsData = await movementsResponse.json();
-        //   setStockMovements(movementsData.movements || []);
-        // }
-        setInventory([]);
-        setStockMovements([]);
+        const [inventoryResponse, movementsResponse] = await Promise.all([
+          fetch('/api/inventory'),
+          fetch('/api/inventory/movements')
+        ]);
+        
+        if (inventoryResponse.ok) {
+          const inventoryData = await inventoryResponse.json();
+          setInventory(inventoryData.items || []);
+        } else {
+          console.error('Failed to load inventory');
+          setInventory([]);
+        }
+        
+        if (movementsResponse.ok) {
+          const movementsData = await movementsResponse.json();
+          setStockMovements(movementsData.movements || []);
+        } else {
+          console.error('Failed to load stock movements');
+          setStockMovements([]);
+        }
       } catch (error) {
         console.error('Error loading inventory:', error);
         setInventory([]);
@@ -176,32 +181,48 @@ export default function InventoryPage() {
         return;
       }
 
-      // Update inventory
-      setInventory(prev => prev.map(item => 
-        item.id === selectedItem.id 
-          ? { 
-              ...item, 
-              currentStock: newStock,
-              totalValue: newStock * item.unitCost,
-              status: newStock === 0 ? 'out_of_stock' : 
-                     newStock <= item.minStockLevel ? 'low_stock' : 'in_stock'
-            }
-          : item
-      ));
+      // Update inventory in Firebase
+      const inventoryResponse = await fetch(`/api/inventory/${selectedItem.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentStock: newStock,
+          totalValue: newStock * selectedItem.unitCost,
+          status: newStock === 0 ? 'out_of_stock' : 
+                 newStock <= selectedItem.minStockLevel ? 'low_stock' : 'in_stock'
+        })
+      });
 
-      // Add stock movement
-      const newMovement: StockMovement = {
-        id: Date.now().toString(),
-        itemId: selectedItem.id,
-        type,
-        quantity: stockQuantity,
-        reason: stockReason,
-        date: new Date().toISOString(),
-        user: 'Admin',
-        notes: stockNotes
-      };
+      if (!inventoryResponse.ok) {
+        throw new Error('Failed to update inventory');
+      }
 
-      setStockMovements(prev => [newMovement, ...prev]);
+      // Add stock movement to Firebase
+      const movementResponse = await fetch('/api/inventory/movements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          itemId: selectedItem.id,
+          type,
+          quantity: stockQuantity,
+          reason: stockReason,
+          date: new Date().toISOString(),
+          user: 'Admin',
+          notes: stockNotes
+        })
+      });
+
+      if (movementResponse.ok) {
+        const movementData = await movementResponse.json();
+        setStockMovements(prev => [movementData.movement, ...prev]);
+      }
+
+      // Reload inventory
+      const updatedInventoryResponse = await fetch('/api/inventory');
+      if (updatedInventoryResponse.ok) {
+        const updatedData = await updatedInventoryResponse.json();
+        setInventory(updatedData.items || []);
+      }
 
       setShowSuccessMessage(true);
       setTimeout(() => setShowSuccessMessage(false), 3000);

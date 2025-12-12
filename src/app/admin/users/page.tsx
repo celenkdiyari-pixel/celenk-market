@@ -88,21 +88,26 @@ export default function UsersPage() {
     const loadUsers = async () => {
       try {
         setIsLoading(true);
-        // TODO: Implement real API calls to fetch users and roles
-        // const [usersResponse, rolesResponse] = await Promise.all([
-        //   fetch('/api/users'),
-        //   fetch('/api/users/roles')
-        // ]);
-        // if (usersResponse.ok) {
-        //   const usersData = await usersResponse.json();
-        //   setUsers(usersData.users || []);
-        // }
-        // if (rolesResponse.ok) {
-        //   const rolesData = await rolesResponse.json();
-        //   setRoles(rolesData.roles || []);
-        // }
-        setUsers([]);
-        setRoles([]);
+        const [usersResponse, rolesResponse] = await Promise.all([
+          fetch('/api/users'),
+          fetch('/api/users/roles')
+        ]);
+        
+        if (usersResponse.ok) {
+          const usersData = await usersResponse.json();
+          setUsers(usersData.users || []);
+        } else {
+          console.error('Failed to load users');
+          setUsers([]);
+        }
+        
+        if (rolesResponse.ok) {
+          const rolesData = await rolesResponse.json();
+          setRoles(rolesData.roles || []);
+        } else {
+          console.error('Failed to load roles');
+          setRoles([]);
+        }
       } catch (error) {
         console.error('Error loading users:', error);
         setUsers([]);
@@ -170,12 +175,32 @@ export default function UsersPage() {
 
     try {
       const roleConfig = roles.find(r => r.id === newUser.role);
-      const userData = {
+      const userPayload = {
         ...newUser,
-        id: isEditingUser ? editingUserId : Date.now().toString(),
-        createdAt: isEditingUser ? users.find(u => u.id === editingUserId)?.createdAt : new Date().toISOString(),
+        permissions: roleConfig?.permissions || []
+      };
+      
+      const url = isEditingUser 
+        ? `/api/users/${editingUserId}`
+        : '/api/users';
+      
+      const response = await fetch(url, {
+        method: isEditingUser ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userPayload)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save user');
+      }
+      
+      const data = await response.json();
+      const userData = data.user || {
+        ...newUser,
+        id: data.id || editingUserId,
         permissions: roleConfig?.permissions || [],
-        lastLogin: undefined
+        createdAt: isEditingUser ? users.find(u => u.id === editingUserId)?.createdAt : new Date().toISOString()
       };
 
       if (isEditingUser) {
@@ -232,7 +257,16 @@ export default function UsersPage() {
     }
 
     try {
-      setUsers(prev => prev.filter(u => u.id !== userId));
+      const response = await fetch(`/api/users/${userId}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        setUsers(prev => prev.filter(u => u.id !== userId));
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'Kullanıcı silinirken hata oluştu');
+      }
     } catch (error) {
       console.error('Error deleting user:', error);
       alert('Kullanıcı silinirken hata oluştu');
@@ -242,9 +276,21 @@ export default function UsersPage() {
   const toggleUserStatus = async (userId: string, currentStatus: User['status']) => {
     try {
       const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-      setUsers(prev => prev.map(user => 
-        user.id === userId ? { ...user, status: newStatus } : user
-      ));
+      
+      const response = await fetch(`/api/users/${userId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+      
+      if (response.ok) {
+        setUsers(prev => prev.map(user => 
+          user.id === userId ? { ...user, status: newStatus } : user
+        ));
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'Kullanıcı durumu güncellenirken hata oluştu');
+      }
     } catch (error) {
       console.error('Error updating user status:', error);
       alert('Kullanıcı durumu güncellenirken hata oluştu');
