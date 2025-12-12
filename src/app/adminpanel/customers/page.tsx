@@ -81,74 +81,26 @@ export default function CustomersPage() {
     tags: [] as string[]
   });
 
-  // Mock data for demonstration
   useEffect(() => {
-    const mockCustomers: Customer[] = [
-      {
-        id: '1',
-        firstName: 'Ahmet',
-        lastName: 'Yılmaz',
-        email: 'ahmet@example.com',
-        phone: '+90 555 123 45 67',
-        address: {
-          street: 'Atatürk Caddesi No: 123',
-          city: 'İstanbul',
-          district: 'Kadıköy',
-          postalCode: '34710',
-          country: 'Türkiye'
-        },
-        notes: 'VIP müşteri, özel günlerde sık sipariş verir',
-        totalOrders: 15,
-        totalSpent: 4500.00,
-        lastOrderDate: '2024-01-15',
-        registrationDate: '2023-06-10',
-        status: 'vip',
-        tags: ['VIP', 'Düzenli Müşteri']
-      },
-      {
-        id: '2',
-        firstName: 'Ayşe',
-        lastName: 'Demir',
-        email: 'ayse@example.com',
-        phone: '+90 555 234 56 78',
-        address: {
-          street: 'Cumhuriyet Mahallesi No: 45',
-          city: 'Ankara',
-          district: 'Çankaya',
-          postalCode: '06420',
-          country: 'Türkiye'
-        },
-        totalOrders: 8,
-        totalSpent: 1200.00,
-        lastOrderDate: '2024-01-10',
-        registrationDate: '2023-08-20',
-        status: 'active',
-        tags: ['Yeni Müşteri']
-      },
-      {
-        id: '3',
-        firstName: 'Mehmet',
-        lastName: 'Kaya',
-        email: 'mehmet@example.com',
-        phone: '+90 555 345 67 89',
-        address: {
-          street: 'İnönü Bulvarı No: 78',
-          city: 'İzmir',
-          district: 'Konak',
-          postalCode: '35250',
-          country: 'Türkiye'
-        },
-        totalOrders: 3,
-        totalSpent: 680.00,
-        lastOrderDate: '2023-12-20',
-        registrationDate: '2023-11-15',
-        status: 'inactive',
-        tags: []
+    const loadCustomers = async () => {
+      try {
+        setIsLoading(true);
+        // TODO: Implement real API call to fetch customers
+        // const response = await fetch('/api/customers');
+        // if (response.ok) {
+        //   const data = await response.json();
+        //   setCustomers(data.customers || []);
+        // }
+        setCustomers([]);
+      } catch (error) {
+        console.error('Error loading customers:', error);
+        setCustomers([]);
+      } finally {
+        setIsLoading(false);
       }
-    ];
-    
-    setCustomers(mockCustomers);
-    setIsLoading(false);
+    };
+
+    loadCustomers();
   }, []);
 
   const getStatusBadge = (status: Customer['status']) => {
@@ -185,7 +137,14 @@ export default function CustomersPage() {
     }
 
     try {
-      // Mock save operation
+      // TODO: Implement real API call to save customer
+      // const response = await fetch('/api/customers', {
+      //   method: isEditingCustomer ? 'PUT' : 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(newCustomer)
+      // });
+      // if (!response.ok) throw new Error('Failed to save customer');
+      
       const customerData = {
         ...newCustomer,
         id: isEditingCustomer ? editingCustomerId : Date.now().toString(),

@@ -70,85 +70,35 @@ export default function AnalyticsPage() {
   const [customerAnalytics, setCustomerAnalytics] = useState<CustomerAnalytics | null>(null);
   const [categoryAnalytics, setCategoryAnalytics] = useState<CategoryAnalytics[]>([]);
 
-  // Mock data for demonstration
   useEffect(() => {
-    const mockSalesData: SalesData[] = [
-      { date: '2024-01-01', revenue: 2500, orders: 12, customers: 8 },
-      { date: '2024-01-02', revenue: 3200, orders: 15, customers: 10 },
-      { date: '2024-01-03', revenue: 1800, orders: 9, customers: 6 },
-      { date: '2024-01-04', revenue: 4100, orders: 18, customers: 12 },
-      { date: '2024-01-05', revenue: 2900, orders: 14, customers: 9 },
-      { date: '2024-01-06', revenue: 3600, orders: 16, customers: 11 },
-      { date: '2024-01-07', revenue: 2200, orders: 11, customers: 7 }
-    ];
-
-    const mockProductPerformance: ProductPerformance[] = [
-      {
-        id: '1',
-        name: 'Açılış Çelengi - Büyük',
-        category: 'Açılış & Tören',
-        sales: 45,
-        revenue: 6750,
-        orders: 15,
-        avgRating: 4.8
-      },
-      {
-        id: '2',
-        name: 'Cenaze Çelengi - Orta',
-        category: 'Cenaze Çelenkleri',
-        sales: 32,
-        revenue: 6400,
-        orders: 12,
-        avgRating: 4.6
-      },
-      {
-        id: '3',
-        name: 'Ferforje Saksı - Küçük',
-        category: 'Ferforjeler',
-        sales: 28,
-        revenue: 2240,
-        orders: 8,
-        avgRating: 4.4
+    const loadAnalytics = async () => {
+      try {
+        setIsLoading(true);
+        // TODO: Implement real API calls to fetch analytics data
+        // const response = await fetch(`/api/analytics?dateRange=${dateRange}`);
+        // const data = await response.json();
+        // setSalesData(data.salesData || []);
+        // setProductPerformance(data.productPerformance || []);
+        // setCustomerAnalytics(data.customerAnalytics || null);
+        // setCategoryAnalytics(data.categoryAnalytics || []);
+        
+        // Initialize with empty data
+        setSalesData([]);
+        setProductPerformance([]);
+        setCustomerAnalytics(null);
+        setCategoryAnalytics([]);
+      } catch (error) {
+        console.error('Error loading analytics:', error);
+        setSalesData([]);
+        setProductPerformance([]);
+        setCustomerAnalytics(null);
+        setCategoryAnalytics([]);
+      } finally {
+        setIsLoading(false);
       }
-    ];
-
-    const mockCustomerAnalytics: CustomerAnalytics = {
-      totalCustomers: 156,
-      newCustomers: 23,
-      returningCustomers: 133,
-      avgOrderValue: 285.50,
-      customerLifetimeValue: 1250.75
     };
 
-    const mockCategoryAnalytics: CategoryAnalytics[] = [
-      {
-        category: 'Açılış & Tören',
-        revenue: 12500,
-        orders: 45,
-        products: 12,
-        growth: 15.2
-      },
-      {
-        category: 'Cenaze Çelenkleri',
-        revenue: 8900,
-        orders: 32,
-        products: 8,
-        growth: 8.7
-      },
-      {
-        category: 'Ferforjeler',
-        revenue: 5600,
-        orders: 18,
-        products: 6,
-        growth: -2.1
-      }
-    ];
-
-    setSalesData(mockSalesData);
-    setProductPerformance(mockProductPerformance);
-    setCustomerAnalytics(mockCustomerAnalytics);
-    setCategoryAnalytics(mockCategoryAnalytics);
-    setIsLoading(false);
+    loadAnalytics();
   }, [dateRange]);
 
   const getTotalRevenue = () => {

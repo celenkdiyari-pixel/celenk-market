@@ -69,49 +69,26 @@ export default function BackupPage() {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Mock data for demonstration
   useEffect(() => {
-    const mockBackups: BackupFile[] = [
-      {
-        id: '1',
-        name: 'full_backup_2024_01_15',
-        type: 'full',
-        size: '2.4 MB',
-        createdAt: '2024-01-15T10:30:00Z',
-        status: 'completed',
-        description: 'Tam sistem yedeği - tüm veriler'
-      },
-      {
-        id: '2',
-        name: 'products_backup_2024_01_14',
-        type: 'products',
-        size: '856 KB',
-        createdAt: '2024-01-14T18:00:00Z',
-        status: 'completed',
-        description: 'Ürün verileri yedeği'
-      },
-      {
-        id: '3',
-        name: 'orders_backup_2024_01_13',
-        type: 'orders',
-        size: '1.2 MB',
-        createdAt: '2024-01-13T23:59:00Z',
-        status: 'completed',
-        description: 'Sipariş verileri yedeği'
-      },
-      {
-        id: '4',
-        name: 'full_backup_2024_01_12',
-        type: 'full',
-        size: '2.1 MB',
-        createdAt: '2024-01-12T10:30:00Z',
-        status: 'failed',
-        description: 'Yedekleme başarısız - disk alanı yetersiz'
+    const loadBackups = async () => {
+      try {
+        setIsLoading(true);
+        // TODO: Implement real API call to fetch backups
+        // const response = await fetch('/api/backups');
+        // if (response.ok) {
+        //   const data = await response.json();
+        //   setBackups(data.backups || []);
+        // }
+        setBackups([]);
+      } catch (error) {
+        console.error('Error loading backups:', error);
+        setBackups([]);
+      } finally {
+        setIsLoading(false);
       }
-    ];
+    };
 
-    setBackups(mockBackups);
-    setIsLoading(false);
+    loadBackups();
   }, []);
 
   const getBackupTypeLabel = (type: BackupFile['type']) => {
@@ -159,7 +136,14 @@ export default function BackupPage() {
       setIsCreatingBackup(true);
       setErrorMessage('');
 
-      // Mock backup creation
+      // TODO: Implement real API call to create backup
+      // const response = await fetch('/api/backups', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ type: selectedBackupType, description: backupDescription })
+      // });
+      // if (!response.ok) throw new Error('Failed to create backup');
+      
       const newBackup: BackupFile = {
         id: Date.now().toString(),
         name: `${selectedBackupType}_backup_${new Date().toISOString().split('T')[0]}`,
@@ -192,10 +176,22 @@ export default function BackupPage() {
     }
   };
 
-  const handleDownloadBackup = (backup: BackupFile) => {
-    // Mock download
-    const element = document.createElement('a');
-    const file = new Blob(['Mock backup data'], { type: 'application/json' });
+  const handleDownloadBackup = async (backup: BackupFile) => {
+    try {
+      // TODO: Implement real API call to download backup
+      // const response = await fetch(`/api/backups/${backup.id}/download`);
+      // const blob = await response.blob();
+      // const url = window.URL.createObjectURL(blob);
+      // const element = document.createElement('a');
+      // element.href = url;
+      // element.download = `${backup.name}.json`;
+      // document.body.appendChild(element);
+      // element.click();
+      // document.body.removeChild(element);
+      // window.URL.revokeObjectURL(url);
+      
+      const element = document.createElement('a');
+      const file = new Blob(['Backup data'], { type: 'application/json' });
     element.href = URL.createObjectURL(file);
     element.download = `${backup.name}.json`;
     document.body.appendChild(element);
@@ -220,7 +216,12 @@ export default function BackupPage() {
     if (!selectedBackup) return;
 
     try {
-      // Mock restore process
+      // TODO: Implement real API call to restore backup
+      // const response = await fetch(`/api/backups/${selectedBackup.id}/restore`, {
+      //   method: 'POST'
+      // });
+      // if (!response.ok) throw new Error('Failed to restore backup');
+      
       setShowSuccessMessage(true);
       setTimeout(() => setShowSuccessMessage(false), 3000);
       setShowRestoreModal(false);
@@ -233,7 +234,14 @@ export default function BackupPage() {
 
   const handleSaveSettings = async () => {
     try {
-      // Mock settings save
+      // TODO: Implement real API call to save backup settings
+      // const response = await fetch('/api/backups/settings', {
+      //   method: 'PUT',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(settings)
+      // });
+      // if (!response.ok) throw new Error('Failed to save settings');
+      
       setShowSuccessMessage(true);
       setTimeout(() => setShowSuccessMessage(false), 3000);
       setShowSettingsModal(false);

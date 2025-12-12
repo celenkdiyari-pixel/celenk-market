@@ -84,97 +84,35 @@ export default function UsersPage() {
     confirmPassword: ''
   });
 
-  // Mock data for demonstration
   useEffect(() => {
-    const mockRoles: Role[] = [
-      {
-        id: 'admin',
-        name: 'Yönetici',
-        description: 'Tam sistem erişimi',
-        permissions: ['all'],
-        color: 'bg-red-100 text-red-800'
-      },
-      {
-        id: 'manager',
-        name: 'Müdür',
-        description: 'İşletme yönetimi',
-        permissions: ['products', 'orders', 'customers', 'analytics'],
-        color: 'bg-blue-100 text-blue-800'
-      },
-      {
-        id: 'staff',
-        name: 'Personel',
-        description: 'Günlük işlemler',
-        permissions: ['products', 'orders'],
-        color: 'bg-green-100 text-green-800'
-      },
-      {
-        id: 'viewer',
-        name: 'Görüntüleyici',
-        description: 'Sadece görüntüleme',
-        permissions: ['view'],
-        color: 'bg-gray-100 text-gray-800'
+    const loadUsers = async () => {
+      try {
+        setIsLoading(true);
+        // TODO: Implement real API calls to fetch users and roles
+        // const [usersResponse, rolesResponse] = await Promise.all([
+        //   fetch('/api/users'),
+        //   fetch('/api/users/roles')
+        // ]);
+        // if (usersResponse.ok) {
+        //   const usersData = await usersResponse.json();
+        //   setUsers(usersData.users || []);
+        // }
+        // if (rolesResponse.ok) {
+        //   const rolesData = await rolesResponse.json();
+        //   setRoles(rolesData.roles || []);
+        // }
+        setUsers([]);
+        setRoles([]);
+      } catch (error) {
+        console.error('Error loading users:', error);
+        setUsers([]);
+        setRoles([]);
+      } finally {
+        setIsLoading(false);
       }
-    ];
+    };
 
-    const mockUsers: User[] = [
-      {
-        id: '1',
-        username: 'admin',
-        email: 'admin@celenkdiyari.com',
-        firstName: 'Admin',
-        lastName: 'User',
-        role: 'admin',
-        status: 'active',
-        lastLogin: '2024-01-15T10:30:00Z',
-        createdAt: '2023-01-01T00:00:00Z',
-        permissions: ['all'],
-        phone: '+90 555 123 45 67',
-        notes: 'Sistem yöneticisi'
-      },
-      {
-        id: '2',
-        username: 'manager1',
-        email: 'manager@celenkdiyari.com',
-        firstName: 'Ahmet',
-        lastName: 'Yılmaz',
-        role: 'manager',
-        status: 'active',
-        lastLogin: '2024-01-14T15:20:00Z',
-        createdAt: '2023-06-15T00:00:00Z',
-        permissions: ['products', 'orders', 'customers', 'analytics'],
-        phone: '+90 555 234 56 78'
-      },
-      {
-        id: '3',
-        username: 'staff1',
-        email: 'staff@celenkdiyari.com',
-        firstName: 'Ayşe',
-        lastName: 'Demir',
-        role: 'staff',
-        status: 'active',
-        lastLogin: '2024-01-15T09:15:00Z',
-        createdAt: '2023-08-20T00:00:00Z',
-        permissions: ['products', 'orders'],
-        phone: '+90 555 345 67 89'
-      },
-      {
-        id: '4',
-        username: 'viewer1',
-        email: 'viewer@celenkdiyari.com',
-        firstName: 'Mehmet',
-        lastName: 'Kaya',
-        role: 'viewer',
-        status: 'inactive',
-        lastLogin: '2024-01-10T14:30:00Z',
-        createdAt: '2023-11-15T00:00:00Z',
-        permissions: ['view']
-      }
-    ];
-
-    setRoles(mockRoles);
-    setUsers(mockUsers);
-    setIsLoading(false);
+    loadUsers();
   }, []);
 
   const getRoleBadge = (role: User['role']) => {

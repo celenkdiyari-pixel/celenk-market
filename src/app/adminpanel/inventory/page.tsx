@@ -83,81 +83,35 @@ export default function InventoryPage() {
     'Söz & Nişan'
   ];
 
-  // Mock data for demonstration
   useEffect(() => {
-    const mockInventory: InventoryItem[] = [
-      {
-        id: '1',
-        productId: 'prod-1',
-        productName: 'Açılış Çelengi - Büyük',
-        category: 'Açılış & Tören',
-        currentStock: 25,
-        minStockLevel: 10,
-        maxStockLevel: 50,
-        unitCost: 150.00,
-        totalValue: 3750.00,
-        lastRestocked: '2024-01-10',
-        supplier: 'Çiçek Toptan',
-        location: 'Depo A-1',
-        status: 'in_stock'
-      },
-      {
-        id: '2',
-        productId: 'prod-2',
-        productName: 'Cenaze Çelengi - Orta',
-        category: 'Cenaze Çelenkleri',
-        currentStock: 5,
-        minStockLevel: 8,
-        maxStockLevel: 30,
-        unitCost: 200.00,
-        totalValue: 1000.00,
-        lastRestocked: '2024-01-05',
-        supplier: 'Çelenk Merkezi',
-        location: 'Depo B-2',
-        status: 'low_stock'
-      },
-      {
-        id: '3',
-        productId: 'prod-3',
-        productName: 'Ferforje Saksı - Küçük',
-        category: 'Ferforjeler',
-        currentStock: 0,
-        minStockLevel: 5,
-        maxStockLevel: 20,
-        unitCost: 80.00,
-        totalValue: 0.00,
-        lastRestocked: '2023-12-20',
-        supplier: 'Metal İşleri',
-        location: 'Depo C-3',
-        status: 'out_of_stock'
+    const loadInventory = async () => {
+      try {
+        setIsLoading(true);
+        // TODO: Implement real API calls to fetch inventory and stock movements
+        // const [inventoryResponse, movementsResponse] = await Promise.all([
+        //   fetch('/api/inventory'),
+        //   fetch('/api/inventory/movements')
+        // ]);
+        // if (inventoryResponse.ok) {
+        //   const inventoryData = await inventoryResponse.json();
+        //   setInventory(inventoryData.items || []);
+        // }
+        // if (movementsResponse.ok) {
+        //   const movementsData = await movementsResponse.json();
+        //   setStockMovements(movementsData.movements || []);
+        // }
+        setInventory([]);
+        setStockMovements([]);
+      } catch (error) {
+        console.error('Error loading inventory:', error);
+        setInventory([]);
+        setStockMovements([]);
+      } finally {
+        setIsLoading(false);
       }
-    ];
+    };
 
-    const mockMovements: StockMovement[] = [
-      {
-        id: '1',
-        itemId: '1',
-        type: 'in',
-        quantity: 20,
-        reason: 'Yeni Sipariş',
-        date: '2024-01-10',
-        user: 'Admin',
-        notes: 'Toptan alım'
-      },
-      {
-        id: '2',
-        itemId: '2',
-        type: 'out',
-        quantity: 3,
-        reason: 'Satış',
-        date: '2024-01-12',
-        user: 'Admin'
-      }
-    ];
-
-    setInventory(mockInventory);
-    setStockMovements(mockMovements);
-    setIsLoading(false);
+    loadInventory();
   }, []);
 
   const getStatusBadge = (status: InventoryItem['status']) => {
