@@ -192,11 +192,15 @@ export default function BackupPage() {
       
       const element = document.createElement('a');
       const file = new Blob(['Backup data'], { type: 'application/json' });
-    element.href = URL.createObjectURL(file);
-    element.download = `${backup.name}.json`;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+      element.href = URL.createObjectURL(file);
+      element.download = `${backup.name}.json`;
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    } catch (error) {
+      console.error('Error downloading backup:', error);
+      alert('Yedek indirilirken hata oluştu');
+    }
   };
 
   const handleDeleteBackup = async (backupId: string) => {
