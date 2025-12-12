@@ -18,6 +18,14 @@ const config: Config = {
       },
     },
     extend: {
+      fontFamily: {
+        'elegant': ['Playfair Display', 'serif'],
+        'italic': ['Dancing Script', 'cursive'],
+        'sans': ['Inter', 'system-ui', 'sans-serif'],
+        'serif': ['Playfair Display', 'serif'],
+        'script': ['Dancing Script', 'cursive'],
+        'display': ['Playfair Display', 'serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
