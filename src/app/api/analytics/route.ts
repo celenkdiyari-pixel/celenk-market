@@ -1,6 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+
+interface OrderData {
+  id: string;
+  createdAt: string;
+  total?: number;
+  customer?: {
+    email?: string;
+  };
+  items?: Array<{
+    productId?: string;
+    productName?: string;
+    quantity?: number;
+    price?: number;
+    category?: string;
+  }>;
+}
+
+interface CustomerData {
+  id: string;
+  registrationDate?: string;
+  createdAt?: string;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,7 +50,7 @@ export async function GET(request: NextRequest) {
     }));
     
     // Filter orders by date range
-    const filteredOrders = allOrders.filter((order: any) => {
+    const filteredOrders = allOrders.filter((order: OrderData) => {
       const orderDate = new Date(order.createdAt);
       return orderDate >= startDate && orderDate <= endDate;
     });
@@ -36,7 +58,7 @@ export async function GET(request: NextRequest) {
     // Calculate sales data
     const salesDataMap = new Map<string, { revenue: number; orders: number; customers: Set<string> }>();
     
-    filteredOrders.forEach((order: any) => {
+    filteredOrders.forEach((order: OrderData) => {
       const date = new Date(order.createdAt).toISOString().split('T')[0];
       const existing = salesDataMap.get(date) || { revenue: 0, orders: 0, customers: new Set() };
       
@@ -59,9 +81,9 @@ export async function GET(request: NextRequest) {
     // Calculate product performance
     const productPerformanceMap = new Map<string, { sales: number; revenue: number; orders: number }>();
     
-    filteredOrders.forEach((order: any) => {
+    filteredOrders.forEach((order: OrderData) => {
       if (order.items && Array.isArray(order.items)) {
-        order.items.forEach((item: any) => {
+        order.items.forEach((item) => {
           const productId = item.productId || item.productName;
           const existing = productPerformanceMap.get(productId) || { sales: 0, revenue: 0, orders: 0 };
           
@@ -91,15 +113,15 @@ export async function GET(request: NextRequest) {
       ...doc.data()
     }));
     
-    const newCustomers = allCustomers.filter((customer: any) => {
-      const regDate = new Date(customer.registrationDate || customer.createdAt);
+    const newCustomers = allCustomers.filter((customer: CustomerData) => {
+      const regDate = new Date(customer.registrationDate || customer.createdAt || '');
       return regDate >= startDate;
     });
     
-    const customerEmails = new Set(filteredOrders.map((order: any) => order.customer?.email).filter(Boolean));
+    const customerEmails = new Set(filteredOrders.map((order: OrderData) => order.customer?.email).filter(Boolean));
     const returningCustomers = Array.from(customerEmails).length;
     
-    const totalRevenue = filteredOrders.reduce((sum: number, order: any) => sum + (order.total || 0), 0);
+    const totalRevenue = filteredOrders.reduce((sum: number, order: OrderData) => sum + (order.total || 0), 0);
     const avgOrderValue = filteredOrders.length > 0 ? totalRevenue / filteredOrders.length : 0;
     
     const customerAnalytics = {
@@ -113,9 +135,9 @@ export async function GET(request: NextRequest) {
     // Calculate category analytics
     const categoryMap = new Map<string, { revenue: number; orders: number; products: Set<string> }>();
     
-    filteredOrders.forEach((order: any) => {
+    filteredOrders.forEach((order: OrderData) => {
       if (order.items && Array.isArray(order.items)) {
-        order.items.forEach((item: any) => {
+        order.items.forEach((item) => {
           const category = item.category || 'Unknown';
           const existing = categoryMap.get(category) || { revenue: 0, orders: 0, products: new Set() };
           

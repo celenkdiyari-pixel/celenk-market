@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, addDoc, query, orderBy } from 'firebase/firestore';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     console.log('📦 Fetching inventory from Firebase...');
     

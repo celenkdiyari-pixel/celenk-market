@@ -93,7 +93,7 @@ export default function OrdersPage() {
       if (response.ok) {
         const data = await response.json();
         // Validate and sanitize orders data
-        const validOrders = (data.orders || []).map((order: any) => ({
+        const validOrders = (data.orders || []).map((order: Order) => ({
           ...order,
           customer: order.customer || {
             firstName: 'Bilinmiyor',

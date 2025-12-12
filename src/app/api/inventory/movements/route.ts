@@ -10,21 +10,21 @@ export async function GET(request: NextRequest) {
     const itemId = searchParams.get('itemId');
     const limitCount = parseInt(searchParams.get('limit') || '100');
     
-    let movementsQuery = query(
+    const movementsQuery = query(
       collection(db, 'stockMovements'),
       orderBy('date', 'desc'),
       limit(limitCount)
     );
     
     const querySnapshot = await getDocs(movementsQuery);
-    let movements = querySnapshot.docs.map(doc => ({
+    let movements: Array<{ id: string; itemId?: string; [key: string]: unknown }> = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    }));
+    })) as Array<{ id: string; itemId?: string; [key: string]: unknown }>;
     
     // Filter by itemId if provided
     if (itemId) {
-      movements = movements.filter((movement: any) => movement.itemId === itemId);
+      movements = movements.filter((movement) => movement.itemId === itemId);
     }
     
     console.log(`✅ Found ${movements.length} stock movements`);
