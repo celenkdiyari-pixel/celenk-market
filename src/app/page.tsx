@@ -715,10 +715,10 @@ export default function Home() {
               Profesyonel tasarım ve kaliteli hizmet garantisi ile yanınızdayız.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <Link href="/products">
+              <Link href="/admin">
                 <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100 text-lg px-8 py-6 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
                   <ShoppingCart className="mr-3 h-6 w-6" />
-                  Ürünleri İncele
+                  Ürün Yönetimi
                 </Button>
               </Link>
               <Link href="/contact">

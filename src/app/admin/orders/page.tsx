@@ -18,8 +18,7 @@ import {
   Mail,
   Calendar,
   CreditCard,
-  Filter,
-  MapPin
+  Filter
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -285,32 +284,6 @@ export default function OrdersPage() {
                           </div>
                         </div>
                         
-                        {/* Adres Bilgisi */}
-                        {order.customer.address && (
-                          <div className="mt-3 text-sm text-gray-600">
-                            <div className="flex items-start space-x-2">
-                              <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                              <span className="break-words">
-                                {typeof order.customer.address === 'string' 
-                                  ? order.customer.address
-                                  : [
-                                      order.customer.address.street,
-                                      order.customer.address.district,
-                                      order.customer.address.city
-                                    ].filter(Boolean).join(', ') +
-                                    (order.customer.address.postalCode ? ` - ${order.customer.address.postalCode}` : '')
-                                }
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                        {!order.customer.address && (
-                          <div className="mt-3 text-sm text-red-500 italic">
-                            <MapPin className="h-4 w-4 inline mr-1" />
-                            Adres bilgisi bulunamadı
-                          </div>
-                        )}
-                        
                         <div className="mt-3">
                           <div className="flex items-center space-x-2 text-sm text-gray-600">
                             <Package className="h-4 w-4" />
@@ -431,38 +404,11 @@ export default function OrdersPage() {
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-500">Adres</label>
-                      {selectedOrder.customer.address ? (
-                        (typeof selectedOrder.customer.address === 'string' && selectedOrder.customer.address.trim() !== '' && selectedOrder.customer.address !== '-') ? (
-                          <p className="text-gray-900">{selectedOrder.customer.address}</p>
-                        ) : (typeof selectedOrder.customer.address === 'object' && (
-                          selectedOrder.customer.address.street || 
-                          selectedOrder.customer.address.city || 
-                          selectedOrder.customer.address.district
-                        )) ? (
-                          <p className="text-gray-900">
-                            {selectedOrder.customer.address.street && (
-                              <>{selectedOrder.customer.address.street}<br /></>
-                            )}
-                            {selectedOrder.customer.address.district && selectedOrder.customer.address.city ? (
-                              <>{selectedOrder.customer.address.district}, {selectedOrder.customer.address.city}<br /></>
-                            ) : selectedOrder.customer.address.city ? (
-                              <>{selectedOrder.customer.address.city}<br /></>
-                            ) : selectedOrder.customer.address.district ? (
-                              <>{selectedOrder.customer.address.district}<br /></>
-                            ) : null}
-                            {selectedOrder.customer.address.postalCode && (
-                              <>{selectedOrder.customer.address.postalCode} </>
-                            )}
-                            {selectedOrder.customer.address.country && (
-                              selectedOrder.customer.address.country
-                            )}
-                          </p>
-                        ) : (
-                          <p className="text-gray-500 italic">Adres bilgisi bulunamadı</p>
-                        )
-                      ) : (
-                        <p className="text-gray-500 italic">Adres bilgisi bulunamadı</p>
-                      )}
+                      <p className="text-gray-900">
+                        {selectedOrder.customer.address.street}<br />
+                        {selectedOrder.customer.address.district}, {selectedOrder.customer.address.city}<br />
+                        {selectedOrder.customer.address.postalCode} {selectedOrder.customer.address.country}
+                      </p>
                     </div>
                     {selectedOrder.customer.notes && (
                       <div>

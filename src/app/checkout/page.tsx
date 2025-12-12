@@ -69,17 +69,6 @@ export default function CheckoutPage() {
       return;
     }
 
-    // Adres zorunluluğu kontrolü
-    if (!customerInfo.firstName || !customerInfo.lastName || !customerInfo.email || !customerInfo.phone) {
-      alert('Lütfen tüm kişisel bilgilerinizi doldurun');
-      return;
-    }
-
-    if (!customerInfo.address.street || !customerInfo.address.city || !customerInfo.address.district) {
-      alert('Lütfen adres bilgilerinizi tam olarak doldurun (Sokak, Şehir, İlçe zorunludur)');
-      return;
-    }
-
     setIsSubmitting(true);
     
     try {
