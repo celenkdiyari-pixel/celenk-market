@@ -42,6 +42,7 @@ interface Product {
 
 interface CategoryInfo {
   title: string;
+  categoryValue: string; // exact category text stored on products
   description: string;
   image: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -68,6 +69,7 @@ export default function CategoryPage() {
   const categoryInfo: { [key: string]: CategoryInfo } = {
     'acilistoren': {
       title: 'Açılış & Tören Çelenkleri',
+      categoryValue: 'Açılış & Tören',
       description: 'İş yerinizin açılışında ve özel törenlerinizde kullanabileceğiniz şık ve profesyonel çelenk tasarımları',
       image: '/images/categories/açılıştören.jpg',
       icon: Gift,
@@ -76,6 +78,7 @@ export default function CategoryPage() {
     },
     'cenaze': {
       title: 'Cenaze Çelenkleri',
+      categoryValue: 'Cenaze Çelenkleri',
       description: 'Sevdiklerinizi son yolculuğunda uğurlarken saygı ve sevgi dolu anma çelenkleri',
       image: '/images/categories/cenaze.jpg',
       icon: Flower,
@@ -84,6 +87,7 @@ export default function CategoryPage() {
     },
     'ferforje': {
       title: 'Ferforje Çelenkleri',
+      categoryValue: 'Ferforjeler',
       description: 'Metal işçiliği ile hazırlanmış dayanıklı ve estetik ferforje çelenk tasarımları',
       image: '/images/categories/ferforje.png',
       icon: Wrench,
@@ -92,6 +96,7 @@ export default function CategoryPage() {
     },
     'fuarstand': {
       title: 'Fuar & Stand Çelenkleri',
+      categoryValue: 'Fuar & Stand',
       description: 'Fuar ve stand etkinlikleri için dikkat çekici ve profesyonel çelenk tasarımları',
       image: '/images/categories/fuar stand.jpg',
       icon: Building,
@@ -100,6 +105,7 @@ export default function CategoryPage() {
     },
     'ofisbitki': {
       title: 'Ofis & Saksı Bitkileri',
+      categoryValue: 'Ofis & Saksı Bitkileri',
       description: 'Ofis ve ev için hava kalitesini artıran, dekoratif saksı bitkileri',
       image: '/images/categories/ofis bitki.jpg',
       icon: Leaf,
@@ -108,6 +114,7 @@ export default function CategoryPage() {
     },
     'soznisan': {
       title: 'Söz & Nişan Çelenkleri',
+      categoryValue: 'Söz & Nişan',
       description: 'Hayatınızın en özel anlarında sevdiklerinizi mutlu edecek romantik ve zarif çelenk aranjmanları',
       image: '/images/categories/söznişan.jpg',
       icon: HeartIcon,
@@ -130,7 +137,7 @@ export default function CategoryPage() {
           
           // Kategoriye göre filtrele
           const categoryProducts = data.filter((product: Product) => 
-            product.category === currentCategory?.title
+            product.category === currentCategory?.categoryValue || product.category === currentCategory?.title
           );
           
           setProducts(categoryProducts);

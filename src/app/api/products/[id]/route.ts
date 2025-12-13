@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, deleteDoc } from 'firebase/firestore';
 
 export async function PUT(
   request: NextRequest,
@@ -78,6 +78,54 @@ export async function PUT(
       details: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
     }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    console.log('🗑️ Deleting product:', id);
+
+    if (!id) {
+      console.log('❌ No product ID provided for deletion');
+      return NextResponse.json(
+        { error: 'Product ID is required for deletion' },
+        { status: 400 }
+      );
+    }
+
+    const productRef = doc(db, 'products', id);
+
+    // Ensure the product exists before deleting
+    const productSnap = await getDoc(productRef);
+    if (!productSnap.exists()) {
+      console.log('❌ Product not found for deletion:', id);
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+
+    await deleteDoc(productRef);
+    console.log('✅ Product deleted successfully:', id);
+
+    return NextResponse.json({
+      success: true,
+      message: 'Product deleted successfully',
+      productId: id,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('❌ Error deleting product:', error);
+
+    return NextResponse.json(
+      {
+        error: 'Failed to delete product',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString(),
+      },
+      { status: 500 }
+    );
   }
 }
 

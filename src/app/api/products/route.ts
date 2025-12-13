@@ -2,6 +2,46 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, addDoc, doc, deleteDoc } from 'firebase/firestore';
 
+// Lightweight fallback products for development/offline cases
+const FALLBACK_PRODUCTS: Array<Record<string, unknown>> = [
+  {
+    id: 'fallback-1',
+    name: 'Açılış Tören Çelengi',
+    description: 'Kurumsal açılış ve törenler için taze çiçek aranjmanı.',
+    price: 1450,
+    category: 'Açılış & Tören',
+    inStock: true,
+    quantity: 12,
+    images: ['/images/categories/açılıştören.jpg'],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'fallback-2',
+    name: 'Cenaze Çelengi',
+    description: 'Saygı ve anma için beyaz tonlarda cenaze çelengi.',
+    price: 1250,
+    category: 'Cenaze Çelenkleri',
+    inStock: true,
+    quantity: 8,
+    images: ['/images/categories/cenaze.jpg'],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'fallback-3',
+    name: 'Ferforje Çelenk',
+    description: 'Dayanıklı ferforje tabanlı premium çelenk.',
+    price: 1750,
+    category: 'Ferforjeler',
+    inStock: true,
+    quantity: 5,
+    images: ['/images/categories/ferforje.png'],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
 function isDataImageUrl(value: unknown): value is string {
   return typeof value === 'string' && value.startsWith('data:image');
 }
@@ -45,13 +85,23 @@ export async function GET(request: NextRequest) {
       };
     });
 
+    // If Firestore is empty, serve fallback catalog to avoid blank UI
+    if (products.length === 0) {
+      const fallback = FALLBACK_PRODUCTS.map((p) => normalizeProductForList(p, mode));
+      return NextResponse.json(fallback);
+    }
+
     return NextResponse.json(products);
   } catch (error) {
     console.error('❌ Error fetching products from Firebase:', error);
     console.error('❌ Error details:', error instanceof Error ? error.message : 'Unknown error');
     
-    // Return empty array if Firebase fails
-    return NextResponse.json([]);
+    // Return fallback products if Firebase fails
+    const { searchParams } = new URL(request.url);
+    const modeParam = searchParams.get('mode');
+    const mode: 'full' | 'summary' = modeParam === 'summary' ? 'summary' : 'full';
+    const fallback = FALLBACK_PRODUCTS.map((p) => normalizeProductForList(p, mode));
+    return NextResponse.json(fallback);
   }
 }
 
