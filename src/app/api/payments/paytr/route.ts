@@ -71,6 +71,10 @@ export async function POST(request: NextRequest) {
     const computedTotal = basketTotal + shippingCost;
     const paymentAmountKurus = Math.round((orderData.total || computedTotal) * 100);
     
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const safeOkUrl = `${baseUrl}/payment/success`;
+    const safeFailUrl = `${baseUrl}/payment/failed`;
+
     // Prepare payment request
     const paymentRequest: PayTRPaymentRequest = {
       merchant_id: config.merchantId,
@@ -90,8 +94,8 @@ export async function POST(request: NextRequest) {
           : `${orderData.customer.address.street || ''}, ${orderData.customer.address.district || ''}, ${orderData.customer.address.city || ''}`.trim()
         : 'Adres belirtilmedi',
       user_phone: safePhone || '0000000000',
-      merchant_ok_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/payment/success`,
-      merchant_fail_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/payment/failed`,
+      merchant_ok_url: safeOkUrl,
+      merchant_fail_url: safeFailUrl,
       timeout_limit: 30,
       currency: 'TL',
       test_mode: config.testMode ? 1 : 0,
