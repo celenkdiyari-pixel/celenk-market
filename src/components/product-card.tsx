@@ -26,7 +26,6 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
       category: product.category,
       inStock: product.inStock,
       images: product.images,
-      quantity: 1
     });
   };
 
@@ -135,12 +134,12 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
         {/* Add to Cart Button */}
         <Button
           onClick={handleAddToCart}
-          disabled={!product.inStock || isLoading}
+          disabled={!product.inStock}
           className="w-full"
           size="sm"
         >
           <ShoppingCart className="w-4 h-4 mr-2" />
-          {isLoading ? 'Ekleniyor...' : 'Sepete Ekle'}
+          Sepete Ekle
         </Button>
       </CardContent>
     </Card>
