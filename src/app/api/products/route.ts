@@ -247,7 +247,7 @@ export async function POST(request: NextRequest) {
     const docRef = await addDoc(productsRef, {
       ...productData,
       quantity: 9999, // Stock management disabled
-      inStock: true, // Always in stock
+      inStock: productData.inStock ?? true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
