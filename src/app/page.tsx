@@ -112,7 +112,7 @@ export default function Home() {
   const loadProducts = async () => {
     try {
       console.log('🏠 Homepage: Loading products...');
-      const response = await fetch('/api/products');
+      const response = await fetch('/api/products?mode=summary');
       console.log('🏠 Homepage: Response status:', response.status);
       
       if (response.ok) {

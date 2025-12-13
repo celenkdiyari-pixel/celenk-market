@@ -123,7 +123,7 @@ export default function CategoryPage() {
     const fetchProducts = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('/api/products');
+        const response = await fetch('/api/products?mode=summary');
         if (response.ok) {
           const data = await response.json();
           console.log('📦 Kategori sayfası - Ürünler yüklendi:', data);

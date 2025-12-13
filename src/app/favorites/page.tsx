@@ -38,7 +38,7 @@ export default function FavoritesPage() {
 
   const loadProducts = async () => {
     try {
-      const response = await fetch('/api/products');
+      const response = await fetch('/api/products?mode=summary');
       if (response.ok) {
         const data = await response.json();
         setProducts(data);

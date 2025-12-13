@@ -2,28 +2,52 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, addDoc, doc, deleteDoc } from 'firebase/firestore';
 
-export async function GET() {
+function isDataImageUrl(value: unknown): value is string {
+  return typeof value === 'string' && value.startsWith('data:image');
+}
+
+function normalizeProductForList(raw: Record<string, unknown>, mode: 'full' | 'summary') {
+  const imagesRaw = Array.isArray(raw.images) ? raw.images : [];
+  const images = imagesRaw.filter((v): v is string => typeof v === 'string');
+
+  if (mode === 'full') {
+    return {
+      ...raw,
+      images,
+    };
+  }
+
+  // summary mode: avoid returning huge base64 payloads (kills client perf / can fail fetch)
+  const firstNonDataUrl = images.find((img) => !isDataImageUrl(img));
+  return {
+    ...raw,
+    images: firstNonDataUrl ? [firstNonDataUrl] : [],
+  };
+}
+
+export async function GET(request: NextRequest) {
   try {
-    console.log('📦 Fetching products from Firebase...');
-    
+    const { searchParams } = new URL(request.url);
+    const modeParam = searchParams.get('mode');
+    const mode: 'full' | 'summary' = modeParam === 'summary' ? 'summary' : 'full';
+
     const productsRef = collection(db, 'products');
     const snapshot = await getDocs(productsRef);
     
-    const products = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    
-    console.log('✅ Products fetched from Firebase:', products.length);
-    console.log('📦 Products data:', products);
-    
+    const products = snapshot.docs.map((docSnap) => {
+      const data = docSnap.data() as Record<string, unknown>;
+      return {
+        id: docSnap.id,
+        ...normalizeProductForList(data, mode),
+      };
+    });
+
     return NextResponse.json(products);
   } catch (error) {
     console.error('❌ Error fetching products from Firebase:', error);
     console.error('❌ Error details:', error instanceof Error ? error.message : 'Unknown error');
     
     // Return empty array if Firebase fails
-    console.log('📦 Returning empty products array due to Firebase error');
     return NextResponse.json([]);
   }
 }
