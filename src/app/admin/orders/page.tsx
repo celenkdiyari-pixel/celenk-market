@@ -115,7 +115,7 @@ export default function OrdersPage() {
               },
               notes: customer.notes || ''
             },
-            items: Array.isArray(order.items) ? order.items.map((item: Partial<OrderItem>) => ({
+            items: Array.isArray(order.items) ? order.items.map((item: Partial<OrderItem> & { name?: string; productImage?: string }) => ({
               productId: item.productId || '',
               productName: item.productName || item.name || 'Ürün Adı Yok',
               variantId: item.variantId,
