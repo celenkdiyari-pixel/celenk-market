@@ -17,7 +17,6 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, showQuickView = true }: ProductCardProps) {
   const { addToCart, toggleFavorite, isFavorite, isInCart } = useCart();
-  const [isHovered, setIsHovered] = useState(false);
   const isLiked = isFavorite(product.id);
   const inCart = isInCart(product.id);
 
@@ -51,11 +50,7 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
   const safeReviewCount = typeof product.reviewCount === 'number' ? product.reviewCount : 0;
 
   return (
-    <div
-      className="group relative h-full"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <div className="group relative h-full">
       <Card className="h-full border-0 shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden bg-white flex flex-col rounded-[2rem]">
         {/* Image Container with 3:4 Aspect Ratio */}
         <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">

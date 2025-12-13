@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   ShoppingCart,
   Plus,
@@ -123,9 +122,6 @@ export default function CartPage() {
 
         if (data.status === 'success' && data.token) {
           setPaytrToken(data.token);
-          // Wait for callback to handle order creation technically, 
-          // or we can create a pending order here too if needed. 
-          // The current PayTR route creates a session in Firebase.
         } else {
           alert('Ödeme sistemi başlatılamadı: ' + (data.reason || 'Bilinmeyen hata'));
         }
@@ -411,25 +407,35 @@ export default function CartPage() {
 
                 <div className="h-px bg-gray-100" />
 
-                {/* Payment Method */}
+                {/* Payment Method - Custom Implementation */}
                 <div className="space-y-4">
                   <h3 className="font-semibold text-gray-900 flex items-center gap-2">
                     <Wallet className="w-4 h-4" /> Ödeme Yöntemi
                   </h3>
-                  <RadioGroup defaultValue="credit_card" onValueChange={(v: "credit_card" | "transfer") => setPaymentMethod(v)} className="grid grid-cols-2 gap-4">
-                    <div className={`relative flex flex-col items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === 'credit_card' ? 'border-green-600 bg-green-50/50' : 'border-gray-200 hover:border-green-200'}`}>
-                      <RadioGroupItem value="credit_card" id="cc" className="absolute right-3 top-3" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div
+                      onClick={() => setPaymentMethod('credit_card')}
+                      className={`relative flex flex-col items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === 'credit_card' ? 'border-green-600 bg-green-50/50' : 'border-gray-200 hover:border-green-200'}`}
+                    >
+                      <div className={`w-4 h-4 rounded-full border border-gray-300 absolute right-3 top-3 flex items-center justify-center ${paymentMethod === 'credit_card' ? 'border-green-600' : ''}`}>
+                        {paymentMethod === 'credit_card' && <div className="w-2 h-2 rounded-full bg-green-600" />}
+                      </div>
                       <CreditCard className={`w-8 h-8 mb-2 ${paymentMethod === 'credit_card' ? 'text-green-600' : 'text-gray-400'}`} />
                       <span className="font-bold text-sm">Kredi Kartı</span>
                       <span className="text-[10px] text-gray-500">Online & Güvenli</span>
                     </div>
-                    <div className={`relative flex flex-col items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === 'transfer' ? 'border-green-600 bg-green-50/50' : 'border-gray-200 hover:border-green-200'}`}>
-                      <RadioGroupItem value="transfer" id="tr" className="absolute right-3 top-3" />
+                    <div
+                      onClick={() => setPaymentMethod('transfer')}
+                      className={`relative flex flex-col items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === 'transfer' ? 'border-green-600 bg-green-50/50' : 'border-gray-200 hover:border-green-200'}`}
+                    >
+                      <div className={`w-4 h-4 rounded-full border border-gray-300 absolute right-3 top-3 flex items-center justify-center ${paymentMethod === 'transfer' ? 'border-green-600' : ''}`}>
+                        {paymentMethod === 'transfer' && <div className="w-2 h-2 rounded-full bg-green-600" />}
+                      </div>
                       <Building2 className={`w-8 h-8 mb-2 ${paymentMethod === 'transfer' ? 'text-green-600' : 'text-gray-400'}`} />
                       <span className="font-bold text-sm">Havale / EFT</span>
                       <span className="text-[10px] text-gray-500">%5 İndirimli</span>
                     </div>
-                  </RadioGroup>
+                  </div>
                 </div>
 
                 {/* Submit Button */}
