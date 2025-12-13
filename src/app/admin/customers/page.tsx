@@ -19,13 +19,11 @@ import {
   ShoppingCart,
   DollarSign,
   Filter,
-  Plus,
   UserPlus,
   ArrowLeft,
   Home,
   Star,
-  Clock,
-  CheckCircle
+  Clock
 } from 'lucide-react';
 import Link from 'next/link';
 

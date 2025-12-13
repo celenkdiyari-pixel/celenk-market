@@ -12,7 +12,6 @@ import {
   Plus,
   Edit,
   Trash2,
-  Shield,
   Mail,
   Phone,
   Calendar,
@@ -21,15 +20,11 @@ import {
   Lock,
   Unlock,
   Eye,
-  EyeOff,
   ArrowLeft,
   Home,
-  Settings,
-  Key,
   Clock,
   CheckCircle,
-  XCircle,
-  AlertTriangle
+  XCircle
 } from 'lucide-react';
 import Link from 'next/link';
 

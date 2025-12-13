@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle, Download, Mail, Phone } from 'lucide-react';
+import { CheckCircle, Mail, Phone } from 'lucide-react';
 import Link from 'next/link';
 
 function PaymentSuccessContent() {

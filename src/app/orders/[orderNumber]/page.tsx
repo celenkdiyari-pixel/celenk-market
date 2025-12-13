@@ -7,10 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Package, 
-  Truck, 
   CheckCircle, 
-  Clock, 
-  XCircle,
   Download,
   ArrowLeft,
   MapPin,
@@ -67,36 +64,35 @@ function OrderTrackingContent() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (orderNumber) {
-      loadOrder();
-    }
-  }, [orderNumber]);
-
-  const loadOrder = async () => {
-    try {
-      setIsLoading(true);
-      setError('');
-      
-      const response = await fetch('/api/orders');
-      if (response.ok) {
-        const data = await response.json();
-        const foundOrder = data.orders?.find((o: Order) => o.orderNumber === orderNumber);
+    if (!orderNumber) return;
+    const loadOrder = async () => {
+      try {
+        setIsLoading(true);
+        setError('');
         
-        if (foundOrder) {
-          setOrder(foundOrder);
+        const response = await fetch(`/api/orders?orderNumber=${encodeURIComponent(orderNumber)}`);
+        if (response.ok) {
+          const data = await response.json();
+          const foundOrder = data.orders?.[0] as Order | undefined;
+          
+          if (foundOrder) {
+            setOrder(foundOrder);
+          } else {
+            setError('Sipariş bulunamadı');
+          }
         } else {
-          setError('Sipariş bulunamadı');
+          setError('Sipariş yüklenirken hata oluştu');
         }
-      } else {
+      } catch (error) {
+        console.error('Error loading order:', error);
         setError('Sipariş yüklenirken hata oluştu');
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Error loading order:', error);
-      setError('Sipariş yüklenirken hata oluştu');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+
+    loadOrder();
+  }, [orderNumber]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
