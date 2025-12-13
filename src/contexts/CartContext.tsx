@@ -106,6 +106,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [favorites]);
 
   const addToCart = (product: Product, variant?: ProductVariant) => {
+    // Normalize/guard product fields to prevent broken cart entries
+    if (!product?.id || !product?.name) {
+      console.warn('addToCart skipped: missing id or name', product);
+      return;
+    }
+
+    const normalizedPrice =
+      typeof product.price === 'number'
+        ? product.price
+        : parseFloat(product.price as unknown as string) || 0;
+
+    const images = Array.isArray(product.images) ? product.images : [];
+
     setCartItems(prev => {
       // Ensure prev is an array
       const currentItems = Array.isArray(prev) ? prev : [];
@@ -127,8 +140,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           quantity: 1,
           variantId: variant?.id,
           variantName: variant?.name,
-          image: product.images?.[0],
-          price: variant ? variant.price : product.price
+          image: images?.[0],
+          price: variant ? variant.price : normalizedPrice,
+          images,
         };
         return [...currentItems, cartItem];
       }

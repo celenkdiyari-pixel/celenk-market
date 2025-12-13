@@ -33,9 +33,14 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
     toggleFavorite(product.id);
   };
 
-  const discountPercentage = product.originalPrice 
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+  const safePrice = typeof product.price === 'number' ? product.price : Number(product.price) || 0;
+  const safeOriginalPrice = typeof product.originalPrice === 'number' ? product.originalPrice : Number(product.originalPrice) || 0;
+  const discountPercentage = safeOriginalPrice 
+    ? Math.round(((safeOriginalPrice - safePrice) / safeOriginalPrice) * 100)
     : 0;
+
+  const safeRating = typeof product.rating === 'number' ? product.rating : 0;
+  const safeReviewCount = typeof product.reviewCount === 'number' ? product.reviewCount : 0;
 
   return (
     <Card className="group relative overflow-hidden hover-lift transition-all duration-300">
@@ -60,7 +65,7 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
       <div className="relative aspect-square overflow-hidden">
         <Link href={`/products/${product.id}`}>
           <Image
-            src={product.images[0]}
+            src={product.images?.[0] || '/images/logo.png'}
             alt={product.name}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -99,7 +104,7 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
               <Star
                 key={i}
                 className={`w-3 h-3 ${
-                  i < Math.floor(product.rating)
+                  i < Math.floor(safeRating)
                     ? 'fill-yellow-400 text-yellow-400'
                     : 'text-gray-300'
                 }`}
@@ -107,18 +112,18 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
             ))}
           </div>
           <span className="text-xs text-gray-500 ml-1">
-            ({product.reviewCount})
+            ({safeReviewCount})
           </span>
         </div>
 
         {/* Price */}
         <div className="flex items-center gap-2 mb-3">
           <span className="text-lg font-bold text-gray-900">
-            ₺{product.price.toFixed(2)}
+            ₺{safePrice.toFixed(2)}
           </span>
-          {product.originalPrice && (
+          {safeOriginalPrice > 0 && (
             <span className="text-sm text-gray-500 line-through">
-              ₺{product.originalPrice.toFixed(2)}
+              ₺{safeOriginalPrice.toFixed(2)}
             </span>
           )}
         </div>
