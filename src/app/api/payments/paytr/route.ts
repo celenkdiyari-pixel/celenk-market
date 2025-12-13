@@ -33,6 +33,11 @@ export async function POST(request: NextRequest) {
     const deliveryAddress = orderData.deliveryAddress || orderData.customer?.address || {};
     const invoice = orderData.invoice || {};
     
+    // PayTR merchant_oid must be alphanumeric only
+    const originalOrderNumber = orderData.orderNumber?.toString() || '';
+    const sanitizedOrderNumber = originalOrderNumber.replace(/[^a-zA-Z0-9]/g, '');
+    const paytrOrderNumber = sanitizedOrderNumber || `ORD${Date.now()}${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
+    
     const config = getPayTRConfig();
     
     // Check if PayTR is configured
@@ -90,7 +95,7 @@ export async function POST(request: NextRequest) {
     const paymentRequest: PayTRPaymentRequest = {
       merchant_id: config.merchantId,
       user_ip: clientIP,
-      merchant_oid: orderData.orderNumber,
+      merchant_oid: paytrOrderNumber,
       email: safeEmail,
       payment_amount: paymentAmountKurus, // PayTR expects amount in kuruş
       paytr_token: '', // Will be generated
@@ -122,7 +127,8 @@ export async function POST(request: NextRequest) {
     // Persist a draft session so callback can create the order only after success
     try {
       await setDoc(doc(db, 'paytr_sessions', orderData.orderNumber), {
-        orderNumber: orderData.orderNumber,
+        orderNumber: paytrOrderNumber,
+        originalOrderNumber,
         customer: orderData.customer,
         sender,
         recipient,
@@ -157,7 +163,8 @@ export async function POST(request: NextRequest) {
         success: true,
         token: paytrResponse.token,
         iframeUrl: `https://www.paytr.com/odeme/guvenli/${paytrResponse.token}`,
-        orderNumber: orderData.orderNumber,
+        orderNumber: paytrOrderNumber,
+        originalOrderNumber,
         message: 'PayTR payment token created successfully',
         timestamp: new Date().toISOString()
       });
