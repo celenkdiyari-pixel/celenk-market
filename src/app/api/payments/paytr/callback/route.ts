@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { getPayTRConfig, verifyPayTRCallback, PayTRCallbackData, PAYTR_STATUS } from '@/lib/paytr';
 import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, doc, getDoc, deleteDoc, addDoc } from 'firebase/firestore';
 
 // PayTR callback endpoint - ödeme sonucu bildirimi
 export async function POST(request: NextRequest) {
@@ -34,19 +34,60 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ PayTR callback verified');
     
-    // Find order by orderNumber (merchant_oid contains the orderNumber)
-    const ordersRef = collection(db, 'orders');
-    const q = query(ordersRef, where('orderNumber', '==', callbackData.merchant_oid));
-    const querySnapshot = await getDocs(q);
-    
-    if (querySnapshot.empty) {
-      console.error('❌ Order not found:', callbackData.merchant_oid);
-      // Still return OK to PayTR to prevent retries
+    // Load draft session
+    const draftRef = doc(db, 'paytr_sessions', callbackData.merchant_oid);
+    const draftSnap = await getDoc(draftRef);
+
+    let orderDocId: string | null = null;
+    let orderData: Record<string, unknown> | null = null;
+
+    if (draftSnap.exists()) {
+      // Create order only on success; on fail we keep nothing
+      if (callbackData.status === PAYTR_STATUS.SUCCESS) {
+        const draft = draftSnap.data();
+        const ordersRef = collection(db, 'orders');
+        const newOrder = {
+          ...draft,
+          status: 'confirmed',
+          paymentStatus: 'paid',
+          paymentDetails: {
+            paytrTransactionId: callbackData.merchant_oid,
+            paymentType: callbackData.payment_type,
+            paymentAmount: callbackData.payment_amount,
+            currency: callbackData.currency,
+            testMode: callbackData.test_mode === '1',
+            processedAt: new Date().toISOString()
+          },
+          updatedAt: new Date().toISOString()
+        };
+        const created = await addDoc(ordersRef, newOrder);
+        orderDocId = created.id;
+        orderData = newOrder;
+      }
+      // Draft consumed; remove to avoid duplicates
+      await deleteDoc(draftRef);
+    } else {
+      // Fallback: try to find existing order by orderNumber
+      const ordersRef = collection(db, 'orders');
+      const q = query(ordersRef, where('orderNumber', '==', callbackData.merchant_oid));
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) {
+        console.error('❌ Order not found and no draft:', callbackData.merchant_oid);
+        return new Response('OK', { status: 200 });
+      }
+      
+      const orderDoc = querySnapshot.docs[0];
+      orderDocId = orderDoc.id;
+      orderData = orderDoc.data() as Record<string, unknown>;
+    }
+
+    if (!orderDocId || !orderData) {
+      console.error('❌ No order created or found for callback:', callbackData.merchant_oid);
       return new Response('OK', { status: 200 });
     }
-    
-    const orderDoc = querySnapshot.docs[0];
-    const orderRef = doc(db, 'orders', orderDoc.id);
+
+    const orderRef = doc(db, 'orders', orderDocId);
     
     let orderStatus = 'pending';
     let paymentStatus = 'pending';
@@ -60,9 +101,6 @@ export async function POST(request: NextRequest) {
       paymentStatus = 'failed';
       console.log('❌ Payment failed for order:', callbackData.merchant_oid);
     }
-    
-    // Get order data for email
-    const orderData = orderDoc.data();
     
     // Update order in database
     await updateDoc(orderRef, {

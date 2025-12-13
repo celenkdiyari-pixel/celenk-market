@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPayTRConfig, createPayTRPayment, generatePayTRToken, PayTRPaymentRequest } from '@/lib/paytr';
+import { db } from '@/lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 // PayTR ödeme token oluşturma endpoint'i
 export async function POST(request: NextRequest) {
@@ -24,6 +26,12 @@ export async function POST(request: NextRequest) {
         received: orderData.items
       }, { status: 400 });
     }
+
+    // Optional but recommended: sender, recipient/delivery, invoice info
+    const sender = orderData.sender || {};
+    const recipient = orderData.recipient || orderData.customer || {};
+    const deliveryAddress = orderData.deliveryAddress || orderData.customer?.address || {};
+    const invoice = orderData.invoice || {};
     
     const config = getPayTRConfig();
     
@@ -96,6 +104,34 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ PayTR payment request prepared:', paymentRequest.merchant_oid);
     
+    // Persist a draft session so callback can create the order only after success
+    try {
+      await setDoc(doc(db, 'paytr_sessions', orderData.orderNumber), {
+        orderNumber: orderData.orderNumber,
+        customer: orderData.customer,
+        sender,
+        recipient,
+        deliveryAddress,
+        invoice,
+        items: orderData.items,
+        subtotal: orderData.subtotal || 0,
+        shippingCost,
+        total: orderData.total || computedTotal,
+        notes: orderData.notes || '',
+        paymentMethod: 'credit_card',
+        paymentStatus: 'pending',
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error('❌ Failed to persist paytr session:', err);
+      return NextResponse.json({
+        error: 'Failed to persist payment session',
+        details: err instanceof Error ? err.message : 'Unknown error'
+      }, { status: 500 });
+    }
+
     // Create PayTR payment (will be active when credentials are ready)
     const paytrResponse = await createPayTRPayment(config, paymentRequest);
     
