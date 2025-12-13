@@ -186,6 +186,9 @@ export async function POST(request: NextRequest) {
           test_mode: paymentRequest.test_mode,
           email: paymentRequest.email,
           phone: paymentRequest.user_phone,
+          merchant_oid: paymentRequest.merchant_oid,
+          originalOrderNumber,
+          paytrOrderNumber,
         },
         timestamp: new Date().toISOString()
       }, { status: 400 });
