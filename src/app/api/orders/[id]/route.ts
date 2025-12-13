@@ -37,7 +37,7 @@ export async function PUT(
     const currentData = docSnap.data();
     
     // Prepare update data - only update provided fields
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       updatedAt: new Date().toISOString()
     };
     

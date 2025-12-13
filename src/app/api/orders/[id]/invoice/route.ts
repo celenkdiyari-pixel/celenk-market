@@ -2,6 +2,36 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
+interface InvoiceOrder {
+  id?: string;
+  orderNumber?: string;
+  customer?: {
+    firstName?: string;
+    lastName?: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    address?: {
+      street?: string;
+      city?: string;
+      district?: string;
+      postalCode?: string;
+      country?: string;
+    };
+  };
+  items?: Array<{
+    productName?: string;
+    name?: string;
+    quantity?: number;
+    price?: number;
+  }>;
+  subtotal?: number;
+  shippingCost?: number;
+  total?: number;
+  createdAt?: string;
+  [key: string]: unknown;
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -17,7 +47,7 @@ export async function GET(
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
     
-    const order = {
+    const order: InvoiceOrder = {
       id: orderSnap.id,
       ...orderSnap.data()
     };
@@ -31,7 +61,7 @@ export async function GET(
     return new NextResponse(invoiceHTML, {
       headers: {
         'Content-Type': 'text/html',
-        'Content-Disposition': `inline; filename="Fatura-${order.orderNumber}.html"`,
+        'Content-Disposition': `inline; filename="Fatura-${order.orderNumber || 'unknown'}.html"`,
       },
     });
     
@@ -44,7 +74,7 @@ export async function GET(
   }
 }
 
-function generateInvoiceHTML(order: any): string {
+function generateInvoiceHTML(order: InvoiceOrder): string {
   const customerName = order.customer?.firstName && order.customer?.lastName
     ? `${order.customer.firstName} ${order.customer.lastName}`
     : order.customer?.name || 'Müşteri';
@@ -247,7 +277,7 @@ function generateInvoiceHTML(order: any): string {
           </tr>
         </thead>
         <tbody>
-          ${order.items?.map((item: any) => `
+          ${order.items?.map((item) => `
             <tr>
               <td>${item.productName || 'Ürün'}</td>
               <td class="text-right">${item.quantity || 1}</td>

@@ -36,7 +36,7 @@ export async function PUT(
     }
     
     // Update product in Firebase
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       ...productData,
       updatedAt: new Date().toISOString()
     };

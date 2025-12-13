@@ -170,7 +170,7 @@ export default function AdminPanel() {
       const response = await fetch('/api/orders?limit=3');
       if (response.ok) {
         const data = await response.json();
-        const orders = (data.orders || []).slice(0, 3).map((order: any) => ({
+        const orders = (data.orders || []).slice(0, 3).map((order: { orderNumber?: string; id?: string; customer?: { firstName?: string; lastName?: string }; total?: number; status?: string }) => ({
           orderNumber: order.orderNumber || order.id,
           customer: order.customer || { firstName: 'Bilinmiyor', lastName: '' },
           total: order.total || 0,
