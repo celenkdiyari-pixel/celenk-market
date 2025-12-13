@@ -17,6 +17,13 @@ export async function POST(request: NextRequest) {
         received: orderData
       }, { status: 400 });
     }
+
+    if (!orderData.items || !Array.isArray(orderData.items) || orderData.items.length === 0) {
+      return NextResponse.json({
+        error: 'Order items are required',
+        received: orderData.items
+      }, { status: 400 });
+    }
     
     const config = getPayTRConfig();
     
@@ -35,16 +42,16 @@ export async function POST(request: NextRequest) {
                     '127.0.0.1';
     
     // Prepare basket data - PayTR format: "Product Name||Quantity||Price||Total"
-    const userBasket = (orderData.items || []).map((item: { productName: string; name?: string; quantity: number; price: number }) => {
-      const productName = item.productName || 'Ürün';
+    // PayTR basket format: base64(JSON.stringify([["Product", "1", "10.00"]]))
+    const basketArray = (orderData.items || []).map((item: { productName?: string; name?: string; quantity: number; price: number }) => {
+      const productName = (item.productName || item.name || 'Ürün').slice(0, 100);
       const quantity = item.quantity || 1;
       const price = item.price || 0;
-      const total = price * quantity;
-      return `${productName}||${quantity}||${price.toFixed(2)}||${total.toFixed(2)}`;
-    }).join('|');
-    
-    // Encode basket to base64
-    const encodedBasket = Buffer.from(userBasket, 'utf-8').toString('base64');
+      return [productName, quantity.toString(), price.toFixed(2)];
+    });
+    const encodedBasket = Buffer.from(JSON.stringify(basketArray), 'utf-8').toString('base64');
+
+    const safePhone = (orderData.customer.phone || '').replace(/\D+/g, '').slice(-15); // PayTR max 15
     
     // Prepare payment request
     const paymentRequest: PayTRPaymentRequest = {
@@ -58,18 +65,20 @@ export async function POST(request: NextRequest) {
       debug_on: config.testMode ? 1 : 0,
       no_installment: 0,
       max_installment: 0,
-      user_name: `${orderData.customer.firstName || ''} ${orderData.customer.lastName || ''}`.trim(),
+      user_name: `${orderData.customer.firstName || ''} ${orderData.customer.lastName || ''}`.trim() || 'Musteri',
       user_address: orderData.customer.address
         ? typeof orderData.customer.address === 'string'
           ? orderData.customer.address
           : `${orderData.customer.address.street || ''}, ${orderData.customer.address.district || ''}, ${orderData.customer.address.city || ''}`.trim()
-        : '',
-      user_phone: orderData.customer.phone || '',
+        : 'Adres belirtilmedi',
+      user_phone: safePhone || '0000000000',
       merchant_ok_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/payment/success`,
       merchant_fail_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/payment/failed`,
       timeout_limit: 30,
       currency: 'TL',
-      test_mode: config.testMode ? 1 : 0
+      test_mode: config.testMode ? 1 : 0,
+      // Optional but recommended fields
+      lang: 'tr'
     };
     
     // Generate PayTR token

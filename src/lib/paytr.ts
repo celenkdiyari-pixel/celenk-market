@@ -28,6 +28,7 @@ export interface PayTRPaymentRequest {
   timeout_limit: number;
   currency: string;
   test_mode: number;
+  lang?: 'tr' | 'en';
 }
 
 export interface PayTRPaymentResponse {
