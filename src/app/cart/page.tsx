@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -16,13 +15,12 @@ import {
   CreditCard,
   MapPin,
   User,
-  Phone,
-  Mail,
   CheckCircle,
   Truck,
   ShieldCheck,
   Building2,
-  Wallet
+  Wallet,
+  Send
 } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import Link from 'next/link';
@@ -32,9 +30,14 @@ interface CustomerInfo {
   name: string;
   email: string;
   phone: string;
-  address: string;
+}
+
+interface RecipientInfo {
+  name: string;
+  phone: string;
   city: string;
   district: string;
+  address: string;
   notes: string;
 }
 
@@ -48,13 +51,20 @@ export default function CartPage() {
     getTotalItems
   } = useCart();
 
-  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
+  // Sender (Ödeyen/Gönderen)
+  const [senderInfo, setSenderInfo] = useState<CustomerInfo>({
     name: '',
     email: '',
     phone: '',
-    address: '',
+  });
+
+  // Recipient (Alıcı)
+  const [recipientInfo, setRecipientInfo] = useState<RecipientInfo>({
+    name: '',
+    phone: '',
     city: 'İstanbul',
     district: '',
+    address: '',
     notes: ''
   });
 
@@ -65,7 +75,6 @@ export default function CartPage() {
   const [orderId, setOrderId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Resize iframe listener for PayTR
     const handleMessage = (event: MessageEvent) => {
       if (event.data === 'paytr_iframe_resize') {
         // Handle resize if needed
@@ -84,11 +93,23 @@ export default function CartPage() {
   };
 
   const validateForm = () => {
-    if (!customerInfo.name || !customerInfo.phone || !customerInfo.address || !customerInfo.district) {
-      alert('Lütfen zorunlu alanları doldurunuz (Ad Soyad, Telefon, İlçe, Adres).');
+    // Sender validation
+    if (!senderInfo.name || !senderInfo.phone || !senderInfo.email) {
+      alert('Lütfen gönderici bilgilerini eksiksiz doldurunuz (Ad Soyad, Telefon, E-posta).');
+      return false;
+    }
+    // Recipient validation
+    if (!recipientInfo.name || !recipientInfo.phone || !recipientInfo.address || !recipientInfo.district) {
+      alert('Lütfen alıcı bilgilerini eksiksiz doldurunuz (Ad Soyad, Telefon, İlçe, Adres).');
       return false;
     }
     return true;
+  };
+
+  const generateOrderNumber = () => {
+    const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const randomPart = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    return `ORD-${datePart}-${randomPart}`;
   };
 
   const handleSubmitOrder = async () => {
@@ -98,41 +119,59 @@ export default function CartPage() {
     setIsSubmitting(true);
 
     try {
+      const orderNumber = generateOrderNumber();
+      const total = getTotalPrice();
+
+      // Common payload structure
+      const payload = {
+        orderNumber,
+        customer: { // PayTR expects 'customer' as the paying user
+          firstName: senderInfo.name.split(' ')[0],
+          lastName: senderInfo.name.split(' ').slice(1).join(' '),
+          name: senderInfo.name,
+          email: senderInfo.email,
+          phone: senderInfo.phone,
+          address: recipientInfo.address // PayTR requires an address, use delivery address
+        },
+        sender: senderInfo,
+        recipient: recipientInfo,
+        items: cartItems,
+        total,
+        deliveryAddress: {
+          city: recipientInfo.city,
+          district: recipientInfo.district,
+          fullAddress: recipientInfo.address,
+        },
+        notes: recipientInfo.notes,
+        shippingCost: 0 // Free shipping as per UI
+      };
+
       if (paymentMethod === 'credit_card') {
         // PayTR Flow
-        console.log('💳 Initiating PayTR payment...');
+        console.log('💳 Initiating PayTR payment...', payload);
         const response = await fetch('/api/payments/paytr', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_name: customerInfo.name,
-            email: customerInfo.email || 'musteri@celenkdiyari.com',
-            phone: customerInfo.phone,
-            address: `${customerInfo.address} ${customerInfo.district}/${customerInfo.city}`,
-            basket_items: cartItems.map(item => ({
-              name: item.name,
-              price: item.price,
-              quantity: item.quantity
-            })),
-            total_amount: getTotalPrice()
-          })
+          body: JSON.stringify(payload)
         });
 
         const data = await response.json();
 
-        if (data.status === 'success' && data.token) {
+        if (response.ok && data.status === 'success' && data.token) {
+          setPaytrToken(data.token);
+        } else if (data.token) {
+          // Some implementations return token even without explicit status='success' wrapper
           setPaytrToken(data.token);
         } else {
-          alert('Ödeme sistemi başlatılamadı: ' + (data.reason || 'Bilinmeyen hata'));
+          console.error('PayTR Error:', data);
+          alert('Ödeme sistemi başlatılamadı: ' + (data.reason || data.error || 'Bilinmeyen hata'));
         }
 
       } else {
         // Bank Transfer / Cash Flow
         console.log('📦 Creating standard order...');
         const orderData = {
-          customer: customerInfo,
-          items: cartItems,
-          total: getTotalPrice(),
+          ...payload,
           paymentMethod: 'transfer',
           status: 'pending',
           createdAt: new Date().toISOString()
@@ -247,8 +286,10 @@ export default function CartPage() {
         </div>
 
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
-          {/* LEFT COLUMN: Cart Items & Order Summary (Span 7) */}
+          {/* LEFT COLUMN: Cart Items & Forms (Span 7) */}
           <div className="lg:col-span-7 space-y-6">
+
+            {/* 1. Cart Items */}
             <Card className="border-0 shadow-lg rounded-2xl overflow-hidden">
               <CardHeader className="bg-white border-b border-gray-100 pb-4">
                 <CardTitle className="text-xl flex items-center gap-2">
@@ -305,6 +346,110 @@ export default function CartPage() {
               </CardContent>
             </Card>
 
+            {/* 2. Sender Information Form */}
+            <Card className="border-0 shadow-lg rounded-2xl overflow-hidden">
+              <CardHeader className="bg-white border-b border-gray-100 py-4">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <User className="w-5 h-5 text-green-600" />
+                  Gönderici Bilgileri (Siz)
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2">
+                    <Label>Ad Soyad *</Label>
+                    <Input
+                      placeholder="Adınız Soyadınız"
+                      value={senderInfo.name}
+                      onChange={(e) => setSenderInfo({ ...senderInfo, name: e.target.value })}
+                      className="h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white"
+                    />
+                  </div>
+                  <div className="col-span-1">
+                    <Label>Telefon *</Label>
+                    <Input
+                      placeholder="05XX..."
+                      value={senderInfo.phone}
+                      onChange={(e) => setSenderInfo({ ...senderInfo, phone: e.target.value })}
+                      className="h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white"
+                    />
+                  </div>
+                  <div className="col-span-1">
+                    <Label>E-posta *</Label>
+                    <Input
+                      placeholder="email@ornek.com"
+                      value={senderInfo.email}
+                      onChange={(e) => setSenderInfo({ ...senderInfo, email: e.target.value })}
+                      className="h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 3. Recipient Information Form */}
+            <Card className="border-0 shadow-lg rounded-2xl overflow-hidden">
+              <CardHeader className="bg-white border-b border-gray-100 py-4">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Send className="w-5 h-5 text-green-600" />
+                  Alıcı Bilgileri (Teslim Edilecek Kişi)
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2">
+                    <Label>Alıcı Adı Soyadı *</Label>
+                    <Input
+                      placeholder="Kime teslim edilecek?"
+                      value={recipientInfo.name}
+                      onChange={(e) => setRecipientInfo({ ...recipientInfo, name: e.target.value })}
+                      className="h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white"
+                    />
+                  </div>
+                  <div className="col-span-2 md:col-span-1">
+                    <Label>Alıcı Telefon *</Label>
+                    <Input
+                      placeholder="05XX..."
+                      value={recipientInfo.phone}
+                      onChange={(e) => setRecipientInfo({ ...recipientInfo, phone: e.target.value })}
+                      className="h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white"
+                    />
+                  </div>
+                  <div className="col-span-2 md:col-span-1">
+                    <Label>Şehir</Label>
+                    <Input value="İstanbul" disabled className="bg-gray-100 border-gray-200" />
+                  </div>
+                  <div className="col-span-2 md:col-span-1">
+                    <Label>İlçe *</Label>
+                    <Input
+                      placeholder="Örn: Kadıköy"
+                      value={recipientInfo.district}
+                      onChange={(e) => setRecipientInfo({ ...recipientInfo, district: e.target.value })}
+                      className="h-11 rounded-xl bg-gray-50 border-gray-200"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label>Açık Adres *</Label>
+                    <Textarea
+                      placeholder="Mahalle, Sokak, Kapı No, Tarif..."
+                      className="min-h-[80px] rounded-xl bg-gray-50 border-gray-200 resize-none"
+                      value={recipientInfo.address}
+                      onChange={(e) => setRecipientInfo({ ...recipientInfo, address: e.target.value })}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label>Sipariş Notu (Karta yazılacak not vb.)</Label>
+                    <Input
+                      placeholder="İletmek istediğiniz not..."
+                      value={recipientInfo.notes}
+                      onChange={(e) => setRecipientInfo({ ...recipientInfo, notes: e.target.value })}
+                      className="h-11 rounded-xl bg-gray-50 border-gray-200"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="bg-green-50 rounded-2xl p-6 flex gap-4 items-start border border-green-100">
               <Truck className="w-6 h-6 text-green-600 flex-shrink-0" />
               <div>
@@ -316,97 +461,17 @@ export default function CartPage() {
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Customer Info & Payment (Span 5) */}
+          {/* RIGHT COLUMN: Payment Method & Summary (Span 5) */}
           <div className="lg:col-span-5 space-y-6">
             <Card className="border-0 shadow-lg rounded-2xl overflow-hidden sticky top-8">
               <CardHeader className="bg-gray-900 text-white py-6">
                 <CardTitle className="flex items-center justify-between">
-                  <span>Ödeme Bilgileri</span>
+                  <span>Ödeme & Onay</span>
                   <span className="text-2xl font-bold">₺{getTotalPrice()}</span>
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="p-6 space-y-8">
-                {/* Customer Form */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                    <User className="w-4 h-4" /> İletişim Bilgileri
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="col-span-2">
-                      <Label>Ad Soyad *</Label>
-                      <Input
-                        placeholder="Alıcının Adı Soyadı"
-                        value={customerInfo.name}
-                        onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
-                        className="h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white transition-all"
-                      />
-                    </div>
-                    <div className="col-span-1">
-                      <Label>Telefon *</Label>
-                      <Input
-                        placeholder="05XX..."
-                        value={customerInfo.phone}
-                        onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
-                        className="h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white transition-all"
-                      />
-                    </div>
-                    <div className="col-span-1">
-                      <Label>E-posta</Label>
-                      <Input
-                        placeholder="Opsiyonel"
-                        value={customerInfo.email}
-                        onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
-                        className="h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white transition-all"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="h-px bg-gray-100" />
-
-                {/* Address Form */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                    <MapPin className="w-4 h-4" /> Teslimat Adresi
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Şehir</Label>
-                      <Input value="İstanbul" disabled className="bg-gray-100 border-gray-200" />
-                    </div>
-                    <div>
-                      <Label>İlçe *</Label>
-                      <Input
-                        placeholder="Örn: Kadıköy"
-                        value={customerInfo.district}
-                        onChange={(e) => setCustomerInfo({ ...customerInfo, district: e.target.value })}
-                        className="h-11 rounded-xl bg-gray-50 border-gray-200"
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <Label>Açık Adres *</Label>
-                      <Textarea
-                        placeholder="Mahalle, Sokak, Kapı No, Tarif..."
-                        className="min-h-[80px] rounded-xl bg-gray-50 border-gray-200 resize-none"
-                        value={customerInfo.address}
-                        onChange={(e) => setCustomerInfo({ ...customerInfo, address: e.target.value })}
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <Label>Sipariş Notu</Label>
-                      <Input
-                        placeholder="Kart notu, teslimat saati vb."
-                        value={customerInfo.notes}
-                        onChange={(e) => setCustomerInfo({ ...customerInfo, notes: e.target.value })}
-                        className="h-11 rounded-xl bg-gray-50 border-gray-200"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="h-px bg-gray-100" />
-
+              <CardContent className="p-6 space-y-6">
                 {/* Payment Method - Custom Implementation */}
                 <div className="space-y-4">
                   <h3 className="font-semibold text-gray-900 flex items-center gap-2">
@@ -435,6 +500,21 @@ export default function CartPage() {
                       <span className="font-bold text-sm">Havale / EFT</span>
                       <span className="text-[10px] text-gray-500">%5 İndirimli</span>
                     </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-xl space-y-2">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Ara Toplam</span>
+                    <span>₺{getTotalPrice()}</span>
+                  </div>
+                  <div className="flex justify-between text-green-600 font-medium">
+                    <span>Kargo</span>
+                    <span>Ücretsiz</span>
+                  </div>
+                  <div className="border-t border-gray-200 pt-2 flex justify-between font-bold text-lg text-gray-900">
+                    <span>Toplam</span>
+                    <span>₺{getTotalPrice()}</span>
                   </div>
                 </div>
 
