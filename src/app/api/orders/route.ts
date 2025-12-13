@@ -239,6 +239,32 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action');
 
+    if (action === 'deleteBatch') {
+      const ids = searchParams.get('ids')?.split(',') || [];
+      if (ids.length === 0) return NextResponse.json({ error: 'No IDs provided' }, { status: 400 });
+
+      console.log(`Processing batch delete for ${ids.length} orders...`);
+
+      const ordersRef = collection(db, 'orders');
+      let deletedCount = 0;
+
+      // Firestore "in" query limitation is 10
+      for (let i = 0; i < ids.length; i += 10) {
+        const chunk = ids.slice(i, i + 10);
+        // Clean whitespace
+        const cleanChunk = chunk.map(id => id.trim());
+
+        const q = query(ordersRef, where('orderNumber', 'in', cleanChunk));
+        const snapshot = await getDocs(q);
+
+        const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+        await Promise.all(deletePromises);
+        deletedCount += deletePromises.length;
+      }
+
+      return NextResponse.json({ success: true, deletedCount, message: `Deleted ${deletedCount} orders` });
+    }
+
     if (action === 'deleteAll') {
       console.log('⚠️ Bulk deleting all orders...');
 
