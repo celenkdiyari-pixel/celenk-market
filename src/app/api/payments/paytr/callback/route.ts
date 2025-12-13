@@ -122,14 +122,15 @@ export async function POST(request: NextRequest) {
     console.log('✅ Order updated in database:', callbackData.merchant_oid);
     
     // Send email notification if payment was successful
-    if (callbackData.status === PAYTR_STATUS.SUCCESS && orderData.customer) {
+    const customerData = (orderData as Record<string, any>)?.customer || {};
+    if (callbackData.status === PAYTR_STATUS.SUCCESS && customerData) {
       try {
         const adminEmail = process.env.ADMIN_EMAIL || 'celenkdiyari@gmail.com';
-        const customerEmail = orderData.customer?.email;
-        const customerName = orderData.customer?.firstName && orderData.customer?.lastName
-          ? `${orderData.customer.firstName} ${orderData.customer.lastName}`
-          : orderData.customer?.name || 'Müşteri';
-        const totalAmount = orderData.total || (orderData.subtotal || 0) + (orderData.shippingCost || 0);
+        const customerEmail = customerData.email || '';
+        const customerName = customerData.firstName && customerData.lastName
+          ? `${customerData.firstName} ${customerData.lastName}`
+          : customerData.name || 'Müşteri';
+        const totalAmount = (orderData as any).total || ((orderData as any).subtotal || 0) + ((orderData as any).shippingCost || 0);
         
         // Send confirmation email to customer
         if (customerEmail) {
