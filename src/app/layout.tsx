@@ -28,6 +28,7 @@ export const metadata: Metadata = {
     icon: '/favicon.ico',
     apple: '/apple-touch-icon.png',
   },
+  manifest: '/manifest.json',
   openGraph: {
     title: "Çelenk Diyarı - Doğanın En Güzel Hali",
     description: "Özel günlerinizde sevdiklerinizi mutlu edecek, doğal ve taze çelenkler.",

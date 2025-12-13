@@ -57,9 +57,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Get client IP
-    const clientIP = request.headers.get('x-forwarded-for') ||
+    // Get client IP
+    let clientIP = request.headers.get('x-forwarded-for') ||
       request.headers.get('x-real-ip') ||
       '127.0.0.1';
+
+    if (clientIP.includes(',')) {
+      clientIP = clientIP.split(',')[0].trim();
+    }
 
     // Prepare basket data - PayTR format: "Product Name||Quantity||Price||Total"
     // PayTR basket format: base64(JSON.stringify([["Product", "1", "10.00"]]))

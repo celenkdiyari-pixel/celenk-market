@@ -86,9 +86,9 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: '/manifest.webmanifest',
+        source: '/manifest.json',
         headers: [
-          { key: 'Content-Type', value: 'application/manifest+json' },
+          { key: 'Content-Type', value: 'application/json' },
           { key: 'Cache-Control', value: 'public, max-age=86400' },
           { key: 'Access-Control-Allow-Origin', value: '*' },
         ],
