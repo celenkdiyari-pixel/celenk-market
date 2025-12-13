@@ -275,8 +275,8 @@ export default function Home() {
                     <div
                       key={index}
                       className={`absolute inset-0 transition-all duration-1000 ${currentSlide === index
-                          ? 'opacity-100 scale-100'
-                          : 'opacity-0 scale-105'
+                        ? 'opacity-100 scale-100'
+                        : 'opacity-0 scale-105'
                         }`}
                     >
                       <Image
@@ -307,8 +307,8 @@ export default function Home() {
                       key={index}
                       onClick={() => setCurrentSlide(index)}
                       className={`w-2 h-2 rounded-full transition-all duration-300 ${currentSlide === index
-                          ? 'bg-green-600'
-                          : 'bg-gray-300 hover:bg-gray-400'
+                        ? 'bg-green-600'
+                        : 'bg-gray-300 hover:bg-gray-400'
                         }`}
                     />
                   ))}
@@ -491,8 +491,8 @@ export default function Home() {
               variant={selectedCategory === 'all' ? 'default' : 'outline'}
               onClick={() => setSelectedCategory('all')}
               className={`group transition-all duration-500 transform hover:-translate-y-1 ${selectedCategory === 'all'
-                  ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-xl hover:shadow-2xl'
-                  : 'border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white backdrop-blur-sm bg-white/80'
+                ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-xl hover:shadow-2xl'
+                : 'border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white backdrop-blur-sm bg-white/80'
                 } rounded-2xl px-6 py-3 font-medium`}
             >
               <span className="group-hover:scale-105 transition-transform duration-300">Tümü</span>
@@ -503,8 +503,8 @@ export default function Home() {
                 variant={selectedCategory === category ? 'default' : 'outline'}
                 onClick={() => setSelectedCategory(category)}
                 className={`group transition-all duration-500 transform hover:-translate-y-1 ${selectedCategory === category
-                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-xl hover:shadow-2xl'
-                    : 'border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white backdrop-blur-sm bg-white/80'
+                  ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-xl hover:shadow-2xl'
+                  : 'border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white backdrop-blur-sm bg-white/80'
                   } rounded-2xl px-6 py-3 font-medium`}
                 style={{
                   fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -565,8 +565,8 @@ export default function Home() {
 
                       {/* Status Badges */}
                       <div className="absolute top-4 right-4 flex flex-col gap-2">
-                        <Badge variant={product.inStock ? "default" : "destructive"} className="shadow-lg text-xs bg-white/90 backdrop-blur-sm">
-                          {product.inStock ? 'Stokta' : 'Stokta Yok'}
+                        <Badge variant={product.inStock !== false ? "default" : "destructive"} className="shadow-lg text-xs bg-white/90 backdrop-blur-sm">
+                          {product.inStock !== false ? 'Stokta' : 'Stokta Yok'}
                         </Badge>
                         <Button
                           size="sm"
@@ -627,7 +627,7 @@ export default function Home() {
                               e.stopPropagation();
                               addToCart(product);
                             }}
-                            disabled={!product.inStock}
+                            disabled={product.inStock === false}
                           >
                             <ShoppingCart className="h-4 w-4 mr-2 group-hover/btn:rotate-12 transition-transform duration-300" />
                             <span className="text-sm font-medium">
