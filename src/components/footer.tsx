@@ -15,7 +15,7 @@ export default function Footer() {
               <span className="text-xl font-bold">Çelenk Diyarı</span>
             </div>
             <p className="text-gray-300 leading-relaxed">
-              Doğanın en güzel hediyelerini sevdiklerinize ulaştırıyoruz. 
+              Doğanın en güzel hediyelerini sevdiklerinize ulaştırıyoruz.
               Taze ve doğal çelenklerle özel günlerinizi unutulmaz kılıyoruz.
             </p>
             <div className="flex space-x-4">
@@ -132,8 +132,8 @@ export default function Footer() {
               <span>© 2024 Çelenk Diyarı. Tüm hakları saklıdır.</span>
             </div>
             <div className="flex flex-wrap items-center gap-4">
-              <Link 
-                href="/privacy" 
+              <Link
+                href="/privacy"
                 className="text-gray-400 hover:text-green-400 transition-colors text-sm"
                 style={{
                   fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -143,8 +143,8 @@ export default function Footer() {
               >
                 Gizlilik Politikası
               </Link>
-              <Link 
-                href="/terms" 
+              <Link
+                href="/terms"
                 className="text-gray-400 hover:text-green-400 transition-colors text-sm"
                 style={{
                   fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -154,8 +154,8 @@ export default function Footer() {
               >
                 Kullanım Şartları
               </Link>
-              <Link 
-                href="/cookies" 
+              <Link
+                href="/cookies"
                 className="text-gray-400 hover:text-green-400 transition-colors text-sm"
                 style={{
                   fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -164,6 +164,18 @@ export default function Footer() {
                 }}
               >
                 Çerez Politikası
+              </Link>
+              <Link
+                href="/distance-sales-agreement"
+                className="text-gray-400 hover:text-green-400 transition-colors text-sm"
+              >
+                Mesafeli Satış Sözleşmesi
+              </Link>
+              <Link
+                href="/delivery-return"
+                className="text-gray-400 hover:text-green-400 transition-colors text-sm"
+              >
+                Teslimat ve İade
               </Link>
               <Link href="/about" className="text-gray-400 hover:text-green-400 transition-colors text-sm">
                 Hakkımızda

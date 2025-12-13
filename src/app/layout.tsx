@@ -22,18 +22,31 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Çelenk Diyarı - Doğanın En Güzel Hali",
-  description: "Özel günlerinizde sevdiklerinizi mutlu edecek, doğal ve taze çelenkler. Profesyonel tasarım ve kaliteli hizmet garantisi.",
+  description: "Özel günlerinizde sevdiklerinizi mutlu edecek, doğal ve taze çelenkler. Açılış, düğün, cenaze ve özel günler için profesyonel çelenk siparişi.",
+  keywords: ["çelenk", "çiçek", "açılış çelengi", "cenaze çelengi", "düğün çelengi", "istanbul çiçekçi", "online çelenk"],
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
+  manifest: '/manifest.json',
   openGraph: {
     title: "Çelenk Diyarı - Doğanın En Güzel Hali",
     description: "Özel günlerinizde sevdiklerinizi mutlu edecek, doğal ve taze çelenkler.",
     type: "website",
     locale: "tr_TR",
+    siteName: 'Çelenk Diyarı',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Çelenk Diyarı",
+    description: "Doğanın en güzel hali kapınızda.",
   },
 };
 
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
+  themeColor: '#16a34a', // green-600
 };
 
 export default function RootLayout({
@@ -46,7 +59,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning={true}
-        style={{ 
+        style={{
           fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
           WebkitFontSmoothing: 'antialiased',
           MozOsxFontSmoothing: 'grayscale'
