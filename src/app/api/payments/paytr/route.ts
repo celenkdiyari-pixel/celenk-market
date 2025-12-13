@@ -114,7 +114,12 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const safeEmail = orderData.customer.email || 'ornek@example.com';
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    let safeEmail = orderData.customer.email;
+    if (!safeEmail || !emailRegex.test(safeEmail)) {
+      console.log('⚠️ Invalid email received, using fallback:', safeEmail);
+      safeEmail = 'siparis@celenkdiyari.com'; // Valid fallback to ensure PayTR token generation works
+    }
 
     const paymentRequest: PayTRPaymentRequest = {
       merchant_id: config.merchantId,

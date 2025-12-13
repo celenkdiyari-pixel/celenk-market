@@ -93,11 +93,25 @@ export default function CartPage() {
   };
 
   const validateForm = () => {
+    // Basic RegEx for email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     // Sender validation
     if (!senderInfo.name || !senderInfo.phone || !senderInfo.email) {
       alert('Lütfen gönderici bilgilerini eksiksiz doldurunuz (Ad Soyad, Telefon, E-posta).');
       return false;
     }
+
+    if (!emailRegex.test(senderInfo.email)) {
+      alert('Lütfen geçerli bir e-posta adresi giriniz.');
+      return false;
+    }
+
+    if (senderInfo.phone.replace(/\D/g, '').length < 10) {
+      alert('Lütfen geçerli bir telefon numarası giriniz (Başında 0 olmadan veya 05... şeklinde).');
+      return false;
+    }
+
     // Recipient validation
     if (!recipientInfo.name || !recipientInfo.phone || !recipientInfo.address || !recipientInfo.district) {
       alert('Lütfen alıcı bilgilerini eksiksiz doldurunuz (Ad Soyad, Telefon, İlçe, Adres).');
