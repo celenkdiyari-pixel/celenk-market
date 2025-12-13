@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, query, orderBy, limit, doc, getDoc, updateDoc, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, orderBy, limit, doc, getDoc, updateDoc, where, deleteDoc } from 'firebase/firestore';
 
 export async function POST(request: NextRequest) {
   try {
@@ -233,8 +233,6 @@ export async function GET(request: NextRequest) {
     }, { status: 500 });
   }
   // Bulk delete handler
-  import { deleteDoc } from 'firebase/firestore';
-
   export async function DELETE(request: NextRequest) {
     try {
       const { searchParams } = new URL(request.url);
