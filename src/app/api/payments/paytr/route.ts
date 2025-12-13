@@ -76,11 +76,22 @@ export async function POST(request: NextRequest) {
     const safeFailUrl = `${baseUrl}/payment/failed`;
 
     // Prepare payment request
+    if (paymentAmountKurus <= 0) {
+      return NextResponse.json({
+        error: 'payment_amount must be greater than 0',
+        basketTotal,
+        shippingCost,
+        computedTotal
+      }, { status: 400 });
+    }
+
+    const safeEmail = orderData.customer.email || 'ornek@example.com';
+
     const paymentRequest: PayTRPaymentRequest = {
       merchant_id: config.merchantId,
       user_ip: clientIP,
       merchant_oid: orderData.orderNumber,
-      email: orderData.customer.email,
+      email: safeEmail,
       payment_amount: paymentAmountKurus, // PayTR expects amount in kuruş
       paytr_token: '', // Will be generated
       user_basket: encodedBasket,
@@ -157,6 +168,18 @@ export async function POST(request: NextRequest) {
         error: 'PayTR payment creation failed',
         reason: paytrResponse.reason,
         raw: paytrResponse,
+        debug: {
+          payment_amount: paymentRequest.payment_amount,
+          basketTotal,
+          shippingCost,
+          computedTotal,
+          merchant_ok_url: paymentRequest.merchant_ok_url,
+          merchant_fail_url: paymentRequest.merchant_fail_url,
+          user_ip: paymentRequest.user_ip,
+          test_mode: paymentRequest.test_mode,
+          email: paymentRequest.email,
+          phone: paymentRequest.user_phone,
+        },
         timestamp: new Date().toISOString()
       }, { status: 400 });
     }
