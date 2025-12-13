@@ -10,13 +10,12 @@ interface EmailData {
 export async function POST(request: NextRequest) {
   try {
     const emailData: EmailData = await request.json();
-    
+
     const { to, subject, templateId, templateParams } = emailData;
 
     // EmailJS servis bilgileri - Vercel environment variables'dan alınacak
     // Vercel'de kayıtlı olan keyler: EMAILJS_SERVICE_ID, EMAILJS_PUBLIC_KEY, EMAILJS_TEMPLATE_ID
-    const serviceId = process.env.EMAILJS_SERVICE_ID || process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
-    const publicKey = process.env.EMAILJS_PUBLIC_KEY || process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || process.env.EMAILJS_USER_ID;
+    const privateKey = process.env.EMAILJS_PRIVATE_KEY;
 
     if (!serviceId || !publicKey) {
       console.error('❌ EmailJS configuration missing');
@@ -45,7 +44,7 @@ export async function POST(request: NextRequest) {
     // EmailJS API formatı
     // EmailJS'de to_email ve subject template_params içinde gönderilir
     // Template'lerde {{to_email}} ve {{subject}} kullanılabilir
-    const emailPayload = {
+    const emailPayload: Record<string, unknown> = {
       service_id: serviceId,
       template_id: templateId,
       user_id: publicKey,
@@ -57,6 +56,11 @@ export async function POST(request: NextRequest) {
         reply_to: to, // Reply-to adresi
       }
     };
+
+    // Add private key (accessToken) if available for server-side auth
+    if (privateKey) {
+      emailPayload.accessToken = privateKey;
+    }
 
     console.log('📧 Sending email via EmailJS:', {
       service_id: serviceId,
@@ -75,7 +79,7 @@ export async function POST(request: NextRequest) {
     });
 
     const responseText = await emailResponse.text();
-    
+
     if (!emailResponse.ok) {
       console.error('❌ EmailJS API error:', responseText);
       console.error('❌ Status:', emailResponse.status);
