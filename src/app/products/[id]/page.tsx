@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  ShoppingCart, 
-  Heart, 
+import {
+  ShoppingCart,
+  Heart,
   ArrowLeft,
   Star,
   Truck,
@@ -53,10 +53,10 @@ export default function ProductDetailPage() {
     try {
       setIsLoading(true);
       setError('');
-      
+
       console.log('📦 Loading product:', productId);
       const response = await fetch(`/api/products/${productId}`);
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log('✅ Product loaded:', data);
@@ -113,7 +113,7 @@ export default function ProductDetailPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h1 
+          <h1
             className="text-2xl font-bold text-gray-900 mb-2"
             style={{
               fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -125,7 +125,7 @@ export default function ProductDetailPage() {
           >
             Ürün Bulunamadı
           </h1>
-          <p 
+          <p
             className="text-gray-600 mb-6"
             style={{
               fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -147,197 +147,178 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50/50 pb-20">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link href="/">
-              <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Geri Dön
+              <Button variant="ghost" className="text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all">
+                <ArrowLeft className="h-5 w-5 mr-2" />
+                <span className="font-medium">Ana Sayfaya Dön</span>
               </Button>
             </Link>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 onClick={handleShare}
-                className="text-gray-600 hover:text-gray-900"
+                className="text-gray-600 border-gray-200 hover:bg-gray-50 rounded-xl"
               >
                 <Share2 className="h-4 w-4 mr-2" />
                 Paylaş
               </Button>
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={() => toggleFavorite(product.id)}
-                className={`${isFavorite(product.id) ? 'text-red-500' : 'text-gray-600'} hover:text-red-500`}
+                className={`rounded-full transition-all ${isFavorite(product.id) ? 'bg-red-50 text-red-500' : 'bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-500'}`}
               >
-                <Heart className={`h-4 w-4 ${isFavorite(product.id) ? 'fill-current' : ''}`} />
+                <Heart className={`h-5 w-5 ${isFavorite(product.id) ? 'fill-current' : ''}`} />
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Product Image */}
-          <div className="space-y-4">
-            <div className="relative h-96 lg:h-[500px] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-green-100 to-emerald-100">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-16">
+          {/* Product Images - Left Side (Span 7 cols) */}
+          <div className="lg:col-span-7 space-y-6">
+            <div className="relative aspect-[4/5] lg:aspect-square w-full rounded-[2.5rem] overflow-hidden shadow-2xl bg-white group">
               {product.images && product.images.length > 0 ? (
                 <Image
                   src={product.images[0]}
                   alt={product.name}
                   fill
-                  className="object-cover"
+                  className="object-cover transition-transform duration-1000 group-hover:scale-105"
                   priority
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <div className="w-24 h-24 bg-gradient-to-r from-green-500 to-emerald-500 rounded-3xl flex items-center justify-center shadow-xl">
-                    <Flower className="h-12 w-12 text-white" />
-                  </div>
+                <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                  <Flower className="h-24 w-24 text-gray-300" />
                 </div>
               )}
-              
-              {/* Status Badge */}
-              <div className="absolute top-6 left-6">
-                <Badge 
-                  variant={product.inStock ? "default" : "destructive"} 
-                  className="shadow-lg text-sm px-4 py-2"
+
+              {/* Image Badges */}
+              <div className="absolute top-6 left-6 flex flex-col gap-3">
+                <Badge
+                  variant={product.inStock ? "default" : "destructive"}
+                  className={`text-sm px-4 py-1.5 rounded-full shadow-lg ${product.inStock ? 'bg-green-600 hover:bg-green-700' : ''}`}
                 >
                   {product.inStock ? 'Stokta' : 'Stokta Yok'}
                 </Badge>
               </div>
-              
-              {/* Category Badge */}
-              <div className="absolute top-6 right-6">
-                <Badge variant="outline" className="bg-white/90 backdrop-blur-sm text-gray-700 border-gray-300 shadow-lg">
-                  {product.category}
-                </Badge>
+            </div>
+
+            {/* Additional Features Grid */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-white p-4 rounded-2xl flex flex-col items-center text-center gap-3 border border-gray-100 shadow-sm">
+                <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600">
+                  <Truck className="h-6 w-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900 text-sm">Aynı Gün Teslimat</h4>
+                  <p className="text-xs text-gray-500 mt-1">İstanbul içi özel kurye</p>
+                </div>
+              </div>
+              <div className="bg-white p-4 rounded-2xl flex flex-col items-center text-center gap-3 border border-gray-100 shadow-sm">
+                <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600">
+                  <Shield className="h-6 w-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900 text-sm">Güvenli Ödeme</h4>
+                  <p className="text-xs text-gray-500 mt-1">256-bit SSL koruması</p>
+                </div>
+              </div>
+              <div className="bg-white p-4 rounded-2xl flex flex-col items-center text-center gap-3 border border-gray-100 shadow-sm">
+                <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600">
+                  <CheckCircle className="h-6 w-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900 text-sm">Tazelik Garantisi</h4>
+                  <p className="text-xs text-gray-500 mt-1">Günlük taze çiçekler</p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Product Info */}
-          <div className="space-y-8">
-            <div>
-              <h1 
-                className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight"
-                style={{
-                  fontFeatureSettings: '"kern" 1, "liga" 1',
-                  textRendering: 'optimizeLegibility',
-                  WebkitFontSmoothing: 'antialiased',
-                  MozOsxFontSmoothing: 'grayscale',
-                  letterSpacing: 'normal'
-                }}
-              >
-                {product.name}
-              </h1>
-              <p 
-                className="text-xl text-gray-600 leading-relaxed mb-6"
-                style={{
-                  fontFeatureSettings: '"kern" 1, "liga" 1',
-                  textRendering: 'optimizeLegibility',
-                  letterSpacing: 'normal'
-                }}
-              >
-                {product.description}
-              </p>
-              
-              {/* Rating */}
-              <div className="flex items-center space-x-2 mb-6">
-                <div className="flex items-center space-x-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-                <span className="text-gray-600">(4.8) • 24 değerlendirme</span>
-              </div>
-            </div>
+          {/* Product Details - Right Side (Span 5 cols) - Sticky */}
+          <div className="lg:col-span-5 relative">
+            <div className="sticky top-28 space-y-8">
+              <div className="space-y-4">
+                <Badge variant="outline" className="text-gray-500 border-gray-200 px-3 py-1 text-sm bg-white">
+                  {product.category}
+                </Badge>
 
-            {/* Price */}
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-              <div className="flex items-baseline space-x-3">
-                <span className="text-4xl font-bold text-green-600">
-                  {product.price} ₺
-                </span>
-                <span className="text-lg text-gray-500">KDV Dahil</span>
-              </div>
-            </div>
+                <h1 className="text-4xl lg:text-5xl font-black text-gray-900 leading-[1.1] tracking-tight">
+                  {product.name}
+                </h1>
 
-            {/* Action Buttons */}
-            <div className="space-y-4">
-              <Button 
-                size="lg" 
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-lg py-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
-                onClick={handleAddToCart}
-                disabled={!product.inStock}
-              >
-                <ShoppingCart className="h-6 w-6 mr-3" />
-                {isInCart(product.id) ? 'Sepette' : 'Sepete Ekle'}
-              </Button>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white py-6 rounded-2xl transition-all duration-300"
-                >
-                  <Phone className="h-5 w-5 mr-2" />
-                  İletişim
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  onClick={() => toggleFavorite(product.id)}
-                  className={`border-2 py-6 rounded-2xl transition-all duration-300 ${
-                    isFavorite(product.id)
-                      ? 'border-red-600 text-red-600 hover:bg-red-600 hover:text-white'
-                      : 'border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white'
-                  }`}
-                >
-                  <Heart className={`h-5 w-5 mr-2 ${isFavorite(product.id) ? 'fill-current' : ''}`} />
-                  {isFavorite(product.id) ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
-                </Button>
-              </div>
-            </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex text-yellow-400">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 fill-current" />
+                    ))}
+                  </div>
+                  <span className="text-gray-500 font-medium">(4.9/5 • 42 Değerlendirme)</span>
+                </div>
 
-            {/* Features */}
-            <div className="space-y-6">
-              <h3 className="text-2xl font-bold text-gray-900">Özellikler</h3>
-              
-              <div className="grid grid-cols-1 gap-4">
-                <div className="flex items-center space-x-3 p-4 bg-white rounded-xl border border-gray-200">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                    <Truck className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">Hızlı Teslimat</div>
-                    <div className="text-sm text-gray-600">Aynı gün teslimat imkanı</div>
-                  </div>
+                <div className="flex items-baseline gap-4 pt-2">
+                  <span className="text-5xl font-bold text-green-600 tracking-tight">
+                    ₺{product.price}
+                  </span>
+                  <span className="text-lg text-gray-400 font-medium line-through">
+                    {product.price * 1.2 > 0 && `₺${(product.price * 1.2).toFixed(2)}`}
+                  </span>
                 </div>
-                
-                <div className="flex items-center space-x-3 p-4 bg-white rounded-xl border border-gray-200">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                    <Shield className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">Güvenli Alışveriş</div>
-                    <div className="text-sm text-gray-600">SSL korumalı ödeme</div>
-                  </div>
+              </div>
+
+              <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm space-y-6">
+                {/* Description */}
+                <div>
+                  <h3 className="font-bold text-gray-900 mb-3 text-lg">Ürün Açıklaması</h3>
+                  <p className="text-gray-600 leading-relaxed text-base">
+                    {product.description}
+                  </p>
                 </div>
-                
-                <div className="flex items-center space-x-3 p-4 bg-white rounded-xl border border-gray-200">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">Kalite Garantisi</div>
-                    <div className="text-sm text-gray-600">Profesyonel tasarım</div>
-                  </div>
+
+                <div className="h-px bg-gray-100" />
+
+                {/* Actions */}
+                <div className="space-y-4">
+                  <Button
+                    size="lg"
+                    className="w-full h-16 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-xl rounded-2xl shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 font-bold tracking-wide"
+                    onClick={handleAddToCart}
+                    disabled={!product.inStock}
+                  >
+                    <ShoppingCart className="h-6 w-6 mr-3" />
+                    {isInCart(product.id) ? 'Sepette Mevcut' : 'Sepete Ekle'}
+                  </Button>
+
+                  <Link href="/contact" className="block">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="w-full h-14 border-2 border-gray-200 hover:border-green-600 hover:text-green-600 rounded-2xl text-lg font-semibold transition-all"
+                    >
+                      <Phone className="h-5 w-5 mr-2" />
+                      Özel Sipariş İçin Arayın
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="bg-blue-50/50 rounded-2xl p-4 border border-blue-100 flex gap-4 items-start">
+                <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+                  <Package className="h-5 w-5" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-blue-900 text-sm">Teslimat Notu</h4>
+                  <p className="text-blue-700/80 text-sm mt-1 leading-relaxed">
+                    Siparişleriniz özel korumalı araçlarımızla, formunu bozmadan teslim edilmektedir. Teslimat saatini sepet aşamasında belirtebilirsiniz.
+                  </p>
                 </div>
               </div>
             </div>

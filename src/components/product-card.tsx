@@ -3,10 +3,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/types/product';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Star, ShoppingCart, Heart, Eye } from 'lucide-react';
+import { Star, ShoppingCart, Heart, Eye, Check } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 interface ProductCardProps {
   product: Product;
@@ -14,10 +16,14 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, showQuickView = true }: ProductCardProps) {
-  const { addToCart, toggleFavorite, isFavorite } = useCart();
+  const { addToCart, toggleFavorite, isFavorite, isInCart } = useCart();
+  const [isHovered, setIsHovered] = useState(false);
   const isLiked = isFavorite(product.id);
+  const inCart = isInCart(product.id);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent Link navigation if wrapped
+    e.stopPropagation();
     addToCart({
       id: product.id,
       name: product.name,
@@ -29,124 +35,146 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
     });
   };
 
-  const handleLike = () => {
+  const handleLike = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     toggleFavorite(product.id);
   };
 
   const safePrice = typeof product.price === 'number' ? product.price : Number(product.price) || 0;
   const safeOriginalPrice = typeof product.originalPrice === 'number' ? product.originalPrice : Number(product.originalPrice) || 0;
-  const discountPercentage = safeOriginalPrice 
+  const discountPercentage = safeOriginalPrice
     ? Math.round(((safeOriginalPrice - safePrice) / safeOriginalPrice) * 100)
     : 0;
 
-  const safeRating = typeof product.rating === 'number' ? product.rating : 0;
+  const safeRating = typeof product.rating === 'number' ? product.rating : 5; // Default to 5 for aesthetics
   const safeReviewCount = typeof product.reviewCount === 'number' ? product.reviewCount : 0;
 
   return (
-    <Card className="group relative overflow-hidden hover-lift transition-all duration-300">
-      {/* Discount Badge */}
-      {discountPercentage > 0 && (
-        <div className="absolute top-3 left-3 z-10 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-          -%{discountPercentage}
+    <div
+      className="group relative h-full"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <Card className="h-full border-0 shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden bg-white flex flex-col rounded-[2rem]">
+        {/* Image Container with 3:4 Aspect Ratio */}
+        <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+          <Link href={`/products/${product.id}`} className="block h-full w-full">
+            <Image
+              src={product.images?.[0] || '/images/logo.png'}
+              alt={product.name}
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-110"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              priority={false}
+            />
+          </Link>
+
+          {/* Overlay Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+          {/* Badges */}
+          <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+            {discountPercentage > 0 && (
+              <span className="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md animate-fade-in-up">
+                %{discountPercentage} İndirim
+              </span>
+            )}
+            {!product.inStock && (
+              <span className="bg-gray-800 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
+                Stok Tükendi
+              </span>
+            )}
+          </div>
+
+          {/* Action Buttons - Float in from right */}
+          <div className="absolute top-4 right-4 z-20 flex flex-col gap-2 translate-x-12 group-hover:translate-x-0 transition-transform duration-300">
+            <button
+              onClick={handleLike}
+              className={cn(
+                "p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110",
+                isLiked ? "bg-red-50 text-red-500" : "bg-white/90 text-gray-600 hover:text-red-500 hover:bg-white"
+              )}
+            >
+              <Heart className={cn("w-5 h-5", isLiked && "fill-current")} />
+            </button>
+            {showQuickView && (
+              <Link href={`/products/${product.id}`}>
+                <button className="p-3 bg-white/90 text-gray-600 rounded-full shadow-lg hover:bg-white hover:text-green-600 hover:scale-110 transition-all duration-300">
+                  <Eye className="w-5 h-5" />
+                </button>
+              </Link>
+            )}
+          </div>
+
+          {/* Add to Cart Button - Visible on Hover (or always on mobile if needed) */}
+          <div className="absolute bottom-6 left-6 right-6 z-20 translate-y-20 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+            <Button
+              onClick={handleAddToCart}
+              disabled={!product.inStock}
+              className={cn(
+                "w-full h-12 rounded-xl text-base font-medium shadow-lg transition-all duration-300",
+                inCart
+                  ? "bg-green-100 text-green-700 hover:bg-green-200 border-2 border-green-500"
+                  : "bg-white text-green-700 hover:bg-green-600 hover:text-white hover:border-transparent"
+              )}
+            >
+              {inCart ? (
+                <>
+                  <Check className="w-5 h-5 mr-2" />
+                  Sepette Eklendi
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="w-5 h-5 mr-2" />
+                  {product.inStock ? 'Sepete Ekle' : 'Stokta Yok'}
+                </>
+              )}
+            </Button>
+          </div>
         </div>
-      )}
 
-      {/* Like Button */}
-      <button
-        onClick={handleLike}
-        className="absolute top-3 right-3 z-10 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
-      >
-        <Heart 
-          className={`w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} 
-        />
-      </button>
-
-      {/* Product Image */}
-      <div className="relative aspect-square overflow-hidden">
-        <Link href={`/products/${product.id}`}>
-          <Image
-            src={product.images?.[0] || '/images/logo.png'}
-            alt={product.name}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
-        </Link>
-        
-        {/* Quick View Overlay */}
-        {showQuickView && (
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-            <Link href={`/products/${product.id}`}>
-              <Button variant="outline" size="sm" className="bg-white/90 hover:bg-white">
-                <Eye className="w-4 h-4 mr-2" />
-                Hızlı Görüntüle
-              </Button>
+        {/* Content */}
+        <CardContent className="p-5 flex-1 flex flex-col justify-between relative bg-white">
+          <div>
+            <div className="text-xs font-medium text-green-600 mb-2 uppercase tracking-wider">
+              {product.category}
+            </div>
+            <Link href={`/products/${product.id}`} className="block group/title">
+              <h3 className="text-lg font-bold text-gray-900 leading-snug mb-2 group-hover/title:text-green-700 transition-colors line-clamp-2">
+                {product.name}
+              </h3>
             </Link>
+
+            <div className="flex items-center gap-1 mb-3">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  className={cn(
+                    "w-3.5 h-3.5",
+                    i < Math.floor(safeRating) ? "fill-yellow-400 text-yellow-400" : "text-gray-200"
+                  )}
+                />
+              ))}
+              <span className="text-xs text-gray-400 ml-2">({safeReviewCount})</span>
+            </div>
           </div>
-        )}
-      </div>
 
-      <CardContent className="p-4">
-        {/* Category */}
-        <div className="text-xs text-gray-500 mb-1">{product.category}</div>
-        
-        {/* Product Name */}
-        <Link href={`/products/${product.id}`}>
-          <h3 className="font-semibold text-gray-900 hover:text-green-600 transition-colors line-clamp-2 mb-2">
-            {product.name}
-          </h3>
-        </Link>
-
-        {/* Rating */}
-        <div className="flex items-center gap-1 mb-2">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className={`w-3 h-3 ${
-                  i < Math.floor(safeRating)
-                    ? 'fill-yellow-400 text-yellow-400'
-                    : 'text-gray-300'
-                }`}
-              />
-            ))}
+          <div className="flex items-end justify-between mt-2">
+            <div className="flex flex-col">
+              {safeOriginalPrice > 0 && (
+                <span className="text-sm text-gray-400 line-through mb-0.5">
+                  ₺{safeOriginalPrice.toFixed(2)}
+                </span>
+              )}
+              <span className="text-2xl font-bold text-gray-900">
+                ₺{safePrice.toFixed(2)}
+              </span>
+            </div>
+            <div className={`w-2.5 h-2.5 rounded-full ${product.inStock ? 'bg-green-500 animate-pulse' : 'bg-red-400'}`} title={product.inStock ? 'Stokta Var' : 'Stok Tükendi'} />
           </div>
-          <span className="text-xs text-gray-500 ml-1">
-            ({safeReviewCount})
-          </span>
-        </div>
-
-        {/* Price */}
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-lg font-bold text-gray-900">
-            ₺{safePrice.toFixed(2)}
-          </span>
-          {safeOriginalPrice > 0 && (
-            <span className="text-sm text-gray-500 line-through">
-              ₺{safeOriginalPrice.toFixed(2)}
-            </span>
-          )}
-        </div>
-
-        {/* Stock Status */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className={`w-2 h-2 rounded-full ${product.inStock ? 'bg-green-500' : 'bg-red-500'}`} />
-          <span className="text-xs text-gray-600">
-            {product.inStock ? 'Stokta' : 'Stokta Yok'}
-          </span>
-        </div>
-
-        {/* Add to Cart Button */}
-        <Button
-          onClick={handleAddToCart}
-          disabled={!product.inStock}
-          className="w-full"
-          size="sm"
-        >
-          <ShoppingCart className="w-4 h-4 mr-2" />
-          Sepete Ekle
-        </Button>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
