@@ -188,6 +188,35 @@ export default function CartPage() {
           setOrderId(result.orderNumber);
           setOrderSuccess(true);
           clearCart();
+
+          // WhatsApp Yönlendirmesi
+          const waPhoneNumber = "905551234567"; // İletişim numarası
+          const waMessage = `*Yeni Sipariş - Havale/EFT*
+
+*Sipariş No:* ${result.orderNumber}
+
+*GÖNDERİCİ BİLGİLERİ*
+Ad Soyad: ${senderInfo.name}
+Telefon: ${senderInfo.phone}
+E-posta: ${senderInfo.email}
+
+*ALICI BİLGİLERİ*
+Ad Soyad: ${recipientInfo.name}
+Telefon: ${recipientInfo.phone}
+Şehir/İlçe: ${recipientInfo.city} / ${recipientInfo.district}
+Adres: ${recipientInfo.address}
+Not: ${recipientInfo.notes || 'Yok'}
+
+*SİPARİŞ DETAYLARI*
+${cartItems.map(item => `${item.name} x${item.quantity}`).join('\n')}
+
+*Tutar:* ₺${getTotalPrice()}
+
+Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
+
+          const waUrl = `https://wa.me/${waPhoneNumber}?text=${encodeURIComponent(waMessage)}`;
+          window.open(waUrl, '_blank');
+
         } else {
           const errorData = await response.json();
           alert(`Sipariş oluşturulamadı: ${errorData.error || 'Hata'}`);
@@ -417,7 +446,12 @@ export default function CartPage() {
                   </div>
                   <div className="col-span-2 md:col-span-1">
                     <Label>Şehir</Label>
-                    <Input value="İstanbul" disabled className="bg-gray-100 border-gray-200" />
+                    <Input
+                      placeholder="İl"
+                      value={recipientInfo.city}
+                      onChange={(e) => setRecipientInfo({ ...recipientInfo, city: e.target.value })}
+                      className="h-11 rounded-xl bg-gray-50 border-gray-200"
+                    />
                   </div>
                   <div className="col-span-2 md:col-span-1">
                     <Label>İlçe *</Label>

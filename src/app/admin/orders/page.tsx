@@ -18,7 +18,8 @@ import {
   Mail,
   Calendar,
   CreditCard,
-  Filter
+  Filter,
+  Send
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -50,6 +51,15 @@ interface CustomerInfo {
 interface Order {
   id: string;
   orderNumber: string;
+  sender?: CustomerInfo;
+  recipient?: {
+    name: string;
+    phone: string;
+    city: string;
+    district: string;
+    address: string;
+    notes: string;
+  };
   customer: CustomerInfo;
   items: OrderItem[];
   subtotal: number;
@@ -77,9 +87,25 @@ interface Order {
 interface RawOrder {
   id?: string;
   orderNumber?: string;
+  sender?: {
+    name?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+  };
+  recipient?: {
+    name?: string;
+    phone?: string;
+    city?: string;
+    district?: string;
+    address?: string;
+    notes?: string;
+  };
   customer?: {
     firstName?: string;
     lastName?: string;
+    name?: string;
     email?: string;
     phone?: string;
     address?: {
@@ -88,7 +114,8 @@ interface RawOrder {
       district?: string;
       postalCode?: string;
       country?: string;
-    };
+      fullAddress?: string;
+    } | string;
     notes?: string;
   };
   items?: Array<{
@@ -137,23 +164,44 @@ export default function OrdersPage() {
         // Validate and sanitize orders data from Firebase
         const validOrders = (data.orders || []).map((order: RawOrder) => {
           // Ensure customer object exists and has proper structure
-          const customer = order.customer || {} as Partial<CustomerInfo>;
-          const address = customer.address || {} as Partial<CustomerInfo['address']>;
+          const customer = order.customer || {} as any;
+          const address = customer.address || {};
+
+          // Map Sender
+          const sender = order.sender ? {
+            firstName: order.sender.name ? order.sender.name.split(' ')[0] : (order.sender.firstName || ''),
+            lastName: order.sender.name ? order.sender.name.split(' ').slice(1).join(' ') : (order.sender.lastName || ''),
+            email: order.sender.email || '',
+            phone: order.sender.phone || '',
+            address: { street: '', city: '', district: '', postalCode: '', country: '' } // Sender usually doesn't have address in this flow
+          } : undefined;
+
+          // Map Recipient
+          const recipient = order.recipient ? {
+            name: order.recipient.name || '',
+            phone: order.recipient.phone || '',
+            city: order.recipient.city || '',
+            district: order.recipient.district || '',
+            address: order.recipient.address || '',
+            notes: order.recipient.notes || ''
+          } : undefined;
 
           return {
             id: order.id || '',
             orderNumber: order.orderNumber || `ORD-${order.id || 'UNKNOWN'}`,
+            sender,
+            recipient,
             customer: {
-              firstName: customer.firstName || 'Bilinmiyor',
-              lastName: customer.lastName || '',
+              firstName: customer.firstName || (customer.name ? customer.name.split(' ')[0] : 'Bilinmiyor'),
+              lastName: customer.lastName || (customer.name ? customer.name.split(' ').slice(1).join(' ') : ''),
               email: customer.email || 'N/A',
               phone: customer.phone || 'N/A',
               address: {
-                street: address.street || '',
-                city: address.city || '',
-                district: address.district || '',
-                postalCode: address.postalCode || '',
-                country: address.country || 'Türkiye'
+                street: typeof address === 'string' ? address : (address.street || address.fullAddress || ''),
+                city: typeof address !== 'string' ? (address.city || '') : '',
+                district: typeof address !== 'string' ? (address.district || '') : '',
+                postalCode: typeof address !== 'string' ? (address.postalCode || '') : '',
+                country: typeof address !== 'string' ? (address.country || 'Türkiye') : 'Türkiye'
               },
               notes: customer.notes || ''
             },
@@ -169,17 +217,17 @@ export default function OrdersPage() {
             subtotal: typeof order.subtotal === 'number' ? order.subtotal : 0,
             shippingCost: typeof order.shippingCost === 'number' ? order.shippingCost : 0,
             total: typeof order.total === 'number' ? order.total : (order.subtotal || 0) + (order.shippingCost || 0),
-            status: ['pending', 'confirmed', 'preparing', 'shipped', 'delivered', 'cancelled'].includes(order.status)
-              ? order.status
+            status: ['pending', 'confirmed', 'preparing', 'shipped', 'delivered', 'cancelled'].includes(order.status || '')
+              ? (order.status as Order['status'])
               : 'pending',
-            paymentStatus: ['pending', 'paid', 'failed', 'refunded'].includes(order.paymentStatus)
-              ? order.paymentStatus
+            paymentStatus: ['pending', 'paid', 'failed', 'refunded'].includes(order.paymentStatus || '')
+              ? (order.paymentStatus as Order['paymentStatus'])
               : 'pending',
-            paymentMethod: ['cash', 'credit_card', 'bank_transfer'].includes(order.paymentMethod)
-              ? order.paymentMethod
+            paymentMethod: ['cash', 'credit_card', 'bank_transfer'].includes(order.paymentMethod || '')
+              ? (order.paymentMethod as Order['paymentMethod'])
               : 'cash',
-            shippingMethod: ['standard', 'express', 'pickup'].includes(order.shippingMethod)
-              ? order.shippingMethod
+            shippingMethod: ['standard', 'express', 'pickup'].includes(order.shippingMethod || '')
+              ? (order.shippingMethod as Order['shippingMethod'])
               : 'standard',
             notes: order.notes || '',
             createdAt: order.createdAt || new Date().toISOString(),
@@ -544,60 +592,97 @@ export default function OrdersPage() {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Customer Information */}
+                {/* Sender Information */}
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <User className="h-5 w-5 mr-2" />
-                      Müşteri Bilgileri
+                      Gönderici (Ödeyen)
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
                       <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Ad Soyad</label>
                       <p className="text-gray-900 font-medium mt-1">
-                        {selectedOrder.customer?.firstName || 'Bilinmiyor'} {selectedOrder.customer?.lastName || ''}
+                        {selectedOrder.sender
+                          ? `${selectedOrder.sender.firstName} ${selectedOrder.sender.lastName}`
+                          : `${selectedOrder.customer.firstName} ${selectedOrder.customer.lastName}`}
                       </p>
                     </div>
                     <div>
                       <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">E-posta</label>
                       <p className="text-gray-900 mt-1 break-all">
-                        <a href={`mailto:${selectedOrder.customer?.email}`} className="text-blue-600 hover:underline">
-                          {selectedOrder.customer?.email || 'N/A'}
+                        <a href={`mailto:${selectedOrder.sender?.email || selectedOrder.customer.email}`} className="text-blue-600 hover:underline">
+                          {selectedOrder.sender?.email || selectedOrder.customer.email}
                         </a>
                       </p>
                     </div>
                     <div>
                       <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Telefon</label>
                       <p className="text-gray-900 mt-1">
-                        <a href={`tel:${selectedOrder.customer?.phone}`} className="text-blue-600 hover:underline">
-                          {selectedOrder.customer?.phone || 'N/A'}
+                        <a href={`tel:${selectedOrder.sender?.phone || selectedOrder.customer.phone}`} className="text-blue-600 hover:underline">
+                          {selectedOrder.sender?.phone || selectedOrder.customer.phone}
                         </a>
                       </p>
                     </div>
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Adres</label>
-                      <div className="text-gray-900 mt-1 space-y-1">
-                        {selectedOrder.customer?.address?.street && (
-                          <p>{selectedOrder.customer.address.street}</p>
+                  </CardContent>
+                </Card>
+
+                {/* Recipient Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Send className="h-5 w-5 mr-2" />
+                      Alıcı (Teslim Edilecek)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {selectedOrder.recipient ? (
+                      <>
+                        <div>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Alıcı Adı</label>
+                          <p className="text-gray-900 font-medium mt-1">{selectedOrder.recipient.name}</p>
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Telefon</label>
+                          <p className="text-gray-900 mt-1">
+                            <a href={`tel:${selectedOrder.recipient.phone}`} className="text-blue-600 hover:underline">
+                              {selectedOrder.recipient.phone}
+                            </a>
+                          </p>
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Adres</label>
+                          <div className="text-gray-900 mt-1 space-y-1">
+                            <p>{selectedOrder.recipient.address}</p>
+                            <p className="font-medium text-gray-700">
+                              {selectedOrder.recipient.district} / {selectedOrder.recipient.city}
+                            </p>
+                          </div>
+                        </div>
+                        {selectedOrder.recipient.notes && (
+                          <div>
+                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Sipariş Notu</label>
+                            <p className="text-gray-900 mt-1 text-sm bg-gray-50 p-2 rounded">{selectedOrder.recipient.notes}</p>
+                          </div>
                         )}
-                        <p>
-                          {selectedOrder.customer?.address?.district || ''}
-                          {selectedOrder.customer?.address?.district && selectedOrder.customer?.address?.city ? ', ' : ''}
-                          {selectedOrder.customer?.address?.city || ''}
-                        </p>
-                        <p>
-                          {selectedOrder.customer?.address?.postalCode || ''}
-                          {selectedOrder.customer?.address?.postalCode && selectedOrder.customer?.address?.country ? ' ' : ''}
-                          {selectedOrder.customer?.address?.country || 'Türkiye'}
-                        </p>
-                      </div>
-                    </div>
-                    {selectedOrder.customer?.notes && (
-                      <div>
-                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Müşteri Notları</label>
-                        <p className="text-gray-900 mt-1 text-sm bg-gray-50 p-2 rounded">{selectedOrder.customer.notes}</p>
-                      </div>
+                      </>
+                    ) : (
+                      // Fallback for old orders or PayTR orders without structured recipient info
+                      <>
+                        <div>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Adres</label>
+                          <div className="text-gray-900 mt-1 space-y-1">
+                            {selectedOrder.customer.address.street && <p>{selectedOrder.customer.address.street}</p>}
+                            <p>
+                              {selectedOrder.customer.address.district}
+                              {selectedOrder.customer.address.district && selectedOrder.customer.address.city ? ', ' : ''}
+                              {selectedOrder.customer.address.city}
+                            </p>
+                            <p>{selectedOrder.customer.address.country}</p>
+                          </div>
+                        </div>
+                      </>
                     )}
                   </CardContent>
                 </Card>
