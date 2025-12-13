@@ -15,6 +15,8 @@ export async function POST(request: NextRequest) {
 
     // EmailJS servis bilgileri - Vercel environment variables'dan alınacak
     // Vercel'de kayıtlı olan keyler: EMAILJS_SERVICE_ID, EMAILJS_PUBLIC_KEY, EMAILJS_TEMPLATE_ID
+    const serviceId = process.env.EMAILJS_SERVICE_ID || process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+    const publicKey = process.env.EMAILJS_PUBLIC_KEY || process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || process.env.EMAILJS_USER_ID;
     const privateKey = process.env.EMAILJS_PRIVATE_KEY;
 
     if (!serviceId || !publicKey) {
