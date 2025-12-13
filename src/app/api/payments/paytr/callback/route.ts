@@ -123,6 +123,8 @@ export async function POST(request: NextRequest) {
     
     // Send email notification if payment was successful
     const customerData = (orderData as Record<string, any>)?.customer || {};
+    const itemsArr: Array<{ productName?: string; name?: string; quantity?: number; price?: number }> =
+      Array.isArray((orderData as any)?.items) ? (orderData as any).items : [];
     if (callbackData.status === PAYTR_STATUS.SUCCESS && customerData) {
       try {
         const adminEmail = process.env.ADMIN_EMAIL || 'celenkdiyari@gmail.com';
@@ -145,9 +147,10 @@ export async function POST(request: NextRequest) {
                 orderNumber: callbackData.merchant_oid,
                 customerName: customerName.trim(),
                 total: totalAmount.toFixed(2),
-                items: (orderData.items || []).map((item: { productName?: string; name?: string; quantity: number }) => {
+                items: itemsArr.map((item) => {
                   const productName = item.productName || item.name || 'Ürün';
-                  return `${productName} x${item.quantity}`;
+                  const qty = item.quantity || 1;
+                  return `${productName} x${qty}`;
                 }).join(', '),
                 orderDate: new Date().toLocaleDateString('tr-TR', {
                   year: 'numeric',
@@ -172,23 +175,24 @@ export async function POST(request: NextRequest) {
               orderNumber: callbackData.merchant_oid,
               customerName: customerName.trim(),
               customerEmail: customerEmail || '',
-              customerPhone: orderData.customer?.phone || '',
+              customerPhone: customerData.phone || '',
               total: totalAmount.toFixed(2),
-              items: (orderData.items || []).map((item: { productName?: string; name?: string; quantity: number; price: number }) => {
+              items: itemsArr.map((item) => {
                 const productName = item.productName || item.name || 'Ürün';
                 const itemPrice = item.price || 0;
-                const itemTotal = itemPrice * (item.quantity || 1);
-                return `${productName} x${item.quantity} - ${itemTotal.toFixed(2)} ₺`;
+                const qty = item.quantity || 1;
+                const itemTotal = itemPrice * qty;
+                return `${productName} x${qty} - ${itemTotal.toFixed(2)} ₺`;
               }).join('\n'),
               orderDate: new Date().toLocaleDateString('tr-TR', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
               }),
-              address: orderData.customer?.address ?
-                (typeof orderData.customer.address === 'string'
-                  ? orderData.customer.address
-                  : `${orderData.customer.address.street || ''}, ${orderData.customer.address.district || ''}, ${orderData.customer.address.city || ''}`)
+              address: customerData?.address ?
+                (typeof customerData.address === 'string'
+                  ? customerData.address
+                  : `${customerData.address.street || ''}, ${customerData.address.district || ''}, ${customerData.address.city || ''}`)
                 : '',
               paymentStatus: 'Ödendi',
             }
