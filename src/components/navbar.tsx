@@ -42,9 +42,26 @@ export default function Navbar() {
                   router.push(`/categories/${category.slug}`, { scroll: false });
                 }}
                 className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-700 hover:text-green-600 hover:bg-green-50 font-medium transition-all duration-200 group"
+                style={{ 
+                  fontFeatureSettings: '"kern" 1, "liga" 1',
+                  textRendering: 'optimizeLegibility',
+                  WebkitFontSmoothing: 'antialiased',
+                  MozOsxFontSmoothing: 'grayscale',
+                  letterSpacing: 'normal'
+                }}
               >
                 <category.icon className={`h-4 w-4 ${category.color} group-hover:scale-110 transition-transform`} />
-                <span className="text-sm">{category.name}</span>
+                <span 
+                  className="text-sm" 
+                  style={{ 
+                    letterSpacing: 'normal', 
+                    fontVariant: 'normal',
+                    fontFeatureSettings: '"kern" 1, "liga" 1',
+                    textRendering: 'optimizeLegibility'
+                  }}
+                >
+                  {category.name}
+                </span>
               </button>
             ))}
           </div>

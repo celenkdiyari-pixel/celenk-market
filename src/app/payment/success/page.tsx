@@ -55,8 +55,15 @@ function PaymentSuccessContent() {
           </div>
 
           <div className="space-y-2">
+            {orderNumber && (
+              <Link href={`/orders/${orderNumber}`}>
+                <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+                  Siparişimi Takip Et
+                </Button>
+              </Link>
+            )}
             <Link href="/">
-              <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+              <Button variant="outline" className="w-full">
                 Ana Sayfaya Dön
               </Button>
             </Link>
@@ -65,10 +72,6 @@ function PaymentSuccessContent() {
                 Alışverişe Devam Et
               </Button>
             </Link>
-            <Button variant="outline" className="w-full">
-              <Download className="h-4 w-4 mr-2" />
-              Faturayı İndir
-            </Button>
           </div>
         </CardContent>
       </Card>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -40,6 +40,36 @@ export default function CartPage() {
     getTotalPrice, 
     getTotalItems 
   } = useCart();
+  
+  const [productStocks, setProductStocks] = useState<Record<string, number>>({});
+  const [loadingStocks, setLoadingStocks] = useState(true);
+  
+  // Fetch product stocks
+  useEffect(() => {
+    const fetchStocks = async () => {
+      try {
+        const stocks: Record<string, number> = {};
+        for (const item of cartItems) {
+          const response = await fetch(`/api/products/${item.id}`);
+          if (response.ok) {
+            const product = await response.json();
+            stocks[item.id] = product.quantity || 0;
+          }
+        }
+        setProductStocks(stocks);
+      } catch (error) {
+        console.error('Error fetching stocks:', error);
+      } finally {
+        setLoadingStocks(false);
+      }
+    };
+    
+    if (cartItems.length > 0) {
+      fetchStocks();
+    } else {
+      setLoadingStocks(false);
+    }
+  }, [cartItems]);
 
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
     name: '',
@@ -54,6 +84,15 @@ export default function CartPage() {
   const [orderSuccess, setOrderSuccess] = useState(false);
 
   const handleQuantityChange = (productId: string, newQuantity: number) => {
+    const availableStock = productStocks[productId] || 0;
+    if (newQuantity > availableStock) {
+      alert(`Bu üründen stokta sadece ${availableStock} adet bulunmaktadır.`);
+      return;
+    }
+    if (newQuantity < 1) {
+      removeFromCart(productId);
+      return;
+    }
     updateQuantity(productId, newQuantity);
   };
 
@@ -127,8 +166,26 @@ export default function CartPage() {
           <Card className="text-center">
             <CardContent className="py-16">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">Siparişiniz Alındı!</h1>
-              <p className="text-lg text-gray-600 mb-8">
+              <h1 
+                className="text-3xl font-bold text-gray-900 mb-4"
+                style={{
+                  fontFeatureSettings: '"kern" 1, "liga" 1',
+                  textRendering: 'optimizeLegibility',
+                  WebkitFontSmoothing: 'antialiased',
+                  MozOsxFontSmoothing: 'grayscale',
+                  letterSpacing: 'normal'
+                }}
+              >
+                Siparişiniz Alındı!
+              </h1>
+              <p 
+                className="text-lg text-gray-600 mb-8"
+                style={{
+                  fontFeatureSettings: '"kern" 1, "liga" 1',
+                  textRendering: 'optimizeLegibility',
+                  letterSpacing: 'normal'
+                }}
+              >
                 Siparişiniz başarıyla alındı. En kısa sürede sizinle iletişime geçeceğiz.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -157,8 +214,26 @@ export default function CartPage() {
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center py-16">
             <ShoppingCart className="h-16 w-16 text-gray-400 mx-auto mb-6" />
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Sepetiniz Boş</h1>
-            <p className="text-lg text-gray-600 mb-8">
+            <h1 
+              className="text-3xl font-bold text-gray-900 mb-4"
+              style={{
+                fontFeatureSettings: '"kern" 1, "liga" 1',
+                textRendering: 'optimizeLegibility',
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale',
+                letterSpacing: 'normal'
+              }}
+            >
+              Sepetiniz Boş
+            </h1>
+            <p 
+              className="text-lg text-gray-600 mb-8"
+              style={{
+                fontFeatureSettings: '"kern" 1, "liga" 1',
+                textRendering: 'optimizeLegibility',
+                letterSpacing: 'normal'
+              }}
+            >
               Henüz sepetinize ürün eklemediniz. Hemen alışverişe başlayın!
             </p>
             <Link href="/">
@@ -222,8 +297,16 @@ export default function CartPage() {
                       <div className="flex items-center space-x-2 mt-2">
                         <Badge variant="outline">{item.category}</Badge>
                         <Badge variant={item.inStock ? "default" : "destructive"}>
-                          {item.inStock ? 'Stokta' : 'Stokta Yok'}
+                          {loadingStocks ? 'Kontrol ediliyor...' : 
+                           productStocks[item.id] !== undefined 
+                             ? `Stokta: ${productStocks[item.id]} adet` 
+                             : item.inStock ? 'Stokta' : 'Stokta Yok'}
                         </Badge>
+                        {productStocks[item.id] !== undefined && item.quantity > productStocks[item.id] && (
+                          <Badge variant="destructive" className="ml-2">
+                            Stok yetersiz!
+                          </Badge>
+                        )}
                       </div>
                     </div>
                     
@@ -246,6 +329,8 @@ export default function CartPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                          disabled={loadingStocks || (productStocks[item.id] !== undefined && item.quantity >= productStocks[item.id])}
+                          title={productStocks[item.id] !== undefined && item.quantity >= productStocks[item.id] ? 'Stokta yeterli miktar yok' : ''}
                         >
                           <Plus className="h-3 w-3" />
                         </Button>
@@ -371,14 +456,25 @@ export default function CartPage() {
               </CardContent>
             </Card>
 
-            {/* Submit Order */}
+            {/* Checkout Button */}
+            <Link href="/checkout" className="w-full">
+              <Button
+                disabled={cartItems.length === 0}
+                className="w-full bg-green-600 hover:bg-green-700 text-lg py-6"
+              >
+                <CreditCard className="h-5 w-5 mr-2" />
+                Siparişe Devam Et ({getTotalPrice()} ₺)
+              </Button>
+            </Link>
+            
+            {/* Quick Order Button (Optional - for quick orders) */}
             <Button
               onClick={handleSubmitOrder}
               disabled={isSubmitting || cartItems.length === 0}
-              className="w-full bg-green-600 hover:bg-green-700 text-lg py-6"
+              variant="outline"
+              className="w-full text-lg py-6 mt-2"
             >
-              <CreditCard className="h-5 w-5 mr-2" />
-              {isSubmitting ? 'Sipariş Gönderiliyor...' : `Sipariş Ver (${getTotalPrice()} ₺)`}
+              {isSubmitting ? 'Sipariş Gönderiliyor...' : 'Hızlı Sipariş Ver'}
             </Button>
           </div>
         </div>

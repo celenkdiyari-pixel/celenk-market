@@ -80,13 +80,42 @@ export default function FavoritesPage() {
                 Ana Sayfaya Dön
               </Button>
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900">Favorilerim</h1>
+            <h1 
+              className="text-3xl font-bold text-gray-900"
+              style={{
+                fontFeatureSettings: '"kern" 1, "liga" 1',
+                textRendering: 'optimizeLegibility',
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale',
+                letterSpacing: 'normal'
+              }}
+            >
+              Favorilerim
+            </h1>
           </div>
 
           <div className="text-center py-16">
             <Heart className="h-16 w-16 text-gray-400 mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Favori Ürününüz Yok</h2>
-            <p className="text-lg text-gray-600 mb-8">
+            <h2 
+              className="text-2xl font-bold text-gray-900 mb-4"
+              style={{
+                fontFeatureSettings: '"kern" 1, "liga" 1',
+                textRendering: 'optimizeLegibility',
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale',
+                letterSpacing: 'normal'
+              }}
+            >
+              Favori Ürününüz Yok
+            </h2>
+            <p 
+              className="text-lg text-gray-600 mb-8"
+              style={{
+                fontFeatureSettings: '"kern" 1, "liga" 1',
+                textRendering: 'optimizeLegibility',
+                letterSpacing: 'normal'
+              }}
+            >
               Beğendiğiniz ürünleri favorilere ekleyerek burada görüntüleyebilirsiniz.
             </p>
             <Link href="/">

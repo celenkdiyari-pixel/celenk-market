@@ -8,19 +8,29 @@ import { CartProvider } from "@/contexts/CartContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   display: "swap",
+  preload: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
   title: "Çelenk Diyarı - Doğanın En Güzel Hali",
   description: "Özel günlerinizde sevdiklerinizi mutlu edecek, doğal ve taze çelenkler. Profesyonel tasarım ve kaliteli hizmet garantisi.",
+  charset: "utf-8",
+  viewport: "width=device-width, initial-scale=1",
+  openGraph: {
+    title: "Çelenk Diyarı - Doğanın En Güzel Hali",
+    description: "Özel günlerinizde sevdiklerinizi mutlu edecek, doğal ve taze çelenkler.",
+    type: "website",
+    locale: "tr_TR",
+  },
 };
 
 export default function RootLayout({
@@ -29,10 +39,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr">
+    <html lang="tr" className="scroll-smooth">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning={true}
+        style={{ 
+          fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+          WebkitFontSmoothing: 'antialiased',
+          MozOsxFontSmoothing: 'grayscale'
+        }}
       >
         <CartProvider>
           <Navbar />

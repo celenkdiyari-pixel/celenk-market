@@ -510,8 +510,22 @@ export default function Home() {
                     ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-xl hover:shadow-2xl' 
                     : 'border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white backdrop-blur-sm bg-white/80'
                 } rounded-2xl px-6 py-3 font-medium`}
+                style={{
+                  fontFeatureSettings: '"kern" 1, "liga" 1',
+                  textRendering: 'optimizeLegibility',
+                  WebkitFontSmoothing: 'antialiased',
+                  MozOsxFontSmoothing: 'grayscale'
+                }}
               >
-                <span className="group-hover:scale-105 transition-transform duration-300">{category}</span>
+                <span 
+                  className="group-hover:scale-105 transition-transform duration-300"
+                  style={{
+                    letterSpacing: 'normal',
+                    fontFeatureSettings: '"kern" 1, "liga" 1'
+                  }}
+                >
+                  {category}
+                </span>
               </Button>
             ))}
           </div>

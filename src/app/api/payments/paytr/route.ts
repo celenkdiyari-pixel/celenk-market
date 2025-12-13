@@ -34,10 +34,17 @@ export async function POST(request: NextRequest) {
                     request.headers.get('x-real-ip') || 
                     '127.0.0.1';
     
-    // Prepare basket data
-    const userBasket = orderData.items.map((item: { productName: string; quantity: number; price: number }) => 
-      `${item.productName}||${item.quantity}||${item.price}||${item.price * item.quantity}`
-    ).join('|');
+    // Prepare basket data - PayTR format: "Product Name||Quantity||Price||Total"
+    const userBasket = orderData.items.map((item: { productName: string; quantity: number; price: number }) => {
+      const productName = item.productName || 'Ürün';
+      const quantity = item.quantity || 1;
+      const price = item.price || 0;
+      const total = price * quantity;
+      return `${productName}||${quantity}||${price.toFixed(2)}||${total.toFixed(2)}`;
+    }).join('|');
+    
+    // Encode basket to base64
+    const encodedBasket = Buffer.from(userBasket, 'utf-8').toString('base64');
     
     // Prepare payment request
     const paymentRequest: PayTRPaymentRequest = {
@@ -47,7 +54,7 @@ export async function POST(request: NextRequest) {
       email: orderData.customer.email,
       payment_amount: Math.round(orderData.total * 100), // PayTR expects amount in kuruş
       paytr_token: '', // Will be generated
-      user_basket: Buffer.from(userBasket).toString('base64'),
+      user_basket: encodedBasket,
       debug_on: config.testMode ? 1 : 0,
       no_installment: 0,
       max_installment: 0,

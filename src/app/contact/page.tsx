@@ -35,8 +35,26 @@ export default function ContactPage() {
       <section className="bg-gradient-to-r from-green-600 to-emerald-700 text-white py-20">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h1 className="text-4xl lg:text-5xl font-bold mb-6">İletişim</h1>
-            <p className="text-xl text-green-100 max-w-3xl mx-auto">
+            <h1 
+              className="text-4xl lg:text-5xl font-bold mb-6"
+              style={{
+                fontFeatureSettings: '"kern" 1, "liga" 1',
+                textRendering: 'optimizeLegibility',
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale',
+                letterSpacing: 'normal'
+              }}
+            >
+              İletişim
+            </h1>
+            <p 
+              className="text-xl text-green-100 max-w-3xl mx-auto"
+              style={{
+                fontFeatureSettings: '"kern" 1, "liga" 1',
+                textRendering: 'optimizeLegibility',
+                letterSpacing: 'normal'
+              }}
+            >
               Özel günleriniz için çelenk ihtiyaçlarınızda yanınızdayız. 
               Size en uygun çözümü birlikte bulalım.
             </p>
@@ -51,7 +69,16 @@ export default function ContactPage() {
             {/* Contact Information */}
             <div className="space-y-8">
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">İletişim Bilgileri</h2>
+                <h2 
+                  className="text-3xl font-bold text-gray-900 mb-6"
+                  style={{
+                    fontFeatureSettings: '"kern" 1, "liga" 1',
+                    textRendering: 'optimizeLegibility',
+                    letterSpacing: 'normal'
+                  }}
+                >
+                  İletişim Bilgileri
+                </h2>
                 <p className="text-lg text-gray-600 leading-relaxed">
                   Çelenk ihtiyaçlarınız için bizimle iletişime geçebilirsiniz. 
                   Uzman ekibimiz size en uygun çözümü sunmak için burada.

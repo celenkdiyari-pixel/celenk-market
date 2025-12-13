@@ -170,7 +170,18 @@ export default function CheckoutPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <ShoppingCart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Sepetiniz Boş</h2>
+            <h2 
+              className="text-2xl font-bold text-gray-900 mb-2"
+              style={{
+                fontFeatureSettings: '"kern" 1, "liga" 1',
+                textRendering: 'optimizeLegibility',
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale',
+                letterSpacing: 'normal'
+              }}
+            >
+              Sepetiniz Boş
+            </h2>
           <p className="text-gray-600 mb-6">Sipariş vermek için önce ürün ekleyin</p>
           <Link href="/">
             <Button className="bg-green-600 hover:bg-green-700 text-white">
@@ -189,7 +200,18 @@ export default function CheckoutPage() {
         <Card className="w-full max-w-md text-center">
           <CardContent className="pt-6">
             <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Siparişiniz Alındı!</h2>
+            <h2 
+              className="text-2xl font-bold text-gray-900 mb-2"
+              style={{
+                fontFeatureSettings: '"kern" 1, "liga" 1',
+                textRendering: 'optimizeLegibility',
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale',
+                letterSpacing: 'normal'
+              }}
+            >
+              Siparişiniz Alındı!
+            </h2>
             <p className="text-gray-600 mb-4">
               Sipariş numaranız: <span className="font-bold text-green-600">{orderNumber}</span>
             </p>
@@ -197,8 +219,13 @@ export default function CheckoutPage() {
               Siparişiniz en kısa sürede hazırlanacak ve size ulaştırılacaktır.
             </p>
             <div className="space-y-2">
-              <Link href="/">
+              <Link href={`/orders/${orderNumber}`}>
                 <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+                  Siparişimi Takip Et
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button variant="outline" className="w-full">
                   Ana Sayfaya Dön
                 </Button>
               </Link>

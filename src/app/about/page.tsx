@@ -9,8 +9,26 @@ export default function AboutPage() {
       <section className="bg-gradient-to-r from-green-600 to-emerald-700 text-white py-20">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h1 className="text-4xl lg:text-5xl font-bold mb-6">Hakkımızda</h1>
-            <p className="text-xl text-green-100 max-w-3xl mx-auto">
+            <h1 
+              className="text-4xl lg:text-5xl font-bold mb-6"
+              style={{
+                fontFeatureSettings: '"kern" 1, "liga" 1',
+                textRendering: 'optimizeLegibility',
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale',
+                letterSpacing: 'normal'
+              }}
+            >
+              Hakkımızda
+            </h1>
+            <p 
+              className="text-xl text-green-100 max-w-3xl mx-auto"
+              style={{
+                fontFeatureSettings: '"kern" 1, "liga" 1',
+                textRendering: 'optimizeLegibility',
+                letterSpacing: 'normal'
+              }}
+            >
               Doğanın en güzel hediyelerini sevdiklerinize ulaştırmak için yola çıktık. 
               Çelenk Diyarı olarak, özel günlerinizi unutulmaz kılmak için buradayız.
             </p>
@@ -23,7 +41,16 @@ export default function AboutPage() {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <h2 className="text-3xl font-bold text-gray-900">Misyonumuz</h2>
+              <h2 
+                className="text-3xl font-bold text-gray-900"
+                style={{
+                  fontFeatureSettings: '"kern" 1, "liga" 1',
+                  textRendering: 'optimizeLegibility',
+                  letterSpacing: 'normal'
+                }}
+              >
+                Misyonumuz
+              </h2>
               <p className="text-lg text-gray-600 leading-relaxed">
                 Çelenk Diyarı olarak, doğanın en güzel hediyelerini sevdiklerinize ulaştırmak 
                 için çalışıyoruz. Her çelengimiz, özenle seçilmiş taze çiçekler ve doğal 
@@ -47,7 +74,16 @@ export default function AboutPage() {
       <section className="py-20 bg-gradient-to-br from-green-50 to-emerald-100">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Değerlerimiz</h2>
+            <h2 
+              className="text-3xl font-bold text-gray-900 mb-4"
+              style={{
+                fontFeatureSettings: '"kern" 1, "liga" 1',
+                textRendering: 'optimizeLegibility',
+                letterSpacing: 'normal'
+              }}
+            >
+              Değerlerimiz
+            </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Çalışma prensiplerimizi oluşturan temel değerlerimiz
             </p>

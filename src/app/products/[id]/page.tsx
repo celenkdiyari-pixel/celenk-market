@@ -113,8 +113,28 @@ export default function ProductDetailPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Ürün Bulunamadı</h1>
-          <p className="text-gray-600 mb-6">{error || 'Aradığınız ürün bulunamadı'}</p>
+          <h1 
+            className="text-2xl font-bold text-gray-900 mb-2"
+            style={{
+              fontFeatureSettings: '"kern" 1, "liga" 1',
+              textRendering: 'optimizeLegibility',
+              WebkitFontSmoothing: 'antialiased',
+              MozOsxFontSmoothing: 'grayscale',
+              letterSpacing: 'normal'
+            }}
+          >
+            Ürün Bulunamadı
+          </h1>
+          <p 
+            className="text-gray-600 mb-6"
+            style={{
+              fontFeatureSettings: '"kern" 1, "liga" 1',
+              textRendering: 'optimizeLegibility',
+              letterSpacing: 'normal'
+            }}
+          >
+            {error || 'Aradığınız ürün bulunamadı'}
+          </p>
           <Link href="/">
             <Button className="bg-green-600 hover:bg-green-700">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -204,10 +224,26 @@ export default function ProductDetailPage() {
           {/* Product Info */}
           <div className="space-y-8">
             <div>
-              <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+              <h1 
+                className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight"
+                style={{
+                  fontFeatureSettings: '"kern" 1, "liga" 1',
+                  textRendering: 'optimizeLegibility',
+                  WebkitFontSmoothing: 'antialiased',
+                  MozOsxFontSmoothing: 'grayscale',
+                  letterSpacing: 'normal'
+                }}
+              >
                 {product.name}
               </h1>
-              <p className="text-xl text-gray-600 leading-relaxed mb-6">
+              <p 
+                className="text-xl text-gray-600 leading-relaxed mb-6"
+                style={{
+                  fontFeatureSettings: '"kern" 1, "liga" 1',
+                  textRendering: 'optimizeLegibility',
+                  letterSpacing: 'normal'
+                }}
+              >
                 {product.description}
               </p>
               
@@ -256,10 +292,15 @@ export default function ProductDetailPage() {
                 <Button 
                   variant="outline" 
                   size="lg"
-                  className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white py-6 rounded-2xl transition-all duration-300"
+                  onClick={() => toggleFavorite(product.id)}
+                  className={`border-2 py-6 rounded-2xl transition-all duration-300 ${
+                    isFavorite(product.id)
+                      ? 'border-red-600 text-red-600 hover:bg-red-600 hover:text-white'
+                      : 'border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white'
+                  }`}
                 >
-                  <Heart className="h-5 w-5 mr-2" />
-                  Favorilere Ekle
+                  <Heart className={`h-5 w-5 mr-2 ${isFavorite(product.id) ? 'fill-current' : ''}`} />
+                  {isFavorite(product.id) ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
                 </Button>
               </div>
             </div>

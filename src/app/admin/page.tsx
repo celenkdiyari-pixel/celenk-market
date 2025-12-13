@@ -49,12 +49,24 @@ interface Product {
   seoKeywords?: string;
 }
 
+interface RecentOrder {
+  orderNumber: string;
+  customer: {
+    firstName: string;
+    lastName: string;
+  };
+  total: number;
+  status: string;
+}
+
 export default function AdminPanel() {
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [isEditingProduct, setIsEditingProduct] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -152,8 +164,31 @@ export default function AdminPanel() {
     }
   };
 
+  const loadRecentOrders = async () => {
+    try {
+      setIsLoadingOrders(true);
+      const response = await fetch('/api/orders?limit=3');
+      if (response.ok) {
+        const data = await response.json();
+        const orders = (data.orders || []).slice(0, 3).map((order: any) => ({
+          orderNumber: order.orderNumber || order.id,
+          customer: order.customer || { firstName: 'Bilinmiyor', lastName: '' },
+          total: order.total || 0,
+          status: order.status || 'pending'
+        }));
+        setRecentOrders(orders);
+      }
+    } catch (error) {
+      console.error('Error loading recent orders:', error);
+      setRecentOrders([]);
+    } finally {
+      setIsLoadingOrders(false);
+    }
+  };
+
   useEffect(() => {
     loadProducts();
+    loadRecentOrders();
   }, []);
 
   const handleSaveProduct = async () => {
@@ -361,38 +396,44 @@ export default function AdminPanel() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium">#ORD-2024-001</p>
-                    <p className="text-sm text-gray-600">Ahmet Yılmaz</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-green-600">₺450.00</p>
-                    <Badge className="bg-yellow-100 text-yellow-800">Beklemede</Badge>
-                  </div>
+              {isLoadingOrders ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium">#ORD-2024-002</p>
-                    <p className="text-sm text-gray-600">Ayşe Demir</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-green-600">₺320.00</p>
-                    <Badge className="bg-green-100 text-green-800">Onaylandı</Badge>
-                  </div>
+              ) : recentOrders.length > 0 ? (
+                <div className="space-y-4">
+                  {recentOrders.map((order) => {
+                    const statusConfig: { [key: string]: { label: string; className: string } } = {
+                      pending: { label: 'Beklemede', className: 'bg-yellow-100 text-yellow-800' },
+                      confirmed: { label: 'Onaylandı', className: 'bg-green-100 text-green-800' },
+                      processing: { label: 'Hazırlanıyor', className: 'bg-blue-100 text-blue-800' },
+                      shipped: { label: 'Kargoda', className: 'bg-purple-100 text-purple-800' },
+                      delivered: { label: 'Teslim Edildi', className: 'bg-gray-100 text-gray-800' },
+                      cancelled: { label: 'İptal Edildi', className: 'bg-red-100 text-red-800' }
+                    };
+                    const status = statusConfig[order.status] || statusConfig.pending;
+                    const customerName = `${order.customer.firstName} ${order.customer.lastName}`.trim() || 'Bilinmiyor';
+                    
+                    return (
+                      <div key={order.orderNumber} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <p className="font-medium">#{order.orderNumber}</p>
+                          <p className="text-sm text-gray-600">{customerName}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-green-600">₺{order.total.toFixed(2)}</p>
+                          <Badge className={status.className}>{status.label}</Badge>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium">#ORD-2024-003</p>
-                    <p className="text-sm text-gray-600">Mehmet Kaya</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-green-600">₺680.00</p>
-                    <Badge className="bg-blue-100 text-blue-800">Hazırlanıyor</Badge>
-                  </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <ShoppingCart className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+                  <p>Henüz sipariş bulunmuyor</p>
                 </div>
-              </div>
+              )}
               <div className="mt-4 pt-4 border-t">
                 <Link href="/admin/orders">
                   <Button variant="outline" className="w-full">

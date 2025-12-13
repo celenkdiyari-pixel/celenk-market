@@ -73,13 +73,13 @@ export default function BackupPage() {
     const loadBackups = async () => {
       try {
         setIsLoading(true);
-        // TODO: Implement real API call to fetch backups
-        // const response = await fetch('/api/backups');
-        // if (response.ok) {
-        //   const data = await response.json();
-        //   setBackups(data.backups || []);
-        // }
-        setBackups([]);
+        const response = await fetch('/api/backups');
+        if (response.ok) {
+          const data = await response.json();
+          setBackups(data.backups || []);
+        } else {
+          setBackups([]);
+        }
       } catch (error) {
         console.error('Error loading backups:', error);
         setBackups([]);
@@ -136,41 +136,27 @@ export default function BackupPage() {
       setIsCreatingBackup(true);
       setErrorMessage('');
 
-      // TODO: Implement real API call to create backup
-      // const response = await fetch('/api/backups', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ type: selectedBackupType, description: backupDescription })
-      // });
-      // if (!response.ok) throw new Error('Failed to create backup');
+      const response = await fetch('/api/backups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: selectedBackupType, description: backupDescription })
+      });
       
-      const newBackup: BackupFile = {
-        id: Date.now().toString(),
-        name: `${selectedBackupType}_backup_${new Date().toISOString().split('T')[0]}`,
-        type: selectedBackupType,
-        size: '0 KB',
-        createdAt: new Date().toISOString(),
-        status: 'in_progress',
-        description: backupDescription
-      };
+      if (!response.ok) {
+        throw new Error('Yedekleme oluşturulamadı');
+      }
 
-      setBackups(prev => [newBackup, ...prev]);
-
-      // Simulate backup process
-      setTimeout(() => {
-        setBackups(prev => prev.map(backup => 
-          backup.id === newBackup.id 
-            ? { ...backup, status: 'completed', size: '1.8 MB' }
-            : backup
-        ));
+      const data = await response.json();
+      if (data.backup) {
+        setBackups(prev => [data.backup, ...prev]);
         setShowSuccessMessage(true);
         setTimeout(() => setShowSuccessMessage(false), 3000);
-      }, 3000);
+      }
 
       setBackupDescription('');
     } catch (error) {
       console.error('Error creating backup:', error);
-      setErrorMessage('Yedekleme oluşturulurken hata oluştu');
+      setErrorMessage('Yedekleme oluşturulurken hata oluştu. API endpoint henüz implement edilmemiş olabilir.');
     } finally {
       setIsCreatingBackup(false);
     }
@@ -178,28 +164,22 @@ export default function BackupPage() {
 
   const handleDownloadBackup = async (backup: BackupFile) => {
     try {
-      // TODO: Implement real API call to download backup
-      // const response = await fetch(`/api/backups/${backup.id}/download`);
-      // const blob = await response.blob();
-      // const url = window.URL.createObjectURL(blob);
-      // const element = document.createElement('a');
-      // element.href = url;
-      // element.download = `${backup.name}.json`;
-      // document.body.appendChild(element);
-      // element.click();
-      // document.body.removeChild(element);
-      // window.URL.revokeObjectURL(url);
-      
+      const response = await fetch(`/api/backups/${backup.id}/download`);
+      if (!response.ok) {
+        throw new Error('Yedek indirilemedi');
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
       const element = document.createElement('a');
-      const file = new Blob(['Backup data'], { type: 'application/json' });
-      element.href = URL.createObjectURL(file);
+      element.href = url;
       element.download = `${backup.name}.json`;
       document.body.appendChild(element);
       element.click();
       document.body.removeChild(element);
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error downloading backup:', error);
-      alert('Yedek indirilirken hata oluştu');
+      alert('Yedek indirilirken hata oluştu. API endpoint henüz implement edilmemiş olabilir.');
     }
   };
 
@@ -209,10 +189,18 @@ export default function BackupPage() {
     }
 
     try {
-      setBackups(prev => prev.filter(backup => backup.id !== backupId));
+      const response = await fetch(`/api/backups/${backupId}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        setBackups(prev => prev.filter(backup => backup.id !== backupId));
+      } else {
+        throw new Error('Yedek silinemedi');
+      }
     } catch (error) {
       console.error('Error deleting backup:', error);
-      alert('Yedek silinirken hata oluştu');
+      alert('Yedek silinirken hata oluştu. API endpoint henüz implement edilmemiş olabilir.');
     }
   };
 
@@ -220,11 +208,13 @@ export default function BackupPage() {
     if (!selectedBackup) return;
 
     try {
-      // TODO: Implement real API call to restore backup
-      // const response = await fetch(`/api/backups/${selectedBackup.id}/restore`, {
-      //   method: 'POST'
-      // });
-      // if (!response.ok) throw new Error('Failed to restore backup');
+      const response = await fetch(`/api/backups/${selectedBackup.id}/restore`, {
+        method: 'POST'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Yedek geri yüklenemedi');
+      }
       
       setShowSuccessMessage(true);
       setTimeout(() => setShowSuccessMessage(false), 3000);
@@ -232,26 +222,28 @@ export default function BackupPage() {
       setSelectedBackup(null);
     } catch (error) {
       console.error('Error restoring backup:', error);
-      setErrorMessage('Yedek geri yüklenirken hata oluştu');
+      setErrorMessage('Yedek geri yüklenirken hata oluştu. API endpoint henüz implement edilmemiş olabilir.');
     }
   };
 
   const handleSaveSettings = async () => {
     try {
-      // TODO: Implement real API call to save backup settings
-      // const response = await fetch('/api/backups/settings', {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(settings)
-      // });
-      // if (!response.ok) throw new Error('Failed to save settings');
+      const response = await fetch('/api/backups/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Ayarlar kaydedilemedi');
+      }
       
       setShowSuccessMessage(true);
       setTimeout(() => setShowSuccessMessage(false), 3000);
       setShowSettingsModal(false);
     } catch (error) {
       console.error('Error saving settings:', error);
-      setErrorMessage('Ayarlar kaydedilirken hata oluştu');
+      setErrorMessage('Ayarlar kaydedilirken hata oluştu. API endpoint henüz implement edilmemiş olabilir.');
     }
   };
 

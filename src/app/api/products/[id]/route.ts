@@ -36,10 +36,18 @@ export async function PUT(
     }
     
     // Update product in Firebase
-    await updateDoc(productRef, {
+    const updateData: any = {
       ...productData,
       updatedAt: new Date().toISOString()
-    });
+    };
+    
+    // Update inStock based on quantity if quantity is provided
+    if (productData.quantity !== undefined) {
+      updateData.quantity = productData.quantity;
+      updateData.inStock = productData.quantity > 0;
+    }
+    
+    await updateDoc(productRef, updateData);
     
     console.log('✅ Product updated in Firebase');
     

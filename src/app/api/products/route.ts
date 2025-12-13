@@ -50,6 +50,8 @@ export async function POST(request: NextRequest) {
     const productsRef = collection(db, 'products');
     const docRef = await addDoc(productsRef, {
       ...productData,
+      quantity: productData.quantity !== undefined ? productData.quantity : (productData.inStock ? 10 : 0),
+      inStock: productData.quantity !== undefined ? productData.quantity > 0 : productData.inStock !== undefined ? productData.inStock : true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });

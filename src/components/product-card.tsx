@@ -6,7 +6,7 @@ import { Product } from '@/types/product';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Star, ShoppingCart, Heart, Eye } from 'lucide-react';
-import { useState } from 'react';
+import { useCart } from '@/contexts/CartContext';
 
 interface ProductCardProps {
   product: Product;
@@ -14,20 +14,24 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, showQuickView = true }: ProductCardProps) {
-  const [isLiked, setIsLiked] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { addToCart, toggleFavorite, isFavorite } = useCart();
+  const isLiked = isFavorite(product.id);
 
-  const handleAddToCart = async () => {
-    setIsLoading(true);
-    // TODO: Implement add to cart functionality
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+  const handleAddToCart = () => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      category: product.category,
+      inStock: product.inStock,
+      images: product.images,
+      quantity: 1
+    });
   };
 
   const handleLike = () => {
-    setIsLiked(!isLiked);
-    // TODO: Implement like functionality
+    toggleFavorite(product.id);
   };
 
   const discountPercentage = product.originalPrice 

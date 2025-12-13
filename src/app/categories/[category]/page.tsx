@@ -198,10 +198,36 @@ export default function CategoryPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Kategori Bulunamadı</h1>
-          <p className="text-gray-600 mb-6">Aradığınız kategori mevcut değil.</p>
+          <h1 
+            className="text-2xl font-bold text-gray-900 mb-4"
+            style={{
+              fontFeatureSettings: '"kern" 1, "liga" 1',
+              textRendering: 'optimizeLegibility',
+              WebkitFontSmoothing: 'antialiased',
+              MozOsxFontSmoothing: 'grayscale',
+              letterSpacing: 'normal'
+            }}
+          >
+            Kategori Bulunamadı
+          </h1>
+          <p 
+            className="text-gray-600 mb-6"
+            style={{
+              fontFeatureSettings: '"kern" 1, "liga" 1',
+              textRendering: 'optimizeLegibility',
+              letterSpacing: 'normal'
+            }}
+          >
+            Aradığınız kategori mevcut değil.
+          </p>
           <Link href="/">
-            <Button>
+            <Button
+              style={{
+                fontFeatureSettings: '"kern" 1, "liga" 1',
+                textRendering: 'optimizeLegibility',
+                letterSpacing: 'normal'
+              }}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Ana Sayfaya Dön
             </Button>
@@ -230,15 +256,42 @@ export default function CategoryPage() {
             <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${currentCategory.color} mb-6`}>
               <IconComponent className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold mb-4">
+            <h1 
+              className="text-4xl md:text-6xl font-bold mb-4"
+              style={{
+                fontFeatureSettings: '"kern" 1, "liga" 1',
+                textRendering: 'optimizeLegibility',
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale',
+                letterSpacing: 'normal'
+              }}
+            >
               {currentCategory.title}
             </h1>
-            <p className="text-xl md:text-2xl text-gray-200 mb-8">
+            <p 
+              className="text-xl md:text-2xl text-gray-200 mb-8"
+              style={{
+                fontFeatureSettings: '"kern" 1, "liga" 1',
+                textRendering: 'optimizeLegibility',
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale',
+                letterSpacing: 'normal'
+              }}
+            >
               {currentCategory.description}
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               {currentCategory.features.map((feature, index) => (
-                <Badge key={index} variant="secondary" className="bg-white/20 text-white border-white/30">
+                <Badge 
+                  key={index} 
+                  variant="secondary" 
+                  className="bg-white/20 text-white border-white/30"
+                  style={{
+                    fontFeatureSettings: '"kern" 1, "liga" 1',
+                    textRendering: 'optimizeLegibility',
+                    letterSpacing: 'normal'
+                  }}
+                >
                   <Sparkles className="h-3 w-3 mr-1" />
                   {feature}
                 </Badge>

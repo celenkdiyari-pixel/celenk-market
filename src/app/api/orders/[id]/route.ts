@@ -33,17 +33,54 @@ export async function PUT(
       }, { status: 404 });
     }
     
-    await updateDoc(orderRef, {
-      ...orderData,
+    // Get current order data to merge properly
+    const currentData = docSnap.data();
+    
+    // Prepare update data - only update provided fields
+    const updateData: any = {
       updatedAt: new Date().toISOString()
-    });
+    };
+    
+    // Only update fields that are provided
+    if (orderData.status !== undefined) {
+      updateData.status = orderData.status;
+    }
+    if (orderData.paymentStatus !== undefined) {
+      updateData.paymentStatus = orderData.paymentStatus;
+    }
+    if (orderData.notes !== undefined) {
+      updateData.notes = orderData.notes;
+    }
+    if (orderData.shippingMethod !== undefined) {
+      updateData.shippingMethod = orderData.shippingMethod;
+    }
+    if (orderData.paymentMethod !== undefined) {
+      updateData.paymentMethod = orderData.paymentMethod;
+    }
+    
+    // Update customer info if provided
+    if (orderData.customer) {
+      updateData.customer = {
+        ...currentData.customer,
+        ...orderData.customer
+      };
+    }
+    
+    await updateDoc(orderRef, updateData);
+    
+    // Get updated document
+    const updatedDoc = await getDoc(orderRef);
+    const updatedOrder = {
+      id: updatedDoc.id,
+      ...updatedDoc.data()
+    };
     
     console.log('✅ Order updated successfully in Firebase with ID:', id);
     
     return NextResponse.json({
       success: true,
       id: id,
-      order: { id: id, ...orderData },
+      order: updatedOrder,
       message: 'Order updated successfully in Firebase',
       timestamp: new Date().toISOString()
     });

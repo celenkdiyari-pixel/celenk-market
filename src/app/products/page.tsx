@@ -113,10 +113,26 @@ export default function ProductsPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <h1 
+              className="text-4xl font-bold text-gray-900 mb-4"
+              style={{
+                fontFeatureSettings: '"kern" 1, "liga" 1',
+                textRendering: 'optimizeLegibility',
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale',
+                letterSpacing: 'normal'
+              }}
+            >
               Çelenk Koleksiyonumuz
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p 
+              className="text-xl text-gray-600 max-w-2xl mx-auto"
+              style={{
+                fontFeatureSettings: '"kern" 1, "liga" 1',
+                textRendering: 'optimizeLegibility',
+                letterSpacing: 'normal'
+              }}
+            >
               Özel günleriniz için tasarlanmış en güzel çelenklerimizi keşfedin
             </p>
           </div>

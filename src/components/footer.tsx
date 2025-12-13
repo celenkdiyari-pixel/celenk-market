@@ -132,13 +132,37 @@ export default function Footer() {
               <span>© 2024 Çelenk Diyarı. Tüm hakları saklıdır.</span>
             </div>
             <div className="flex flex-wrap items-center gap-4">
-              <Link href="/privacy" className="text-gray-400 hover:text-green-400 transition-colors text-sm">
+              <Link 
+                href="/privacy" 
+                className="text-gray-400 hover:text-green-400 transition-colors text-sm"
+                style={{
+                  fontFeatureSettings: '"kern" 1, "liga" 1',
+                  textRendering: 'optimizeLegibility',
+                  letterSpacing: 'normal'
+                }}
+              >
                 Gizlilik Politikası
               </Link>
-              <Link href="/terms" className="text-gray-400 hover:text-green-400 transition-colors text-sm">
+              <Link 
+                href="/terms" 
+                className="text-gray-400 hover:text-green-400 transition-colors text-sm"
+                style={{
+                  fontFeatureSettings: '"kern" 1, "liga" 1',
+                  textRendering: 'optimizeLegibility',
+                  letterSpacing: 'normal'
+                }}
+              >
                 Kullanım Şartları
               </Link>
-              <Link href="/cookies" className="text-gray-400 hover:text-green-400 transition-colors text-sm">
+              <Link 
+                href="/cookies" 
+                className="text-gray-400 hover:text-green-400 transition-colors text-sm"
+                style={{
+                  fontFeatureSettings: '"kern" 1, "liga" 1',
+                  textRendering: 'optimizeLegibility',
+                  letterSpacing: 'normal'
+                }}
+              >
                 Çerez Politikası
               </Link>
               <Link href="/about" className="text-gray-400 hover:text-green-400 transition-colors text-sm">
