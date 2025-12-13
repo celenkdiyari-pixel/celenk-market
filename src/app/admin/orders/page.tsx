@@ -77,6 +77,7 @@ interface Order {
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -197,6 +198,38 @@ export default function OrdersPage() {
     } catch (error) {
       console.error('Error updating order status:', error);
       alert('Sipariş durumu güncellenirken hata oluştu. Lütfen tekrar deneyin.');
+    }
+  };
+
+  const deleteOrder = async (orderId: string, paymentStatus: string) => {
+    const isPaid = paymentStatus === 'paid';
+    const confirmed = window.confirm(
+      isPaid
+        ? 'Bu sipariş ÖDENDİ görünüyor. Yine de silmek istiyor musunuz?'
+        : 'Siparişi silmek istediğinize emin misiniz?'
+    );
+    if (!confirmed) return;
+
+    try {
+      setIsDeleting(orderId);
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        setOrders(prev => prev.filter(o => o.id !== orderId));
+        if (selectedOrder?.id === orderId) {
+          setShowOrderModal(false);
+          setSelectedOrder(null);
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        alert(errorData.error || 'Sipariş silinirken hata oluştu');
+      }
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      alert('Sipariş silinirken hata oluştu. Lütfen tekrar deneyin.');
+    } finally {
+      setIsDeleting(null);
     }
   };
 
