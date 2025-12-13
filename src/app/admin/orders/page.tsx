@@ -93,10 +93,10 @@ export default function OrdersPage() {
       if (response.ok) {
         const data = await response.json();
         // Validate and sanitize orders data from Firebase
-        const validOrders = (data.orders || []).map((order: Partial<Order> & { id?: string; orderNumber?: string; customer?: Partial<CustomerInfo>; items?: Array<Partial<OrderItem>> }) => {
+        const validOrders = (data.orders || []).map((order: Partial<Order> & { id?: string; orderNumber?: string; customer?: Partial<CustomerInfo> & { address?: Partial<CustomerInfo['address']> }; items?: Array<Partial<OrderItem>> }) => {
           // Ensure customer object exists and has proper structure
-          const customer = order.customer || {};
-          const address = customer.address || {};
+          const customer = order.customer || {} as Partial<CustomerInfo>;
+          const address = customer.address || {} as Partial<CustomerInfo['address']>;
           
           return {
             id: order.id || '',
