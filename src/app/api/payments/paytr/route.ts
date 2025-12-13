@@ -143,6 +143,25 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ PayTR payment request prepared:', paymentRequest.merchant_oid);
 
+    // Sanitize items just for Firestore storage to avoid 1MB limit check
+    // We remove large base64 images from the items array stored in session
+    const sanitizedItems = (orderData.items || []).map((item: any) => {
+      const newItem = { ...item };
+      // Remove image if it's a data URL (too large)
+      if (typeof newItem.image === 'string' && newItem.image.startsWith('data:')) {
+        delete newItem.image;
+      }
+      if (typeof newItem.productImage === 'string' && newItem.productImage.startsWith('data:')) {
+        delete newItem.productImage;
+      }
+      // Also check if any other field is unexpectedly huge
+      return newItem;
+    });
+
+    // Validate size roughly (optional but good practice)
+    // const payloadSize = Buffer.byteLength(JSON.stringify(sanitizedItems));
+    // console.log('Payload size check:', payloadSize);
+
     // Persist a draft session so callback can create the order only after success
     try {
       await setDoc(doc(db, 'paytr_sessions', paytrOrderNumber), {
@@ -153,7 +172,7 @@ export async function POST(request: NextRequest) {
         recipient,
         deliveryAddress,
         invoice,
-        items: orderData.items,
+        items: sanitizedItems, // Use sanitized items
         subtotal: orderData.subtotal || 0,
         shippingCost,
         total: orderData.total || strictBasketTotal,
