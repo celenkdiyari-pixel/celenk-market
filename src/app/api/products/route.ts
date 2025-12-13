@@ -19,9 +19,12 @@ function normalizeProductForList(raw: Record<string, unknown>, mode: 'full' | 's
 
   // summary mode: avoid returning huge base64 payloads (kills client perf / can fail fetch)
   const firstNonDataUrl = images.find((img) => !isDataImageUrl(img));
+  const firstAnyImage = images[0];
+  const mainImage = firstNonDataUrl || firstAnyImage || '';
+
   return {
     ...raw,
-    images: firstNonDataUrl ? [firstNonDataUrl] : [],
+    images: mainImage ? [mainImage] : [],
   };
 }
 

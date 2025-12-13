@@ -1,0 +1,82 @@
+﻿   Ôû▓ Next.js 15.5.9
+   - Environments: .env.local
+   - Experiments (use with caution):
+     ┬À optimizePackageImports
+
+   Creating an optimized production build ...
+ Ô£ô Compiled successfully in 7.0s
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/46) ...
+   Generating static pages (11/46) 
+   Generating static pages (22/46) 
+   Generating static pages (34/46) 
+ Ô£ô Generating static pages (46/46)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+Ôöî Ôùï /                                    8.82 kB         132 kB
+Ôö£ Ôùï /_not-found                            996 B         103 kB
+Ôö£ Ôùï /about                                 165 B         106 kB
+Ôö£ Ôùï /admin                               7.99 kB         128 kB
+Ôö£ Ôùï /admin/analytics                     5.23 kB         120 kB
+Ôö£ Ôùï /admin/announcements                 5.19 kB         120 kB
+Ôö£ Ôùï /admin/backup                        6.03 kB         121 kB
+Ôö£ Ôùï /admin/customers                      6.3 kB         121 kB
+Ôö£ Ôùï /admin/inventory                     3.78 kB         121 kB
+Ôö£ Ôùï /admin/orders                        7.69 kB         124 kB
+Ôö£ Ôùï /admin/settings                      4.25 kB         123 kB
+Ôö£ Ôùï /admin/users                         6.28 kB         121 kB
+Ôö£ Ôùï /adminpanel                          7.68 kB         128 kB
+Ôö£ Ôùï /adminpanel/backup                   5.86 kB         121 kB
+Ôö£ Ôùï /adminpanel/customers                 6.3 kB         121 kB
+Ôö£ Ôùï /adminpanel/inventory                3.68 kB         121 kB
+Ôö£ Ôùï /adminpanel/orders                   5.85 kB         123 kB
+Ôö£ Ôùï /adminpanel/settings                 4.25 kB         123 kB
+Ôö£ Ôùï /adminpanel/users                    6.09 kB         121 kB
+Ôö£ ãÆ /api/analytics                         193 B         102 kB
+Ôö£ ãÆ /api/announcements                     193 B         102 kB
+Ôö£ ãÆ /api/announcements/[id]                193 B         102 kB
+Ôö£ ãÆ /api/customers                         193 B         102 kB
+Ôö£ ãÆ /api/customers/[id]                    193 B         102 kB
+Ôö£ ãÆ /api/email                             193 B         102 kB
+Ôö£ ãÆ /api/inventory                         193 B         102 kB
+Ôö£ ãÆ /api/inventory/[id]                    193 B         102 kB
+Ôö£ ãÆ /api/inventory/movements               193 B         102 kB
+Ôö£ ãÆ /api/orders                            193 B         102 kB
+Ôö£ ãÆ /api/orders/[id]                       193 B         102 kB
+Ôö£ ãÆ /api/orders/[id]/invoice               193 B         102 kB
+Ôö£ ãÆ /api/payments/paytr                    193 B         102 kB
+Ôö£ ãÆ /api/payments/paytr/callback           193 B         102 kB
+Ôö£ ãÆ /api/products                          193 B         102 kB
+Ôö£ ãÆ /api/products/[id]                     193 B         102 kB
+Ôö£ ãÆ /api/settings                          193 B         102 kB
+Ôö£ ãÆ /api/users                             193 B         102 kB
+Ôö£ ãÆ /api/users/[id]                        193 B         102 kB
+Ôö£ ãÆ /api/users/roles                       193 B         102 kB
+Ôö£ Ôùï /cart                                5.58 kB         126 kB
+Ôö£ ãÆ /categories/[category]               4.54 kB         128 kB
+Ôö£ Ôùï /checkout                            5.49 kB         126 kB
+Ôö£ Ôùï /contact                             3.84 kB         115 kB
+Ôö£ Ôùï /cookies                               193 B         102 kB
+Ôö£ Ôùï /favorites                           4.44 kB         125 kB
+Ôö£ Ôùï /maintenance                         2.05 kB         104 kB
+Ôö£ ãÆ /orders/[orderNumber]                 4.5 kB         125 kB
+Ôö£ Ôùï /payment/failed                      2.29 kB         117 kB
+Ôö£ Ôùï /payment/success                     2.16 kB         117 kB
+Ôö£ Ôùï /privacy                               193 B         102 kB
+Ôö£ Ôùï /products                            4.83 kB         125 kB
+Ôö£ ãÆ /products/[id]                       5.39 kB         126 kB
+Ôöö Ôùï /terms                                 193 B         102 kB
++ First Load JS shared by all             102 kB
+  Ôö£ chunks/1255-9494d7e861e97d68.js      45.9 kB
+  Ôö£ chunks/4bd1b696-f785427dddbba9fb.js  54.2 kB
+  Ôöö other shared chunks (total)             2 kB
+
+
+ãÆ Middleware                             33.1 kB
+
+Ôùï  (Static)   prerendered as static content
+ãÆ  (Dynamic)  server-rendered on demand
+
