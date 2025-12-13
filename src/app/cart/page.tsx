@@ -163,8 +163,9 @@ export default function CartPage() {
           // Some implementations return token even without explicit status='success' wrapper
           setPaytrToken(data.token);
         } else {
-          console.error('PayTR Error:', data);
-          alert('Ödeme sistemi başlatılamadı: ' + (data.reason || data.error || 'Bilinmeyen hata'));
+          console.error('PayTR Error Detail:', data);
+          const errorMsg = data.reason || data.error || (typeof data === 'object' ? JSON.stringify(data) : 'Bilinmeyen hata');
+          alert('Ödeme sistemi başlatılamadı: ' + errorMsg);
         }
 
       } else {
