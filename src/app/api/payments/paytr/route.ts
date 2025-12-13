@@ -52,6 +52,16 @@ export async function POST(request: NextRequest) {
     const encodedBasket = Buffer.from(JSON.stringify(basketArray), 'utf-8').toString('base64');
 
     const safePhone = (orderData.customer.phone || '').replace(/\D+/g, '').slice(-15); // PayTR max 15
+
+    // PayTR amount (kuruş) basket toplamı + kargo ile uyuşmalı
+    const basketTotal = (orderData.items || []).reduce((sum: number, item: { quantity?: number; price?: number }) => {
+      const quantity = item.quantity || 1;
+      const price = item.price || 0;
+      return sum + quantity * price;
+    }, 0);
+    const shippingCost = typeof orderData.shippingCost === 'number' ? orderData.shippingCost : 0;
+    const computedTotal = basketTotal + shippingCost;
+    const paymentAmountKurus = Math.round((orderData.total || computedTotal) * 100);
     
     // Prepare payment request
     const paymentRequest: PayTRPaymentRequest = {
@@ -59,7 +69,7 @@ export async function POST(request: NextRequest) {
       user_ip: clientIP,
       merchant_oid: orderData.orderNumber,
       email: orderData.customer.email,
-      payment_amount: Math.round(orderData.total * 100), // PayTR expects amount in kuruş
+      payment_amount: paymentAmountKurus, // PayTR expects amount in kuruş
       paytr_token: '', // Will be generated
       user_basket: encodedBasket,
       debug_on: config.testMode ? 1 : 0,
