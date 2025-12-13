@@ -36,7 +36,10 @@ export async function POST(request: NextRequest) {
     // PayTR merchant_oid must be alphanumeric only
     const originalOrderNumber = orderData.orderNumber?.toString() || '';
     const sanitizedOrderNumber = originalOrderNumber.replace(/[^a-zA-Z0-9]/g, '');
-    const paytrOrderNumber = sanitizedOrderNumber || `ORD${Date.now()}${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
+    const fallbackOid = `ORD${Date.now()}${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
+    const paytrOrderNumberRaw = sanitizedOrderNumber || fallbackOid;
+    // PayTR docs: alphanumeric only, keep it reasonable length (<=64)
+    const paytrOrderNumber = paytrOrderNumberRaw.slice(0, 64);
     
     const config = getPayTRConfig();
     
@@ -126,7 +129,7 @@ export async function POST(request: NextRequest) {
     
     // Persist a draft session so callback can create the order only after success
     try {
-      await setDoc(doc(db, 'paytr_sessions', orderData.orderNumber), {
+      await setDoc(doc(db, 'paytr_sessions', paytrOrderNumber), {
         orderNumber: paytrOrderNumber,
         originalOrderNumber,
         customer: orderData.customer,
