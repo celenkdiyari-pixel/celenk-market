@@ -203,10 +203,10 @@ export default function ProductDetailPage() {
               {/* Image Badges */}
               <div className="absolute top-6 left-6 flex flex-col gap-3">
                 <Badge
-                  variant={product.inStock ? "default" : "destructive"}
-                  className={`text-sm px-4 py-1.5 rounded-full shadow-lg ${product.inStock ? 'bg-green-600 hover:bg-green-700' : ''}`}
+                  variant={product.inStock !== false ? "default" : "destructive"}
+                  className={`text-sm px-4 py-1.5 rounded-full shadow-lg ${product.inStock !== false ? 'bg-green-600 hover:bg-green-700' : ''}`}
                 >
-                  {product.inStock ? 'Stokta' : 'Stokta Yok'}
+                  {product.inStock !== false ? 'Stokta' : 'Stokta Yok'}
                 </Badge>
               </div>
             </div>
@@ -291,10 +291,10 @@ export default function ProductDetailPage() {
                     size="lg"
                     className="w-full h-16 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-xl rounded-2xl shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 font-bold tracking-wide"
                     onClick={handleAddToCart}
-                    disabled={!product.inStock}
+                    disabled={product.inStock === false}
                   >
                     <ShoppingCart className="h-6 w-6 mr-3" />
-                    {isInCart(product.id) ? 'Sepette Mevcut' : 'Sepete Ekle'}
+                    {isInCart(product.id) ? 'Sepette Mevcut' : (product.inStock !== false ? 'Sepete Ekle' : 'Stokta Yok')}
                   </Button>
 
                   <Link href="/contact" className="block">
