@@ -5,10 +5,10 @@ import { collection, addDoc, getDocs, query, orderBy, limit, doc, getDoc, update
 export async function POST(request: NextRequest) {
   try {
     console.log('🛒 Creating new order...');
-    
+
     const orderData = await request.json();
     console.log('📝 Order data:', orderData);
-    
+
     // Validate required fields
     if (!orderData.customer || !orderData.items || !orderData.items.length) {
       console.log('❌ Validation failed - missing required fields');
@@ -17,10 +17,10 @@ export async function POST(request: NextRequest) {
         received: orderData
       }, { status: 400 });
     }
-    
+
     // Generate order number
     const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
-    
+
     const order = {
       ...orderData,
       orderNumber,
@@ -29,41 +29,43 @@ export async function POST(request: NextRequest) {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-    
+
     console.log('✅ Validation passed, creating order:', orderNumber);
-    
+
     const docRef = await addDoc(collection(db, 'orders'), order);
-    
+
     console.log('✅ Order created successfully in Firebase with ID:', docRef.id);
-    
+
     // Update product stock quantities
     try {
       for (const item of orderData.items) {
         if (item.productId) {
           const productRef = doc(db, 'products', item.productId);
           const productSnap = await getDoc(productRef);
-          
-          if (productSnap.exists()) {
-            const productData = productSnap.data();
-            const currentQuantity = productData.quantity || 0;
-            const orderedQuantity = item.quantity || 1;
-            const newQuantity = Math.max(0, currentQuantity - orderedQuantity);
-            
-            await updateDoc(productRef, {
-              quantity: newQuantity,
-              inStock: newQuantity > 0,
-              updatedAt: new Date().toISOString()
-            });
-            
-            console.log(`✅ Stock updated for product ${item.productId}: ${currentQuantity} -> ${newQuantity}`);
-          }
+
+          /* Stock update logic disabled by user request - Project now runs without stock management
+                    if (productSnap.exists()) {
+                      const productData = productSnap.data();
+                      const currentQuantity = productData.quantity || 0;
+                      const orderedQuantity = item.quantity || 1;
+                      const newQuantity = Math.max(0, currentQuantity - orderedQuantity);
+                      
+                      await updateDoc(productRef, {
+                        quantity: newQuantity,
+                        inStock: newQuantity > 0,
+                        updatedAt: new Date().toISOString()
+                      });
+                      
+                      console.log(`✅ Stock updated for product ${item.productId}: ${currentQuantity} -> ${newQuantity}`);
+                    }
+          */
         }
       }
     } catch (stockError) {
       console.error('⚠️ Error updating stock (non-blocking):', stockError);
       // Don't fail the order if stock update fails
     }
-    
+
     // Send email notifications (async, don't wait for it)
     try {
       const adminEmail = process.env.ADMIN_EMAIL || 'celenkdiyari@gmail.com';
@@ -72,7 +74,7 @@ export async function POST(request: NextRequest) {
         ? `${orderData.customer.firstName} ${orderData.customer.lastName}`
         : orderData.customer?.name || 'Müşteri';
       const totalAmount = orderData.total || (orderData.subtotal || 0) + (orderData.shippingCost || 0);
-      
+
       // Send email to customer
       if (customerEmail) {
         fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/email`, {
@@ -90,16 +92,16 @@ export async function POST(request: NextRequest) {
                 const productName = item.productName || item.name || 'Ürün';
                 return `${productName} x${item.quantity}`;
               }).join(', '),
-              orderDate: new Date().toLocaleDateString('tr-TR', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+              orderDate: new Date().toLocaleDateString('tr-TR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
               }),
             }
           })
         }).catch(err => console.error('Failed to send customer email:', err));
       }
-      
+
       // Send email to admin
       fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/email`, {
         method: 'POST',
@@ -120,15 +122,15 @@ export async function POST(request: NextRequest) {
               const itemTotal = itemPrice * (item.quantity || 1);
               return `${productName} x${item.quantity} - ${itemTotal.toFixed(2)} ₺`;
             }).join('\n'),
-            orderDate: new Date().toLocaleDateString('tr-TR', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
+            orderDate: new Date().toLocaleDateString('tr-TR', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
             }),
-            address: orderData.customer?.address ? 
-              (typeof orderData.customer.address === 'string' 
-                ? orderData.customer.address 
-                : `${orderData.customer.address.street || ''}, ${orderData.customer.address.district || ''}, ${orderData.customer.address.city || ''}`) 
+            address: orderData.customer?.address ?
+              (typeof orderData.customer.address === 'string'
+                ? orderData.customer.address
+                : `${orderData.customer.address.street || ''}, ${orderData.customer.address.district || ''}, ${orderData.customer.address.city || ''}`)
               : '',
           }
         })
@@ -136,7 +138,7 @@ export async function POST(request: NextRequest) {
     } catch (emailError) {
       console.error('Email sending error (non-blocking):', emailError);
     }
-    
+
     return NextResponse.json({
       success: true,
       id: docRef.id,
@@ -145,11 +147,11 @@ export async function POST(request: NextRequest) {
       message: 'Order created successfully in Firebase',
       timestamp: new Date().toISOString()
     });
-    
+
   } catch (error) {
     console.error('❌ Error creating order:', error);
     console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-    
+
     if (error instanceof Error && error.message.includes('permission')) {
       return NextResponse.json({
         error: 'Firebase permission denied',
@@ -158,7 +160,7 @@ export async function POST(request: NextRequest) {
         timestamp: new Date().toISOString()
       }, { status: 403 });
     }
-    
+
     return NextResponse.json({
       error: 'Failed to create order',
       details: error instanceof Error ? error.message : 'Unknown error',
@@ -170,27 +172,27 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     console.log('📦 Fetching orders...');
-    
+
     // Check query parameters
     const { searchParams } = new URL(request.url);
     const orderNumber = searchParams.get('orderNumber');
     const limitParam = searchParams.get('limit');
     const orderLimit = limitParam ? parseInt(limitParam, 10) : 100;
-    
+
     if (orderNumber) {
       // Search by orderNumber
       console.log('🔍 Searching order by orderNumber:', orderNumber);
       const ordersRef = collection(db, 'orders');
       const q = query(ordersRef, where('orderNumber', '==', orderNumber));
       const querySnapshot = await getDocs(q);
-      
+
       const orders = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      
+
       console.log(`✅ Found ${orders.length} order(s) with orderNumber: ${orderNumber}`);
-      
+
       return NextResponse.json({
         success: true,
         orders,
@@ -198,32 +200,32 @@ export async function GET(request: NextRequest) {
         timestamp: new Date().toISOString()
       });
     }
-    
+
     // Get all orders with optional limit
     const ordersQuery = query(
       collection(db, 'orders'),
       orderBy('createdAt', 'desc'),
       limit(orderLimit)
     );
-    
+
     const querySnapshot = await getDocs(ordersQuery);
     const orders = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
-    
+
     console.log(`✅ Found ${orders.length} orders`);
-    
+
     return NextResponse.json({
       success: true,
       orders,
       count: orders.length,
       timestamp: new Date().toISOString()
     });
-    
+
   } catch (error) {
     console.error('❌ Error fetching orders:', error);
-    
+
     return NextResponse.json({
       error: 'Failed to fetch orders',
       details: error instanceof Error ? error.message : 'Unknown error',

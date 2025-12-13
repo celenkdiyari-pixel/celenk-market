@@ -75,11 +75,6 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
                 %{discountPercentage} İndirim
               </span>
             )}
-            {product.inStock === false && (
-              <span className="bg-gray-800 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
-                Stok Tükendi
-              </span>
-            )}
           </div>
 
           {/* Action Buttons - Float in from right */}
@@ -106,7 +101,6 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
           <div className="absolute bottom-6 left-6 right-6 z-20 translate-y-20 group-hover:translate-y-0 transition-transform duration-500 ease-out">
             <Button
               onClick={handleAddToCart}
-              disabled={product.inStock === false}
               className={cn(
                 "w-full h-12 rounded-xl text-base font-medium shadow-lg transition-all duration-300",
                 inCart
@@ -122,7 +116,7 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
               ) : (
                 <>
                   <ShoppingCart className="w-5 h-5 mr-2" />
-                  {product.inStock !== false ? 'Sepete Ekle' : 'Stokta Yok'}
+                  Sepete Eklendi
                 </>
               )}
             </Button>
@@ -166,7 +160,7 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
                 ₺{safePrice.toFixed(2)}
               </span>
             </div>
-            <div className={`w-2.5 h-2.5 rounded-full ${product.inStock !== false ? 'bg-green-500 animate-pulse' : 'bg-red-400'}`} title={product.inStock !== false ? 'Stokta Var' : 'Stok Tükendi'} />
+            {/* Stock indicator removed */}
           </div>
         </CardContent>
       </Card>
