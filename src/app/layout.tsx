@@ -23,14 +23,17 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Çelenk Diyarı - Doğanın En Güzel Hali",
   description: "Özel günlerinizde sevdiklerinizi mutlu edecek, doğal ve taze çelenkler. Profesyonel tasarım ve kaliteli hizmet garantisi.",
-  charset: "utf-8",
-  viewport: "width=device-width, initial-scale=1",
   openGraph: {
     title: "Çelenk Diyarı - Doğanın En Güzel Hali",
     description: "Özel günlerinizde sevdiklerinizi mutlu edecek, doğal ve taze çelenkler.",
     type: "website",
     locale: "tr_TR",
   },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({
