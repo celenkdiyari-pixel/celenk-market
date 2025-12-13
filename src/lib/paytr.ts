@@ -63,18 +63,28 @@ export const getPayTRConfig = (): PayTRConfig => {
 
 // PayTR token oluşturma fonksiyonu
 export const generatePayTRToken = (config: PayTRConfig, paymentData: PayTRPaymentRequest): string => {
+  // Official PayTR token format:
+  // token = base64_encode( HMAC_SHA256(merchant_id + user_ip + merchant_oid + email + payment_amount + user_basket + no_installment + max_installment + currency + test_mode + merchant_salt, merchant_key) )
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const crypto = require('crypto');
-  
-  const hashString = 
+
+  const hashStr =
     config.merchantId +
     paymentData.user_ip +
     paymentData.merchant_oid +
     paymentData.email +
     paymentData.payment_amount +
+    paymentData.user_basket +
+    paymentData.no_installment +
+    paymentData.max_installment +
+    paymentData.currency +
+    paymentData.test_mode +
     config.merchantSalt;
-  
-  return crypto.createHash('sha256').update(hashString).digest('hex');
+
+  return crypto
+    .createHmac('sha256', config.merchantKey)
+    .update(hashStr)
+    .digest('base64');
 };
 
 // PayTR ödeme isteği oluşturma
@@ -90,6 +100,11 @@ export const createPayTRPayment = async (
       },
       body: new URLSearchParams(paymentData as unknown as Record<string, string>)
     });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`PayTR get-token HTTP ${response.status}: ${text}`);
+    }
 
     const result = await response.json();
     return result;

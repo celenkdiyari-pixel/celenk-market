@@ -50,6 +50,64 @@ interface CategoryInfo {
   features: string[];
 }
 
+// Stable category metadata to avoid re-renders/useEffect re-runs
+const CATEGORY_INFO: { [key: string]: CategoryInfo } = {
+  'acilistoren': {
+    title: 'Açılış & Tören Çelenkleri',
+    categoryValue: 'Açılış & Tören',
+    description: 'İş yerinizin açılışında ve özel törenlerinizde kullanabileceğiniz şık ve profesyonel çelenk tasarımları',
+    image: '/images/categories/açılıştören.jpg',
+    icon: Gift,
+    color: 'from-blue-500 to-cyan-500',
+    features: ['Profesyonel Tasarım', 'Uzun Ömürlü', 'Özel Günler İçin', 'Kurumsal Kalite']
+  },
+  'cenaze': {
+    title: 'Cenaze Çelenkleri',
+    categoryValue: 'Cenaze Çelenkleri',
+    description: 'Sevdiklerinizi son yolculuğunda uğurlarken saygı ve sevgi dolu anma çelenkleri',
+    image: '/images/categories/cenaze.jpg',
+    icon: Flower,
+    color: 'from-gray-500 to-slate-500',
+    features: ['Saygılı Tasarım', 'Kaliteli Malzeme', 'Hızlı Teslimat', 'Anma Hediyesi']
+  },
+  'ferforje': {
+    title: 'Ferforje Çelenkleri',
+    categoryValue: 'Ferforjeler',
+    description: 'Metal işçiliği ile hazırlanmış dayanıklı ve estetik ferforje çelenk tasarımları',
+    image: '/images/categories/ferforje.png',
+    icon: Wrench,
+    color: 'from-yellow-500 to-amber-500',
+    features: ['Dayanıklı Malzeme', 'Estetik Tasarım', 'Uzun Ömürlü', 'Özel İşçilik']
+  },
+  'fuarstand': {
+    title: 'Fuar & Stand Çelenkleri',
+    categoryValue: 'Fuar & Stand',
+    description: 'Fuar ve stand etkinlikleri için dikkat çekici ve profesyonel çelenk tasarımları',
+    image: '/images/categories/fuar stand.jpg',
+    icon: Building,
+    color: 'from-purple-500 to-violet-500',
+    features: ['Dikkat Çekici', 'Profesyonel', 'Etkinlik Odaklı', 'Kaliteli Görünüm']
+  },
+  'ofisbitki': {
+    title: 'Ofis & Saksı Bitkileri',
+    categoryValue: 'Ofis & Saksı Bitkileri',
+    description: 'Ofis ve ev için hava kalitesini artıran, dekoratif saksı bitkileri',
+    image: '/images/categories/ofis bitki.jpg',
+    icon: Leaf,
+    color: 'from-green-500 to-emerald-500',
+    features: ['Hava Temizleyici', 'Dekoratif', 'Bakım Kolay', 'Ofis Dostu']
+  },
+  'soznisan': {
+    title: 'Söz & Nişan Çelenkleri',
+    categoryValue: 'Söz & Nişan',
+    description: 'Hayatınızın en özel anlarında sevdiklerinizi mutlu edecek romantik ve zarif çelenk aranjmanları',
+    image: '/images/categories/söznişan.jpg',
+    icon: HeartIcon,
+    color: 'from-pink-500 to-rose-500',
+    features: ['Romantik Tasarım', 'Özel Günler', 'Zarif Görünüm', 'Aşk Dolu']
+  }
+};
+
 export default function CategoryPage() {
   const params = useParams();
   const categorySlug = params.category as string;
@@ -61,69 +119,11 @@ export default function CategoryPage() {
   const [sortBy, setSortBy] = useState<'name' | 'price' | 'newest'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 999999]);
   
   const { addToCart, toggleFavorite, isInCart, isFavorite } = useCart();
 
-  // Kategori bilgileri mapping
-  const categoryInfo: { [key: string]: CategoryInfo } = {
-    'acilistoren': {
-      title: 'Açılış & Tören Çelenkleri',
-      categoryValue: 'Açılış & Tören',
-      description: 'İş yerinizin açılışında ve özel törenlerinizde kullanabileceğiniz şık ve profesyonel çelenk tasarımları',
-      image: '/images/categories/açılıştören.jpg',
-      icon: Gift,
-      color: 'from-blue-500 to-cyan-500',
-      features: ['Profesyonel Tasarım', 'Uzun Ömürlü', 'Özel Günler İçin', 'Kurumsal Kalite']
-    },
-    'cenaze': {
-      title: 'Cenaze Çelenkleri',
-      categoryValue: 'Cenaze Çelenkleri',
-      description: 'Sevdiklerinizi son yolculuğunda uğurlarken saygı ve sevgi dolu anma çelenkleri',
-      image: '/images/categories/cenaze.jpg',
-      icon: Flower,
-      color: 'from-gray-500 to-slate-500',
-      features: ['Saygılı Tasarım', 'Kaliteli Malzeme', 'Hızlı Teslimat', 'Anma Hediyesi']
-    },
-    'ferforje': {
-      title: 'Ferforje Çelenkleri',
-      categoryValue: 'Ferforjeler',
-      description: 'Metal işçiliği ile hazırlanmış dayanıklı ve estetik ferforje çelenk tasarımları',
-      image: '/images/categories/ferforje.png',
-      icon: Wrench,
-      color: 'from-yellow-500 to-amber-500',
-      features: ['Dayanıklı Malzeme', 'Estetik Tasarım', 'Uzun Ömürlü', 'Özel İşçilik']
-    },
-    'fuarstand': {
-      title: 'Fuar & Stand Çelenkleri',
-      categoryValue: 'Fuar & Stand',
-      description: 'Fuar ve stand etkinlikleri için dikkat çekici ve profesyonel çelenk tasarımları',
-      image: '/images/categories/fuar stand.jpg',
-      icon: Building,
-      color: 'from-purple-500 to-violet-500',
-      features: ['Dikkat Çekici', 'Profesyonel', 'Etkinlik Odaklı', 'Kaliteli Görünüm']
-    },
-    'ofisbitki': {
-      title: 'Ofis & Saksı Bitkileri',
-      categoryValue: 'Ofis & Saksı Bitkileri',
-      description: 'Ofis ve ev için hava kalitesini artıran, dekoratif saksı bitkileri',
-      image: '/images/categories/ofis bitki.jpg',
-      icon: Leaf,
-      color: 'from-green-500 to-emerald-500',
-      features: ['Hava Temizleyici', 'Dekoratif', 'Bakım Kolay', 'Ofis Dostu']
-    },
-    'soznisan': {
-      title: 'Söz & Nişan Çelenkleri',
-      categoryValue: 'Söz & Nişan',
-      description: 'Hayatınızın en özel anlarında sevdiklerinizi mutlu edecek romantik ve zarif çelenk aranjmanları',
-      image: '/images/categories/söznişan.jpg',
-      icon: HeartIcon,
-      color: 'from-pink-500 to-rose-500',
-      features: ['Romantik Tasarım', 'Özel Günler', 'Zarif Görünüm', 'Aşk Dolu']
-    }
-  };
-
-  const currentCategory = categoryInfo[categorySlug];
+  const currentCategory = CATEGORY_INFO[categorySlug];
 
   // Ürünleri yükle
   useEffect(() => {
@@ -155,7 +155,17 @@ export default function CategoryPage() {
     if (currentCategory) {
       fetchProducts();
     }
-  }, [categorySlug, currentCategory]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categorySlug]); // currentCategory stable via CATEGORY_INFO mapping
+
+  // Ürünler yüklendiğinde fiyat aralığını dinamik ayarla
+  useEffect(() => {
+    if (!products.length) return;
+    const prices = products.map((p) => p.price || 0);
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
+    setPriceRange([Math.max(0, Math.floor(min)), Math.ceil(max)]);
+  }, [products]);
 
   // Filtreleme ve sıralama
   useEffect(() => {
@@ -170,8 +180,9 @@ export default function CategoryPage() {
     }
 
     // Fiyat filtresi
+    const [minPrice, maxPrice] = priceRange;
     filtered = filtered.filter(product =>
-      product.price >= priceRange[0] && product.price <= priceRange[1]
+      product.price >= minPrice && product.price <= maxPrice
     );
 
     // Sıralama

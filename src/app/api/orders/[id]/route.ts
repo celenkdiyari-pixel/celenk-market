@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, deleteDoc } from 'firebase/firestore';
 
 export async function PUT(
   request: NextRequest,
@@ -103,6 +103,47 @@ export async function PUT(
       details: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
     }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    console.log('🗑️ Deleting order:', id);
+
+    if (!id) {
+      return NextResponse.json({ error: 'Order ID is required' }, { status: 400 });
+    }
+
+    const orderRef = doc(db, 'orders', id);
+    const docSnap = await getDoc(orderRef);
+
+    if (!docSnap.exists()) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
+
+    await deleteDoc(orderRef);
+    console.log('✅ Order deleted:', id);
+
+    return NextResponse.json({
+      success: true,
+      id,
+      message: 'Order deleted successfully',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('❌ Error deleting order:', error);
+    return NextResponse.json(
+      {
+        error: 'Failed to delete order',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString(),
+      },
+      { status: 500 },
+    );
   }
 }
 
