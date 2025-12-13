@@ -33,13 +33,17 @@ export async function POST(request: NextRequest) {
     const deliveryAddress = orderData.deliveryAddress || orderData.customer?.address || {};
     const invoice = orderData.invoice || {};
     
-    // PayTR merchant_oid must be alphanumeric only
+    // PayTR merchant_oid must be alphanumeric only (no special characters)
+    // Always generate a clean alphanumeric ID for PayTR, use originalOrderNumber for reference only
     const originalOrderNumber = orderData.orderNumber?.toString() || '';
+    // Try to sanitize first, but if it becomes empty or too short, generate a new one
     const sanitizedOrderNumber = originalOrderNumber.replace(/[^a-zA-Z0-9]/g, '');
-    const fallbackOid = `ORD${Date.now()}${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
-    const paytrOrderNumberRaw = sanitizedOrderNumber || fallbackOid;
-    // PayTR docs: alphanumeric only, keep it reasonable length (<=64)
-    const paytrOrderNumber = paytrOrderNumberRaw.slice(0, 64);
+    // Generate a guaranteed alphanumeric merchant_oid for PayTR
+    const timestamp = Date.now();
+    const randomPart = Math.random().toString(36).slice(2, 6).toUpperCase();
+    const paytrOrderNumber = sanitizedOrderNumber && sanitizedOrderNumber.length >= 8 
+      ? sanitizedOrderNumber.slice(0, 64) 
+      : `ORD${timestamp}${randomPart}`;
     
     const config = getPayTRConfig();
     

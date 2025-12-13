@@ -74,6 +74,47 @@ interface Order {
   };
 }
 
+interface RawOrder {
+  id?: string;
+  orderNumber?: string;
+  customer?: {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    address?: {
+      street?: string;
+      city?: string;
+      district?: string;
+      postalCode?: string;
+      country?: string;
+    };
+    notes?: string;
+  };
+  items?: Array<{
+    productId?: string;
+    productName?: string;
+    name?: string;
+    variantId?: string;
+    variantName?: string;
+    quantity?: number;
+    price?: number;
+    image?: string;
+    productImage?: string;
+  }>;
+  subtotal?: number;
+  shippingCost?: number;
+  total?: number;
+  status?: string;
+  paymentStatus?: string;
+  paymentMethod?: string;
+  shippingMethod?: string;
+  notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  paymentDetails?: Order['paymentDetails'];
+}
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -94,11 +135,11 @@ export default function OrdersPage() {
       if (response.ok) {
         const data = await response.json();
         // Validate and sanitize orders data from Firebase
-        const validOrders = (data.orders || []).map((order: Partial<Order> & { id?: string; orderNumber?: string; customer?: Partial<CustomerInfo> & { address?: Partial<CustomerInfo['address']> }; items?: Array<Partial<OrderItem>> }) => {
+        const validOrders = (data.orders || []).map((order: RawOrder) => {
           // Ensure customer object exists and has proper structure
           const customer = order.customer || {} as Partial<CustomerInfo>;
           const address = customer.address || {} as Partial<CustomerInfo['address']>;
-          
+
           return {
             id: order.id || '',
             orderNumber: order.orderNumber || `ORD-${order.id || 'UNKNOWN'}`,
@@ -128,8 +169,8 @@ export default function OrdersPage() {
             subtotal: typeof order.subtotal === 'number' ? order.subtotal : 0,
             shippingCost: typeof order.shippingCost === 'number' ? order.shippingCost : 0,
             total: typeof order.total === 'number' ? order.total : (order.subtotal || 0) + (order.shippingCost || 0),
-            status: ['pending', 'confirmed', 'preparing', 'shipped', 'delivered', 'cancelled'].includes(order.status) 
-              ? order.status 
+            status: ['pending', 'confirmed', 'preparing', 'shipped', 'delivered', 'cancelled'].includes(order.status)
+              ? order.status
               : 'pending',
             paymentStatus: ['pending', 'paid', 'failed', 'refunded'].includes(order.paymentStatus)
               ? order.paymentStatus
@@ -166,7 +207,7 @@ export default function OrdersPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           status: newStatus,
           updatedAt: new Date().toISOString()
         }),
@@ -175,18 +216,18 @@ export default function OrdersPage() {
       if (response.ok) {
         const data = await response.json();
         const updatedOrder = data.order || { status: newStatus };
-        
+
         // Update local state
-        setOrders(prev => prev.map(order => 
-          order.id === orderId 
-            ? { ...order, status: updatedOrder.status as Order['status'], updatedAt: updatedOrder.updatedAt || new Date().toISOString() } 
+        setOrders(prev => prev.map(order =>
+          order.id === orderId
+            ? { ...order, status: updatedOrder.status as Order['status'], updatedAt: updatedOrder.updatedAt || new Date().toISOString() }
             : order
         ));
-        
+
         // Update modal if open
         if (selectedOrder && selectedOrder.id === orderId) {
-          setSelectedOrder(prev => prev ? { 
-            ...prev, 
+          setSelectedOrder(prev => prev ? {
+            ...prev,
             status: updatedOrder.status as Order['status'],
             updatedAt: updatedOrder.updatedAt || new Date().toISOString()
           } : null);
@@ -273,15 +314,15 @@ export default function OrdersPage() {
 
   const filteredOrders = orders.filter(order => {
     if (!order || !order.customer) return false;
-    
-    const matchesSearch = 
+
+    const matchesSearch =
       (order.orderNumber || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (order.customer.firstName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (order.customer.lastName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (order.customer.email || '').toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -346,7 +387,7 @@ export default function OrdersPage() {
                   <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">Sipariş Bulunamadı</h3>
                   <p className="text-gray-500">
-                    {searchTerm || statusFilter !== 'all' 
+                    {searchTerm || statusFilter !== 'all'
                       ? 'Arama kriterlerinize uygun sipariş bulunamadı.'
                       : 'Henüz hiç sipariş alınmamış.'
                     }
@@ -367,7 +408,7 @@ export default function OrdersPage() {
                           {getStatusBadge(order.status)}
                           {getPaymentStatusBadge(order.paymentStatus)}
                         </div>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
                           <div className="flex items-center space-x-2">
                             <User className="h-4 w-4" />
@@ -388,19 +429,19 @@ export default function OrdersPage() {
                           <div className="flex items-center space-x-2">
                             <Calendar className="h-4 w-4" />
                             <span>
-                              {order.createdAt 
+                              {order.createdAt
                                 ? new Date(order.createdAt).toLocaleDateString('tr-TR', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                  })
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })
                                 : 'Tarih yok'}
                             </span>
                           </div>
                         </div>
-                        
+
                         <div className="mt-3">
                           <div className="flex items-center space-x-2 text-sm text-gray-600">
                             <Package className="h-4 w-4" />
@@ -409,8 +450,8 @@ export default function OrdersPage() {
                             <CreditCard className="h-4 w-4" />
                             <span className="capitalize">
                               {order.paymentMethod === 'cash' ? 'Kapıda Ödeme' :
-                               order.paymentMethod === 'credit_card' ? 'Kredi Kartı' :
-                               'Havale/EFT'}
+                                order.paymentMethod === 'credit_card' ? 'Kredi Kartı' :
+                                  'Havale/EFT'}
                             </span>
                           </div>
                         </div>
@@ -426,7 +467,7 @@ export default function OrdersPage() {
                             Kargo: {(order.shippingCost || 0).toFixed(2)} ₺
                           </p>
                         </div>
-                        
+
                         <div className="flex space-x-2">
                           <Button
                             variant="outline"
@@ -439,7 +480,7 @@ export default function OrdersPage() {
                             <Eye className="h-4 w-4 mr-1" />
                             Detay
                           </Button>
-                          
+
                           {order.status === 'pending' && (
                             <Button
                               size="sm"
@@ -449,7 +490,7 @@ export default function OrdersPage() {
                               Onayla
                             </Button>
                           )}
-                          
+
                           {order.status === 'confirmed' && (
                             <Button
                               size="sm"
@@ -459,7 +500,7 @@ export default function OrdersPage() {
                               Hazırla
                             </Button>
                           )}
-                          
+
                           {order.status === 'preparing' && (
                             <Button
                               size="sm"
@@ -546,7 +587,7 @@ export default function OrdersPage() {
                           {selectedOrder.customer?.address?.city || ''}
                         </p>
                         <p>
-                          {selectedOrder.customer?.address?.postalCode || ''} 
+                          {selectedOrder.customer?.address?.postalCode || ''}
                           {selectedOrder.customer?.address?.postalCode && selectedOrder.customer?.address?.country ? ' ' : ''}
                           {selectedOrder.customer?.address?.country || 'Türkiye'}
                         </p>
@@ -586,47 +627,47 @@ export default function OrdersPage() {
                       <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Ödeme Yöntemi</label>
                       <p className="text-gray-900 mt-1 font-medium">
                         {selectedOrder.paymentMethod === 'cash' ? 'Kapıda Ödeme' :
-                         selectedOrder.paymentMethod === 'credit_card' ? 'Kredi Kartı' :
-                         selectedOrder.paymentMethod === 'bank_transfer' ? 'Havale/EFT' :
-                         selectedOrder.paymentMethod || 'Belirtilmemiş'}
+                          selectedOrder.paymentMethod === 'credit_card' ? 'Kredi Kartı' :
+                            selectedOrder.paymentMethod === 'bank_transfer' ? 'Havale/EFT' :
+                              selectedOrder.paymentMethod || 'Belirtilmemiş'}
                       </p>
                     </div>
                     <div>
                       <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Teslimat Yöntemi</label>
                       <p className="text-gray-900 mt-1 font-medium">
                         {selectedOrder.shippingMethod === 'standard' ? 'Standart Kargo' :
-                         selectedOrder.shippingMethod === 'express' ? 'Hızlı Kargo' :
-                         selectedOrder.shippingMethod === 'pickup' ? 'Mağazadan Teslim' :
-                         selectedOrder.shippingMethod || 'Belirtilmemiş'}
+                          selectedOrder.shippingMethod === 'express' ? 'Hızlı Kargo' :
+                            selectedOrder.shippingMethod === 'pickup' ? 'Mağazadan Teslim' :
+                              selectedOrder.shippingMethod || 'Belirtilmemiş'}
                       </p>
                     </div>
                     <div>
                       <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Sipariş Tarihi</label>
                       <p className="text-gray-900 mt-1">
-                        {selectedOrder.createdAt 
+                        {selectedOrder.createdAt
                           ? new Date(selectedOrder.createdAt).toLocaleString('tr-TR', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              second: '2-digit'
-                            })
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                          })
                           : 'Tarih yok'}
                       </p>
                     </div>
                     <div>
                       <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Son Güncelleme</label>
                       <p className="text-gray-900 mt-1">
-                        {selectedOrder.updatedAt 
+                        {selectedOrder.updatedAt
                           ? new Date(selectedOrder.updatedAt).toLocaleString('tr-TR', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              second: '2-digit'
-                            })
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                          })
                           : 'Tarih yok'}
                       </p>
                     </div>
@@ -783,7 +824,7 @@ export default function OrdersPage() {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="border-t pt-4 mt-6 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Ara Toplam:</span>
@@ -825,7 +866,7 @@ export default function OrdersPage() {
                     Siparişi Onayla
                   </Button>
                 )}
-                
+
                 {selectedOrder.status === 'confirmed' && (
                   <Button
                     onClick={() => {
@@ -837,7 +878,7 @@ export default function OrdersPage() {
                     Hazırlamaya Başla
                   </Button>
                 )}
-                
+
                 {selectedOrder.status === 'preparing' && (
                   <Button
                     onClick={() => {
@@ -849,7 +890,7 @@ export default function OrdersPage() {
                     Kargoya Ver
                   </Button>
                 )}
-                
+
                 {selectedOrder.status === 'shipped' && (
                   <Button
                     onClick={() => {
