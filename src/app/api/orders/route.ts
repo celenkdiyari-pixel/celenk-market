@@ -232,4 +232,45 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString()
     }, { status: 500 });
   }
-}
+  // Bulk delete handler
+  import { deleteDoc } from 'firebase/firestore';
+
+  export async function DELETE(request: NextRequest) {
+    try {
+      const { searchParams } = new URL(request.url);
+      const action = searchParams.get('action');
+
+      if (action === 'deleteAll') {
+        console.log('⚠️ Bulk deleting all orders...');
+
+        // Get all orders first
+        const ordersRef = collection(db, 'orders');
+        const snapshot = await getDocs(ordersRef);
+
+        if (snapshot.empty) {
+          return NextResponse.json({ message: 'No orders to delete' });
+        }
+
+        // Delete in parallel (be careful with rate limits if thousands, but for test data < 100 it's fine)
+        const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+        await Promise.all(deletePromises);
+
+        console.log(`✅ Deleted ${snapshot.size} orders`);
+
+        return NextResponse.json({
+          success: true,
+          deletedCount: snapshot.size,
+          message: 'All orders deleted successfully'
+        });
+      }
+
+      return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+
+    } catch (error) {
+      console.error('❌ Error deleting orders:', error);
+      return NextResponse.json({
+        error: 'Failed to delete orders',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }, { status: 500 });
+    }
+  }
