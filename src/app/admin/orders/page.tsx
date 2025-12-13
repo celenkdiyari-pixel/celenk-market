@@ -393,71 +393,39 @@ export default function OrdersPage() {
           </div>
 
           {/* Filters */}
-          <div className="flex justify-between items-center mb-6 gap-4">
-            <Card className="flex-1">
-              <CardContent className="pt-6 pb-6">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="flex-1">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                      <Input
-                        placeholder="Sipariş numarası, müşteri adı veya e-posta ile ara..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 rounded-xl"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Filter className="h-4 w-4 text-gray-400" />
-                    <select
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                    >
-                      <option value="all">Tüm Durumlar</option>
-                      <option value="pending">Beklemede</option>
-                      <option value="confirmed">Onaylandı</option>
-                      <option value="preparing">Hazırlanıyor</option>
-                      <option value="shipped">Kargoya Verildi</option>
-                      <option value="delivered">Teslim Edildi</option>
-                      <option value="cancelled">İptal Edildi</option>
-                    </select>
+          <Card className="mb-6">
+            <CardContent className="pt-6">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input
+                      placeholder="Sipariş numarası, müşteri adı veya e-posta ile ara..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 rounded-xl"
+                    />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Button
-              variant="destructive"
-              onClick={async () => {
-                if (window.confirm('DİKKAT! Tüm siparişler kalıcı olarak silinecektir. Bu işlem geri alınamaz. Onaylıyor musunuz?') &&
-                  window.confirm('Gerçekten tüm sipariş veritabanını temizlemek istediğinize emin misiniz?')) {
-                  try {
-                    setIsLoading(true);
-                    const res = await fetch('/api/orders?action=deleteAll', { method: 'DELETE' });
-                    if (res.ok) {
-                      setOrders([]);
-                      alert('Tüm siparişler başarıyla silindi.');
-                    } else {
-                      alert('Silme işlemi başarısız oldu.');
-                    }
-                  } catch (e) {
-                    console.error(e);
-                    alert('Hata oluştu.');
-                  } finally {
-                    setIsLoading(false);
-                  }
-                }
-              }}
-              className="h-full min-h-[88px] rounded-xl px-6"
-            >
-              <div className="flex flex-col items-center gap-1">
-                <XCircle className="h-6 w-6" />
-                <span>Test Verilerini Sil</span>
+                <div className="flex items-center space-x-2">
+                  <Filter className="h-4 w-4 text-gray-400" />
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  >
+                    <option value="all">Tüm Durumlar</option>
+                    <option value="pending">Beklemede</option>
+                    <option value="confirmed">Onaylandı</option>
+                    <option value="preparing">Hazırlanıyor</option>
+                    <option value="shipped">Kargoya Verildi</option>
+                    <option value="delivered">Teslim Edildi</option>
+                    <option value="cancelled">İptal Edildi</option>
+                  </select>
+                </div>
               </div>
-            </Button>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Orders List */}
           <div className="grid grid-cols-1 gap-6">
