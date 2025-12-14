@@ -1,109 +1,131 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+/**
+ * Email gönderim API'si.
+ * role parametresi ile admin ya da customer şablonu seçilir.
+ * role belirtilmezse varsayılan olarak "customer" şablonu kullanılır.
+ */
 interface EmailData {
-  to: string;
-  subject: string;
-  templateId: string;
+  to: string;                     // alıcı e‑posta adresi
+  subject: string;                // e‑posta başlığı
+  role?: 'admin' | 'customer';    // hangi şablon kullanılacak (default: customer)
   templateParams: Record<string, string | number | boolean>;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const emailData: EmailData = await request.json();
+    const {
+      to,
+      subject,
+      role = 'customer',
+      templateParams,
+    }: EmailData = await request.json();
 
-    const { to, subject, templateId, templateParams } = emailData;
-
-    // EmailJS servis bilgileri - Vercel environment variables'dan alınacak
-    // Vercel'de kayıtlı olan keyler: EMAILJS_SERVICE_ID, EMAILJS_PUBLIC_KEY, EMAILJS_TEMPLATE_ID
-    const serviceId = process.env.EMAILJS_SERVICE_ID || process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
-    const publicKey = process.env.EMAILJS_PUBLIC_KEY || process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || process.env.EMAILJS_USER_ID;
+    // -----------------------------------------------------------------
+    // EmailJS konfigürasyonu (Vercel env değişkenlerinden alınır)
+    // -----------------------------------------------------------------
+    const serviceId =
+      process.env.EMAILJS_SERVICE_ID ||
+      process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+    const publicKey =
+      process.env.EMAILJS_PUBLIC_KEY ||
+      process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY ||
+      process.env.EMAILJS_USER_ID;
     const privateKey = process.env.EMAILJS_PRIVATE_KEY;
 
     if (!serviceId || !publicKey) {
       console.error('❌ EmailJS configuration missing');
-      console.error('Service ID:', serviceId ? 'Found' : 'Missing');
-      console.error('Public Key:', publicKey ? 'Found' : 'Missing');
-      return NextResponse.json({
-        error: 'Email service not configured',
-        message: 'EmailJS service ID and public key are required. Please check Vercel environment variables.',
-        debug: {
-          hasServiceId: !!serviceId,
-          hasPublicKey: !!publicKey
-        }
-      }, { status: 500 });
+      return NextResponse.json(
+        {
+          error: 'Email service not configured',
+          debug: { hasServiceId: !!serviceId, hasPublicKey: !!publicKey },
+        },
+        { status: 500 }
+      );
     }
 
-    if (!templateId) {
-      console.error('❌ Template ID missing');
-      return NextResponse.json({
-        error: 'Template ID is required'
-      }, { status: 400 });
+    // -----------------------------------------------------------------
+    // Şablon seçimi (admin vs. customer)
+    // -----------------------------------------------------------------
+    const adminTemplateId = process.env.EMAILJS_TEMPLATE_ADMIN; // e.g. template_t6bsxpr
+    const customerTemplateId = process.env.EMAILJS_TEMPLATE_CUSTOMER; // e.g. template_zel5ngx
+
+    const selectedTemplateId =
+      role === 'admin' ? adminTemplateId : customerTemplateId;
+
+    if (!selectedTemplateId) {
+      console.error('❌ Template ID missing for role:', role);
+      return NextResponse.json(
+        { error: 'Template ID is required for the selected role' },
+        { status: 400 }
+      );
     }
 
-    // EmailJS API endpoint
-    const emailjsUrl = `https://api.emailjs.com/api/v1.0/email/send`;
-
-    // EmailJS API formatı
-    // EmailJS'de to_email ve subject template_params içinde gönderilir
-    // Template'lerde {{to_email}} ve {{subject}} kullanılabilir
+    // -----------------------------------------------------------------
+    // Payload oluşturulması
+    // -----------------------------------------------------------------
     const emailPayload: Record<string, unknown> = {
       service_id: serviceId,
-      template_id: templateId,
+      template_id: selectedTemplateId,
       user_id: publicKey,
       template_params: {
         ...templateParams,
         to_email: to,
-        subject: subject,
-        // EmailJS template'lerinde kullanılabilecek ek parametreler
-        reply_to: to, // Reply-to adresi
-      }
+        subject,
+        reply_to: to,
+      },
     };
 
-    // Add private key (accessToken) if available for server-side auth
     if (privateKey) {
       emailPayload.accessToken = privateKey;
     }
 
-    console.log('📧 Sending email via EmailJS:', {
-      service_id: serviceId,
-      template_id: templateId,
-      to_email: to,
-      subject: subject
+    // -----------------------------------------------------------------
+    // EmailJS API çağrısı
+    // -----------------------------------------------------------------
+    const emailjsUrl = `https://api.emailjs.com/api/v1.0/email/send`;
+
+    console.log('📧 Sending email via EmailJS', {
+      to,
+      subject,
+      role,
+      templateId: selectedTemplateId,
     });
 
-    // Email gönderme isteği
     const emailResponse = await fetch(emailjsUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(emailPayload)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(emailPayload),
     });
 
     const responseText = await emailResponse.text();
 
     if (!emailResponse.ok) {
       console.error('❌ EmailJS API error:', responseText);
-      console.error('❌ Status:', emailResponse.status);
-      return NextResponse.json({
-        error: 'Failed to send email',
-        details: responseText,
-        status: emailResponse.status
-      }, { status: emailResponse.status });
+      return NextResponse.json(
+        {
+          error: 'Failed to send email',
+          details: responseText,
+          status: emailResponse.status,
+        },
+        { status: emailResponse.status }
+      );
     }
 
-    console.log('✅ Email sent successfully via EmailJS');
+    console.log('✅ Email sent successfully');
     return NextResponse.json({
       success: true,
-      message: 'Email sent successfully'
+      message: 'Email sent successfully',
+      role,
     });
-
   } catch (error) {
-    console.error('❌ Error sending email:', error);
-    return NextResponse.json({
-      error: 'Failed to send email',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    console.error('❌ Unexpected error in /api/email:', error);
+    return NextResponse.json(
+      {
+        error: 'Failed to send email',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
   }
 }
-

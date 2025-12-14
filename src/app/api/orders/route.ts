@@ -97,6 +97,8 @@ export async function POST(request: NextRequest) {
                 month: 'long',
                 day: 'numeric'
               }),
+              // New field: delivery_time (optional)
+              delivery_time: orderData.delivery_time || '',
             }
           })
         }).catch(err => console.error('Failed to send customer email:', err));
