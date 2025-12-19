@@ -113,7 +113,7 @@ export default function CartPage() {
     address: '',
     notes: '',
     deliveryDate: new Date().toISOString().split('T')[0], // Default to today
-    deliveryTime: DELIVERY_TIME_SLOTS[0],
+    deliveryTime: '',
     deliveryPlaceType: 'Ev'
   });
 
@@ -576,6 +576,7 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
                       onChange={(e) => setRecipientInfo({ ...recipientInfo, deliveryTime: e.target.value })}
                       className="w-full h-11 rounded-xl bg-gray-50 border-gray-200 px-3 focus:ring-2 focus:ring-green-500 focus:outline-none"
                     >
+                      <option value="" disabled>Lütfen Saati Seçiniz</option>
                       {DELIVERY_TIME_SLOTS.map((slot) => (
                         <option key={slot} value={slot}>{slot}</option>
                       ))}
