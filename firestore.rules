@@ -1,0 +1,24 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default: Deny all read/write
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Products: Public read, no client-side write (must use API)
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // Config/Settings: Public read for site settings
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // Orders, Users, PayTR, Analytics: No client access
+    // All operations must go through the Secure API (using Admin SDK)
+  }
+}

@@ -72,6 +72,7 @@ interface Order {
   notes?: string;
   createdAt: string;
   updatedAt: string;
+  delivery_time?: string;
   paymentDetails?: {
     paytrTransactionId?: string;
     paymentType?: string;
@@ -139,6 +140,7 @@ interface RawOrder {
   notes?: string;
   createdAt?: string;
   updatedAt?: string;
+  delivery_time?: string;
   paymentDetails?: Order['paymentDetails'];
 }
 
@@ -232,6 +234,7 @@ export default function OrdersPage() {
             notes: order.notes || '',
             createdAt: order.createdAt || new Date().toISOString(),
             updatedAt: order.updatedAt || order.createdAt || new Date().toISOString(),
+            delivery_time: order.delivery_time || '',
             paymentDetails: order.paymentDetails || undefined
           };
         });
@@ -664,6 +667,15 @@ export default function OrdersPage() {
                           <div>
                             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Sipariş Notu</label>
                             <p className="text-gray-900 mt-1 text-sm bg-gray-50 p-2 rounded">{selectedOrder.recipient.notes}</p>
+                          </div>
+                        )}
+                        {selectedOrder.delivery_time && (
+                          <div>
+                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Teslimat Zamanı</label>
+                            <p className="text-green-700 font-bold mt-1 text-sm bg-green-50 p-2 rounded flex items-center">
+                              <Clock className="w-4 h-4 mr-2" />
+                              {selectedOrder.delivery_time}
+                            </p>
                           </div>
                         )}
                       </>

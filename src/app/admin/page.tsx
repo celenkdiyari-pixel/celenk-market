@@ -6,10 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Plus, 
-  Save, 
-  Package, 
+import {
+  Plus,
+  Save,
+  Package,
   Search,
   CheckCircle,
   XCircle,
@@ -66,7 +66,7 @@ export default function AdminPanel() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  
+
   const [newProduct, setNewProduct] = useState({
     name: '',
     description: '',
@@ -78,7 +78,7 @@ export default function AdminPanel() {
     seoDescription: '',
     seoKeywords: ''
   });
-  
+
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   const categories = [
@@ -95,17 +95,17 @@ export default function AdminPanel() {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       const img = new window.Image();
-      
+
       img.onload = () => {
         const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
         canvas.width = img.width * ratio;
         canvas.height = img.height * ratio;
-        
+
         ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
         const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
         resolve(compressedDataUrl);
       };
-      
+
       img.src = URL.createObjectURL(file);
     });
   };
@@ -217,7 +217,7 @@ export default function AdminPanel() {
       if (response.ok) {
         setShowSuccessMessage(true);
         setTimeout(() => setShowSuccessMessage(false), 3000);
-        
+
         setIsAddingProduct(false);
         setIsEditingProduct(false);
         setEditingProductId('');
@@ -233,7 +233,7 @@ export default function AdminPanel() {
           seoKeywords: ''
         });
         setImagePreviews([]);
-        
+
         await loadProducts();
       } else {
         const error = await response.json();
@@ -320,7 +320,6 @@ export default function AdminPanel() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Toplam Ürün</p>
                   <p className="text-3xl font-bold text-gray-900">{products.length}</p>
-                  <p className="text-xs text-green-600 mt-1">+12% bu ay</p>
                 </div>
                 <div className="p-3 bg-blue-100 rounded-full">
                   <Package className="h-8 w-8 text-blue-600" />
@@ -336,9 +335,6 @@ export default function AdminPanel() {
                   <p className="text-sm font-medium text-gray-600">Stokta</p>
                   <p className="text-3xl font-bold text-gray-900">
                     {products.filter(p => p.inStock).length}
-                  </p>
-                  <p className="text-xs text-green-600 mt-1">
-                    %{Math.round((products.filter(p => p.inStock).length / products.length) * 100)} stok oranı
                   </p>
                 </div>
                 <div className="p-3 bg-green-100 rounded-full">
@@ -356,7 +352,6 @@ export default function AdminPanel() {
                   <p className="text-3xl font-bold text-gray-900">
                     {products.filter(p => !p.inStock).length}
                   </p>
-                  <p className="text-xs text-red-600 mt-1">Yeniden stok gerekli</p>
                 </div>
                 <div className="p-3 bg-red-100 rounded-full">
                   <XCircle className="h-8 w-8 text-red-600" />
@@ -371,7 +366,6 @@ export default function AdminPanel() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Kategoriler</p>
                   <p className="text-3xl font-bold text-gray-900">{categories.length}</p>
-                  <p className="text-xs text-blue-600 mt-1">Aktif kategoriler</p>
                 </div>
                 <div className="p-3 bg-purple-100 rounded-full">
                   <BarChart3 className="h-8 w-8 text-purple-600" />
@@ -409,7 +403,7 @@ export default function AdminPanel() {
                     };
                     const status = statusConfig[order.status] || statusConfig.pending;
                     const customerName = `${order.customer.firstName} ${order.customer.lastName}`.trim() || 'Bilinmiyor';
-                    
+
                     return (
                       <div key={order.orderNumber} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div>
@@ -449,7 +443,7 @@ export default function AdminPanel() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button 
+              <Button
                 onClick={() => {
                   setIsAddingProduct(true);
                   setIsEditingProduct(false);
@@ -472,23 +466,23 @@ export default function AdminPanel() {
                 <Plus className="h-4 w-4 mr-2" />
                 Yeni Ürün Ekle
               </Button>
-              
+
               <Link href="/admin/announcements">
                 <Button variant="outline" className="w-full">
                   <Megaphone className="h-4 w-4 mr-2" />
                   Duyuru Ekle
                 </Button>
               </Link>
-              
+
               <Link href="/admin/settings">
                 <Button variant="outline" className="w-full">
                   <Settings className="h-4 w-4 mr-2" />
                   Site Ayarları
                 </Button>
               </Link>
-              
-              <Button 
-                variant="outline" 
+
+              <Button
+                variant="outline"
                 className="w-full"
                 onClick={() => window.open('/', '_blank')}
               >
@@ -513,7 +507,7 @@ export default function AdminPanel() {
                 const categoryProducts = products.filter(p => p.category === category);
                 const inStockCount = categoryProducts.filter(p => p.inStock).length;
                 const totalValue = categoryProducts.reduce((sum, p) => sum + p.price, 0);
-                
+
                 return (
                   <div key={category} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
                     <h4 className="font-semibold text-gray-900 mb-2">{category}</h4>
@@ -776,7 +770,7 @@ export default function AdminPanel() {
                     <p className="text-sm text-gray-600">Görsel yüklemek için tıklayın</p>
                   </label>
                 </div>
-                
+
                 {imagePreviews.length > 0 && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                     {imagePreviews.map((preview, index) => (
@@ -840,7 +834,7 @@ export default function AdminPanel() {
 
         {/* Action Buttons */}
         <div className="mb-6 flex justify-between items-center">
-          <Button 
+          <Button
             onClick={() => {
               setIsAddingProduct(true);
               setIsEditingProduct(false);
@@ -908,11 +902,11 @@ export default function AdminPanel() {
                           {product.inStock ? 'Stokta' : 'Stokta Yok'}
                         </Badge>
                       </div>
-                      
+
                       <p className="text-gray-600 mb-3 line-clamp-2">
                         {product.description}
                       </p>
-                      
+
                       <div className="flex items-center space-x-4 text-sm text-gray-500">
                         <span className="font-semibold text-green-600">{product.price} ₺</span>
                         <span>•</span>

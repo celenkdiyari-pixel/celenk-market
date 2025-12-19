@@ -41,14 +41,14 @@ export interface PayTRPaymentResponse {
 export interface PayTRCallbackData {
   merchant_oid: string;
   status: string;
-  total_amount: number;
+  total_amount: string;
   hash: string;
   failed_reason_code?: string;
   failed_reason_msg?: string;
   test_mode: string;
   payment_type: string;
   currency: string;
-  payment_amount: number;
+  payment_amount: string;
 }
 
 // PayTR konfigürasyonu - environment variables'dan gelecek
@@ -119,15 +119,18 @@ export const createPayTRPayment = async (
 export const verifyPayTRCallback = (config: PayTRConfig, callbackData: PayTRCallbackData): boolean => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const crypto = require('crypto');
-  
-  const hashString = 
+
+  const hashString =
     callbackData.merchant_oid +
     config.merchantSalt +
     callbackData.status +
     callbackData.total_amount;
-  
-  const calculatedHash = crypto.createHash('sha256').update(hashString).digest('hex');
-  
+
+  const calculatedHash = crypto
+    .createHmac('sha256', config.merchantKey)
+    .update(hashString)
+    .digest('base64');
+
   return calculatedHash === callbackData.hash;
 };
 

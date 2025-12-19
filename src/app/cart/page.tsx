@@ -39,6 +39,7 @@ interface RecipientInfo {
   district: string;
   address: string;
   notes: string;
+  deliveryTime: string;
 }
 
 export default function CartPage() {
@@ -65,7 +66,8 @@ export default function CartPage() {
     city: 'İstanbul',
     district: '',
     address: '',
-    notes: ''
+    notes: '',
+    deliveryTime: 'Gün İçinde (09:00 - 18:00)'
   });
 
   const [paymentMethod, setPaymentMethod] = useState<'credit_card' | 'transfer'>('credit_card');
@@ -157,7 +159,8 @@ export default function CartPage() {
           fullAddress: recipientInfo.address,
         },
         notes: recipientInfo.notes,
-        shippingCost: 0 // Free shipping as per UI
+        shippingCost: 0, // Free shipping as per UI
+        delivery_time: recipientInfo.deliveryTime,
       };
 
       if (paymentMethod === 'credit_card') {
@@ -494,6 +497,20 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
                       onChange={(e) => setRecipientInfo({ ...recipientInfo, notes: e.target.value })}
                       className="h-11 rounded-xl bg-gray-50 border-gray-200"
                     />
+                  </div>
+                  <div className="col-span-2">
+                    <Label>Teslimat Zamanı *</Label>
+                    <select
+                      value={recipientInfo.deliveryTime}
+                      onChange={(e) => setRecipientInfo({ ...recipientInfo, deliveryTime: e.target.value })}
+                      className="w-full h-11 rounded-xl bg-gray-50 border-gray-200 px-3 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                    >
+                      <option value="Gün İçinde (09:00 - 18:00)">Gün İçinde (09:00 - 18:00)</option>
+                      <option value="Sabah (09:00 - 12:00)">Sabah (09:00 - 12:00)</option>
+                      <option value="Öğle (12:00 - 15:00)">Öğle (12:00 - 15:00)</option>
+                      <option value="İkindi (15:00 - 18:00)">İkindi (15:00 - 18:00)</option>
+                      <option value="Akşam (18:00 - 21:00)">Akşam (18:00 - 21:00)</option>
+                    </select>
                   </div>
                 </div>
               </CardContent>

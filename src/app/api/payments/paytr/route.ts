@@ -187,6 +187,7 @@ export async function POST(request: NextRequest) {
         shippingCost,
         total: orderData.total || strictBasketTotal,
         notes: orderData.notes || '',
+        delivery_time: orderData.delivery_time || '',
         paymentMethod: 'credit_card',
         paymentStatus: 'pending',
         status: 'pending',

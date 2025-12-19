@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, getDocs, query, orderBy, limit, doc, getDoc, updateDoc, where, deleteDoc } from 'firebase/firestore';
+import { getAdminDb } from '@/lib/firebase-admin';
+
+// Helper to determine which DB to use
+async function getDbStrategy() {
+  try {
+    const adminDb = getAdminDb();
+    return { type: 'admin' as const, db: adminDb };
+  } catch (e) {
+    return { type: 'client' as const, db };
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,48 +43,28 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Validation passed, creating order:', orderNumber);
 
-    const docRef = await addDoc(collection(db, 'orders'), order);
+    const strategy = await getDbStrategy();
+    let docId = '';
 
-    console.log('✅ Order created successfully in Firebase with ID:', docRef.id);
-
-    // Update product stock quantities
-    try {
-      for (const item of orderData.items) {
-        if (item.productId) {
-          const productRef = doc(db, 'products', item.productId);
-          const productSnap = await getDoc(productRef);
-
-          /* Stock update logic disabled by user request - Project now runs without stock management
-                    if (productSnap.exists()) {
-                      const productData = productSnap.data();
-                      const currentQuantity = productData.quantity || 0;
-                      const orderedQuantity = item.quantity || 1;
-                      const newQuantity = Math.max(0, currentQuantity - orderedQuantity);
-                      
-                      await updateDoc(productRef, {
-                        quantity: newQuantity,
-                        inStock: newQuantity > 0,
-                        updatedAt: new Date().toISOString()
-                      });
-                      
-                      console.log(`✅ Stock updated for product ${item.productId}: ${currentQuantity} -> ${newQuantity}`);
-                    }
-          */
-        }
-      }
-    } catch (stockError) {
-      console.error('⚠️ Error updating stock (non-blocking):', stockError);
-      // Don't fail the order if stock update fails
+    if (strategy.type === 'admin') {
+      const docRef = await strategy.db.collection('orders').add(order);
+      docId = docRef.id;
+    } else {
+      const docRef = await addDoc(collection(strategy.db, 'orders'), order);
+      docId = docRef.id;
     }
+
+    console.log('✅ Order created successfully in Firebase with ID:', docId);
 
     // Send email notifications (async, don't wait for it)
     try {
       const adminEmail = process.env.ADMIN_EMAIL || 'celenkdiyari@gmail.com';
-      const customerEmail = orderData.customer?.email || orderData.customer?.email;
+      const customerEmail = orderData.customer?.email;
       const customerName = orderData.customer?.firstName && orderData.customer?.lastName
         ? `${orderData.customer.firstName} ${orderData.customer.lastName}`
         : orderData.customer?.name || 'Müşteri';
       const totalAmount = orderData.total || (orderData.subtotal || 0) + (orderData.shippingCost || 0);
+      const deliveryTime = orderData.delivery_time || '';
 
       // Send email to customer
       if (customerEmail) {
@@ -83,57 +74,126 @@ export async function POST(request: NextRequest) {
           body: JSON.stringify({
             to: customerEmail,
             subject: `Siparişiniz Alındı - ${orderNumber}`,
-            templateId: process.env.EMAILJS_TEMPLATE_CUSTOMER || 'template_customer',
+            role: 'customer',
             templateParams: {
+              // Standard & Snake Case fields for Customer Template
+              order_number: orderNumber,
+              order_date: new Date().toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }),
+              order_status: 'Hazırlanıyor',
+              customer_name: customerName.trim(),
+              customer_email: customerEmail || '',
+              customer_phone: orderData.customer?.phone || '',
+
+              // Items
+              items_list: orderData.items.map((item: any) => {
+                const productName = item.productName || item.name || 'Ürün';
+                return `${productName} x${item.quantity} - ${(item.price || 0).toFixed(2)} ₺`;
+              }).join('\n'),
+
+              // Totals
+              subtotal: `${(orderData.subtotal || 0).toFixed(2)} ₺`,
+              shipping_cost: `${(orderData.shippingCost || 0).toFixed(2)} ₺`,
+              tax_amount: `${(orderData.taxAmount || 0).toFixed(2)} ₺`,
+              total_amount: `${totalAmount.toFixed(2)} ₺`,
+
+              // Payment
+              payment_method: orderData.paymentMethod === 'bank_transfer' ? 'Havale/EFT' : (orderData.paymentMethod || 'Belirtilmemiş'),
+              payment_status: 'Ödeme Bekleniyor',
+
+              // Sender & Recipient
+              sender_name: orderData.sender?.name || customerName.trim(),
+              sender_phone: orderData.sender?.phone || orderData.customer?.phone || '',
+              recipient_name: orderData.recipient?.name || '',
+              recipient_phone: orderData.recipient?.phone || '',
+
+              // Delivery
+              delivery_address: orderData.customer?.address ?
+                (typeof orderData.customer.address === 'string'
+                  ? orderData.customer.address
+                  : `${orderData.customer.address.street || ''}, ${orderData.customer.address.district || ''}, ${orderData.customer.address.city || ''}`)
+                : (orderData.recipient?.address || ''),
+              delivery_time: deliveryTime,
+              delivery_date: orderData.delivery_date || '',
+
+              // Additional
+              wreath_text: orderData.wreath_text || '',
+              additional_info: orderData.additional_info || orderData.notes || '',
+
+              // Company
+              company_email: 'celenkdiyari@gmail.com',
+              company_phone: '+90 532 123 45 67',
+              company_website: 'www.celenkdiyari.com',
+
+              // Backward compatibility
               orderNumber,
               customerName: customerName.trim(),
-              total: totalAmount.toFixed(2),
-              items: orderData.items.map((item: { productName?: string; name?: string; quantity: number }) => {
-                const productName = item.productName || item.name || 'Ürün';
-                return `${productName} x${item.quantity}`;
-              }).join(', '),
-              orderDate: new Date().toLocaleDateString('tr-TR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              }),
-              // New field: delivery_time (optional)
-              delivery_time: orderData.delivery_time || '',
+              total: totalAmount.toFixed(2)
             }
           })
         }).catch(err => console.error('Failed to send customer email:', err));
       }
 
       // Send email to admin
+      const adminPanelUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/admin`;
       fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           to: adminEmail,
           subject: `Yeni Sipariş - ${orderNumber}`,
-          templateId: process.env.EMAILJS_TEMPLATE_ADMIN || 'template_admin',
+          role: 'admin',
           templateParams: {
-            orderNumber,
-            customerName: customerName.trim(),
-            customerEmail: customerEmail || '',
-            customerPhone: orderData.customer?.phone || '',
-            total: totalAmount.toFixed(2),
-            items: orderData.items.map((item: { productName?: string; name?: string; quantity: number; price: number }) => {
+            // Standard & Snake Case fields for Admin Template
+            order_number: orderNumber,
+            order_date: new Date().toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }),
+            order_status: 'Yeni Sipariş',
+            customer_name: customerName.trim(),
+            customer_email: customerEmail || '',
+            customer_phone: orderData.customer?.phone || '',
+
+            // Items
+            items_list: orderData.items.map((item: any) => {
               const productName = item.productName || item.name || 'Ürün';
-              const itemPrice = item.price || 0;
-              const itemTotal = itemPrice * (item.quantity || 1);
-              return `${productName} x${item.quantity} - ${itemTotal.toFixed(2)} ₺`;
+              return `${productName} x${item.quantity} - ${(item.price || 0).toFixed(2)} ₺`;
             }).join('\n'),
-            orderDate: new Date().toLocaleDateString('tr-TR', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            }),
-            address: orderData.customer?.address ?
+
+            // Totals
+            subtotal: `${(orderData.subtotal || 0).toFixed(2)} ₺`,
+            shipping_cost: `${(orderData.shippingCost || 0).toFixed(2)} ₺`,
+            tax_amount: `${(orderData.taxAmount || 0).toFixed(2)} ₺`,
+            total_amount: `${totalAmount.toFixed(2)} ₺`,
+
+            // Payment
+            payment_method: orderData.paymentMethod === 'bank_transfer' ? 'Havale/EFT' : (orderData.paymentMethod || 'Belirtilmemiş'),
+            payment_status: 'Beklemede',
+
+            // Sender & Recipient & Delivery
+            sender_name: orderData.sender?.name || customerName.trim(),
+            sender_phone: orderData.sender?.phone || orderData.customer?.phone || '',
+            sender_email: orderData.sender?.email || customerEmail || '',
+            recipient_name: orderData.recipient?.name || '',
+            recipient_phone: orderData.recipient?.phone || '',
+            delivery_address: orderData.customer?.address ?
               (typeof orderData.customer.address === 'string'
                 ? orderData.customer.address
                 : `${orderData.customer.address.street || ''}, ${orderData.customer.address.district || ''}, ${orderData.customer.address.city || ''}`)
-              : '',
+              : (orderData.recipient?.address || ''),
+            delivery_time: deliveryTime,
+            delivery_date: orderData.delivery_date || '',
+
+            // Content
+            wreath_text: orderData.wreath_text || '',
+            additional_info: orderData.additional_info || orderData.notes || '',
+            order_note: orderData.notes || '',
+
+            // Admin Specific
+            admin_panel_url: adminPanelUrl,
+            company_website: 'www.celenkdiyari.com',
+
+            // Backward compatibility
+            orderNumber,
+            customerName: customerName.trim(),
+            total: totalAmount.toFixed(2)
           }
         })
       }).catch(err => console.error('Failed to send admin email:', err));
@@ -143,21 +203,20 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      id: docRef.id,
+      id: docId,
       orderNumber,
-      order: { id: docRef.id, ...order },
+      order: { id: docId, ...order },
       message: 'Order created successfully in Firebase',
       timestamp: new Date().toISOString()
     });
 
   } catch (error) {
     console.error('❌ Error creating order:', error);
-    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
 
     if (error instanceof Error && error.message.includes('permission')) {
       return NextResponse.json({
         error: 'Firebase permission denied',
-        details: 'Check Firebase security rules',
+        details: 'Check Firebase security rules or setup Admin SDK',
         message: error.message,
         timestamp: new Date().toISOString()
       }, { status: 403 });
@@ -181,42 +240,36 @@ export async function GET(request: NextRequest) {
     const limitParam = searchParams.get('limit');
     const orderLimit = limitParam ? parseInt(limitParam, 10) : 100;
 
-    if (orderNumber) {
-      // Search by orderNumber
-      console.log('🔍 Searching order by orderNumber:', orderNumber);
-      const ordersRef = collection(db, 'orders');
-      const q = query(ordersRef, where('orderNumber', '==', orderNumber));
-      const querySnapshot = await getDocs(q);
+    const strategy = await getDbStrategy();
+    let orders: any[] = [];
 
-      const orders = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+    if (strategy.type === 'admin') {
+      const collectionRef = strategy.db.collection('orders');
 
-      console.log(`✅ Found ${orders.length} order(s) with orderNumber: ${orderNumber}`);
+      if (orderNumber) {
+        console.log('🔍 Searching order by orderNumber:', orderNumber);
+        const snapshot = await collectionRef.where('orderNumber', '==', orderNumber).get();
+        orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      } else {
+        const snapshot = await collectionRef.orderBy('createdAt', 'desc').limit(orderLimit).get();
+        orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      }
+    } else {
+      const ordersRef = collection(strategy.db, 'orders');
 
-      return NextResponse.json({
-        success: true,
-        orders,
-        count: orders.length,
-        timestamp: new Date().toISOString()
-      });
+      if (orderNumber) {
+        console.log('🔍 Searching order by orderNumber:', orderNumber);
+        const q = query(ordersRef, where('orderNumber', '==', orderNumber));
+        const snapshot = await getDocs(q);
+        orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      } else {
+        const q = query(ordersRef, orderBy('createdAt', 'desc'), limit(orderLimit));
+        const snapshot = await getDocs(q);
+        orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      }
     }
 
-    // Get all orders with optional limit
-    const ordersQuery = query(
-      collection(db, 'orders'),
-      orderBy('createdAt', 'desc'),
-      limit(orderLimit)
-    );
-
-    const querySnapshot = await getDocs(ordersQuery);
-    const orders = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-
-    console.log(`✅ Found ${orders.length} orders`);
+    console.log(`✅ Found ${orders.length} order(s)`);
 
     return NextResponse.json({
       success: true,
@@ -235,33 +288,40 @@ export async function GET(request: NextRequest) {
     }, { status: 500 });
   }
 }
+
 // Bulk delete handler
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action');
 
+    const strategy = await getDbStrategy();
+
     if (action === 'deleteBatch') {
       const ids = searchParams.get('ids')?.split(',') || [];
       if (ids.length === 0) return NextResponse.json({ error: 'No IDs provided' }, { status: 400 });
 
       console.log(`Processing batch delete for ${ids.length} orders...`);
-
-      const ordersRef = collection(db, 'orders');
       let deletedCount = 0;
 
       // Firestore "in" query limitation is 10
       for (let i = 0; i < ids.length; i += 10) {
-        const chunk = ids.slice(i, i + 10);
-        // Clean whitespace
-        const cleanChunk = chunk.map(id => id.trim());
+        const chunk = ids.slice(i, i + 10).map(id => id.trim());
 
-        const q = query(ordersRef, where('orderNumber', 'in', cleanChunk));
-        const snapshot = await getDocs(q);
-
-        const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
-        await Promise.all(deletePromises);
-        deletedCount += deletePromises.length;
+        if (strategy.type === 'admin') {
+          const snapshot = await strategy.db.collection('orders').where('orderNumber', 'in', chunk).get();
+          const batch = strategy.db.batch();
+          snapshot.docs.forEach(doc => batch.delete(doc.ref));
+          await batch.commit();
+          deletedCount += snapshot.size;
+        } else {
+          const ordersRef = collection(strategy.db, 'orders');
+          const q = query(ordersRef, where('orderNumber', 'in', chunk));
+          const snapshot = await getDocs(q);
+          const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+          await Promise.all(deletePromises);
+          deletedCount += deletePromises.length;
+        }
       }
 
       return NextResponse.json({ success: true, deletedCount, message: `Deleted ${deletedCount} orders` });
@@ -269,24 +329,46 @@ export async function DELETE(request: NextRequest) {
 
     if (action === 'deleteAll') {
       console.log('⚠️ Bulk deleting all orders...');
+      let deletedCount = 0;
 
-      // Get all orders first
-      const ordersRef = collection(db, 'orders');
-      const snapshot = await getDocs(ordersRef);
+      if (strategy.type === 'admin') {
+        const snapshot = await strategy.db.collection('orders').get();
+        if (snapshot.empty) return NextResponse.json({ message: 'No orders to delete' });
 
-      if (snapshot.empty) {
-        return NextResponse.json({ message: 'No orders to delete' });
+        const batch = strategy.db.batch();
+        snapshot.docs.forEach(doc => batch.delete(doc.ref));
+        // Admin SDK commit might fail if >500 ops.
+        // Simple batching for safety:
+        const chunks = [];
+        let currentBatch = strategy.db.batch();
+        let count = 0;
+        for (const doc of snapshot.docs) {
+          currentBatch.delete(doc.ref);
+          count++;
+          if (count === 400) {
+            chunks.push(currentBatch.commit());
+            currentBatch = strategy.db.batch();
+            count = 0;
+          }
+        }
+        if (count > 0) chunks.push(currentBatch.commit());
+        await Promise.all(chunks);
+
+        deletedCount = snapshot.size;
+      } else {
+        const ordersRef = collection(strategy.db, 'orders');
+        const snapshot = await getDocs(ordersRef);
+        if (snapshot.empty) return NextResponse.json({ message: 'No orders to delete' });
+        const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+        await Promise.all(deletePromises);
+        deletedCount = snapshot.size;
       }
 
-      // Delete in parallel (be careful with rate limits if thousands, but for test data < 100 it's fine)
-      const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
-      await Promise.all(deletePromises);
-
-      console.log(`✅ Deleted ${snapshot.size} orders`);
+      console.log(`✅ Deleted ${deletedCount} orders`);
 
       return NextResponse.json({
         success: true,
-        deletedCount: snapshot.size,
+        deletedCount,
         message: 'All orders deleted successfully'
       });
     }

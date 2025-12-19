@@ -9,71 +9,80 @@ export async function PUT(
   try {
     const { id } = await params;
     console.log('📝 Updating product:', id);
-    
+
     const productData = await request.json();
     console.log('📝 Product data:', productData);
-    
+
     // Validate required fields
     if (!productData.name || !productData.description || !productData.price || !productData.category) {
       console.log('❌ Validation failed - missing required fields');
-      return NextResponse.json({ 
+      return NextResponse.json({
         error: 'Missing required fields: name, description, price, category',
         received: productData
       }, { status: 400 });
     }
-    
+
     console.log('✅ Validation passed');
-    
+
     // Check if product exists
     const productRef = doc(db, 'products', id);
     const productSnap = await getDoc(productRef);
-    
+
     if (!productSnap.exists()) {
       console.log('❌ Product not found');
-      return NextResponse.json({ 
-        error: 'Product not found' 
+      return NextResponse.json({
+        error: 'Product not found'
       }, { status: 404 });
     }
-    
+
+    // Normalize category: handle string, array of strings, or missing
+    let normalizedCategory = 'Diğer';
+    if (typeof productData.category === 'string' && productData.category.trim() !== '') {
+      normalizedCategory = productData.category;
+    } else if (Array.isArray(productData.category) && productData.category.length > 0) {
+      normalizedCategory = String(productData.category[0]);
+    }
+
     // Update product in Firebase
     const updateData: Record<string, unknown> = {
       ...productData,
+      category: normalizedCategory,
       updatedAt: new Date().toISOString()
     };
-    
+
     // Update inStock based on quantity if quantity is provided
     if (productData.quantity !== undefined) {
       updateData.quantity = productData.quantity;
       updateData.inStock = productData.quantity > 0;
     }
-    
+
     await updateDoc(productRef, updateData);
-    
+
     console.log('✅ Product updated in Firebase');
-    
-    return NextResponse.json({ 
-      success: true, 
+
+    return NextResponse.json({
+      success: true,
       id: id,
       product: { id: id, ...productData },
       message: 'Product updated successfully in Firebase',
       timestamp: new Date().toISOString()
     });
-    
+
   } catch (error) {
     console.error('❌ Error updating product:', error);
     console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-    
+
     // Check if it's a Firebase permission error
     if (error instanceof Error && error.message.includes('permission')) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         error: 'Firebase permission denied',
         details: 'Check Firebase security rules',
         message: error.message,
         timestamp: new Date().toISOString()
       }, { status: 403 });
     }
-    
-    return NextResponse.json({ 
+
+    return NextResponse.json({
       error: 'Failed to update product',
       details: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
@@ -136,30 +145,41 @@ export async function GET(
   try {
     const { id } = await params;
     console.log('📦 Fetching product:', id);
-    
+
     const productRef = doc(db, 'products', id);
     const productSnap = await getDoc(productRef);
-    
+
     if (!productSnap.exists()) {
       console.log('❌ Product not found');
-      return NextResponse.json({ 
-        error: 'Product not found' 
+      return NextResponse.json({
+        error: 'Product not found'
       }, { status: 404 });
     }
-    
+
+    const data = productSnap.data() || {};
+
+    // Normalize category
+    let normalizedCategory = 'Diğer';
+    if (typeof data.category === 'string' && data.category.trim() !== '') {
+      normalizedCategory = data.category;
+    } else if (Array.isArray(data.category) && data.category.length > 0) {
+      normalizedCategory = String(data.category[0]);
+    }
+
     const product = {
       id: productSnap.id,
-      ...productSnap.data()
+      ...data,
+      category: normalizedCategory
     };
-    
-    console.log('✅ Product fetched:', product);
-    
+
+    console.log('✅ Product fetched:', normalizedCategory);
+
     return NextResponse.json(product);
-    
+
   } catch (error) {
     console.error('❌ Error fetching product:', error);
-    
-    return NextResponse.json({ 
+
+    return NextResponse.json({
       error: 'Failed to fetch product',
       details: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()

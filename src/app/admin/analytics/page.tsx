@@ -206,7 +206,6 @@ export default function AnalyticsPage() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Toplam Gelir</p>
                   <p className="text-3xl font-bold text-gray-900">₺{getTotalRevenue().toLocaleString()}</p>
-                  <p className="text-xs text-green-600 mt-1">+12.5% bu ay</p>
                 </div>
                 <div className="p-3 bg-green-100 rounded-full">
                   <DollarSign className="h-8 w-8 text-green-600" />
@@ -221,7 +220,6 @@ export default function AnalyticsPage() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Toplam Sipariş</p>
                   <p className="text-3xl font-bold text-gray-900">{getTotalOrders()}</p>
-                  <p className="text-xs text-blue-600 mt-1">+8.2% bu ay</p>
                 </div>
                 <div className="p-3 bg-blue-100 rounded-full">
                   <ShoppingCart className="h-8 w-8 text-blue-600" />
@@ -236,7 +234,6 @@ export default function AnalyticsPage() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Aktif Müşteri</p>
                   <p className="text-3xl font-bold text-gray-900">{getTotalCustomers()}</p>
-                  <p className="text-xs text-purple-600 mt-1">+15.3% bu ay</p>
                 </div>
                 <div className="p-3 bg-purple-100 rounded-full">
                   <Users className="h-8 w-8 text-purple-600" />
@@ -251,7 +248,6 @@ export default function AnalyticsPage() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Ortalama Sipariş</p>
                   <p className="text-3xl font-bold text-gray-900">₺{customerAnalytics?.avgOrderValue.toFixed(2)}</p>
-                  <p className="text-xs text-orange-600 mt-1">+5.7% bu ay</p>
                 </div>
                 <div className="p-3 bg-orange-100 rounded-full">
                   <Target className="h-8 w-8 text-orange-600" />
@@ -295,10 +291,9 @@ export default function AnalyticsPage() {
                 {getTopCategories().map((category, index) => (
                   <div key={category.category} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <div className={`w-3 h-3 rounded-full ${
-                        index === 0 ? 'bg-green-500' : 
+                      <div className={`w-3 h-3 rounded-full ${index === 0 ? 'bg-green-500' :
                         index === 1 ? 'bg-blue-500' : 'bg-purple-500'
-                      }`}></div>
+                        }`}></div>
                       <div>
                         <p className="font-medium">{category.category}</p>
                         <p className="text-sm text-gray-600">{category.orders} sipariş</p>
@@ -306,10 +301,12 @@ export default function AnalyticsPage() {
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-green-600">₺{category.revenue.toLocaleString()}</p>
-                      <Badge className={`${category.growth >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} border-0 text-xs`}>
-                        {category.growth >= 0 ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
-                        %{Math.abs(category.growth).toFixed(1)}
-                      </Badge>
+                      {category.growth !== 0 && (
+                        <Badge className={`${category.growth >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} border-0 text-xs`}>
+                          {category.growth >= 0 ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
+                          %{Math.abs(category.growth).toFixed(1)}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -434,36 +431,36 @@ export default function AnalyticsPage() {
             <CardContent className="space-y-4">
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span>Aylık Gelir Hedefi</span>
-                  <span>₺{getTotalRevenue().toLocaleString()} / ₺50,000</span>
+                  <span>Aylık Gelir</span>
+                  <span>₺{getTotalRevenue().toLocaleString()}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-green-600 h-2 rounded-full" 
+                  <div
+                    className="bg-green-600 h-2 rounded-full"
                     style={{ width: `${Math.min((getTotalRevenue() / 50000) * 100, 100)}%` }}
                   ></div>
                 </div>
               </div>
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span>Sipariş Hedefi</span>
-                  <span>{getTotalOrders()} / 200</span>
+                  <span>Siparişler</span>
+                  <span>{getTotalOrders()}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-blue-600 h-2 rounded-full" 
+                  <div
+                    className="bg-blue-600 h-2 rounded-full"
                     style={{ width: `${Math.min((getTotalOrders() / 200) * 100, 100)}%` }}
                   ></div>
                 </div>
               </div>
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span>Müşteri Hedefi</span>
-                  <span>{getTotalCustomers()} / 150</span>
+                  <span>Müşteriler</span>
+                  <span>{getTotalCustomers()}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-purple-600 h-2 rounded-full" 
+                  <div
+                    className="bg-purple-600 h-2 rounded-full"
                     style={{ width: `${Math.min((getTotalCustomers() / 150) * 100, 100)}%` }}
                   ></div>
                 </div>

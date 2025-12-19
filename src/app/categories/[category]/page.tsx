@@ -7,10 +7,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/contexts/CartContext";
-import { 
-  ShoppingCart, 
-  Heart, 
-  Search, 
+import {
+  ShoppingCart,
+  Heart,
+  Search,
   Grid3X3,
   List,
   ArrowLeft,
@@ -111,7 +111,7 @@ const CATEGORY_INFO: { [key: string]: CategoryInfo } = {
 export default function CategoryPage() {
   const params = useParams();
   const categorySlug = params.category as string;
-  
+
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -120,7 +120,7 @@ export default function CategoryPage() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 999999]);
-  
+
   const { addToCart, toggleFavorite, isInCart, isFavorite } = useCart();
 
   const currentCategory = CATEGORY_INFO[categorySlug];
@@ -134,12 +134,22 @@ export default function CategoryPage() {
         if (response.ok) {
           const data = await response.json();
           console.log('📦 Kategori sayfası - Ürünler yüklendi:', data);
-          
+
           // Kategoriye göre filtrele
-          const categoryProducts = data.filter((product: Product) => 
-            product.category === currentCategory?.categoryValue || product.category === currentCategory?.title
-          );
-          
+          const categoryProducts = data.filter((product: Product) => {
+            const productCat = product.category;
+            const targetVal = currentCategory?.categoryValue;
+            const targetTitle = currentCategory?.title;
+
+            if (typeof productCat === 'string') {
+              return (targetVal && productCat === targetVal) || (targetTitle && productCat === targetTitle);
+            } else if (Array.isArray(productCat)) {
+              const cats = productCat as any[];
+              return (targetVal && cats.includes(targetVal)) || (targetTitle && cats.includes(targetTitle));
+            }
+            return false;
+          });
+
           setProducts(categoryProducts);
           setFilteredProducts(categoryProducts);
         } else {
@@ -155,7 +165,7 @@ export default function CategoryPage() {
     if (currentCategory) {
       fetchProducts();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categorySlug]); // currentCategory stable via CATEGORY_INFO mapping
 
   // Ürünler yüklendiğinde fiyat aralığını dinamik ayarla
@@ -188,7 +198,7 @@ export default function CategoryPage() {
     // Sıralama
     filtered.sort((a, b) => {
       let comparison = 0;
-      
+
       switch (sortBy) {
         case 'name':
           comparison = a.name.localeCompare(b.name);
@@ -200,7 +210,7 @@ export default function CategoryPage() {
           comparison = new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime();
           break;
       }
-      
+
       return sortOrder === 'asc' ? comparison : -comparison;
     });
 
@@ -216,7 +226,7 @@ export default function CategoryPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 
+          <h1
             className="text-2xl font-bold text-gray-900 mb-4"
             style={{
               fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -228,7 +238,7 @@ export default function CategoryPage() {
           >
             Kategori Bulunamadı
           </h1>
-          <p 
+          <p
             className="text-gray-600 mb-6"
             style={{
               fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -274,7 +284,7 @@ export default function CategoryPage() {
             <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${currentCategory.color} mb-6`}>
               <IconComponent className="h-8 w-8 text-white" />
             </div>
-            <h1 
+            <h1
               className="text-4xl md:text-6xl font-bold mb-4"
               style={{
                 fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -286,7 +296,7 @@ export default function CategoryPage() {
             >
               {currentCategory.title}
             </h1>
-            <p 
+            <p
               className="text-xl md:text-2xl text-gray-200 mb-8"
               style={{
                 fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -300,9 +310,9 @@ export default function CategoryPage() {
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               {currentCategory.features.map((feature, index) => (
-                <Badge 
-                  key={index} 
-                  variant="secondary" 
+                <Badge
+                  key={index}
+                  variant="secondary"
                   className="bg-white/20 text-white border-white/30"
                   style={{
                     fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -447,7 +457,7 @@ export default function CategoryPage() {
             )}
           </div>
         ) : (
-          <div className={viewMode === 'grid' 
+          <div className={viewMode === 'grid'
             ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
             : "space-y-4"
           }>
@@ -468,7 +478,7 @@ export default function CategoryPage() {
                         <Package className="h-12 w-12 text-green-500" />
                       </div>
                     )}
-                    
+
                     {/* Stock Badge */}
                     <div className="absolute top-2 left-2">
                       <Badge variant={product.inStock ? "default" : "destructive"}>
@@ -483,8 +493,8 @@ export default function CategoryPage() {
                       className="absolute top-2 right-2 bg-white/80 hover:bg-white"
                       onClick={() => toggleFavorite(product.id)}
                     >
-                      <Heart 
-                        className={`h-4 w-4 ${isFavorite(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} 
+                      <Heart
+                        className={`h-4 w-4 ${isFavorite(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
                       />
                     </Button>
                   </div>
@@ -496,7 +506,7 @@ export default function CategoryPage() {
                       {product.name}
                     </h3>
                   </div>
-                  
+
                   <p className="text-sm text-gray-600 line-clamp-2 mb-3">
                     {product.description}
                   </p>
@@ -508,9 +518,8 @@ export default function CategoryPage() {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`h-4 w-4 ${
-                              i < Math.floor(product.rating!) ? 'text-yellow-400 fill-current' : 'text-gray-300'
-                            }`}
+                            className={`h-4 w-4 ${i < Math.floor(product.rating!) ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                              }`}
                           />
                         ))}
                       </div>
@@ -524,7 +533,7 @@ export default function CategoryPage() {
                     <div className="text-lg font-bold text-green-600">
                       {product.price} ₺
                     </div>
-                    
+
                     <Button
                       size="sm"
                       onClick={() => addToCart(product)}

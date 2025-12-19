@@ -248,20 +248,8 @@ export default function Home() {
                 </Link>
               </div>
 
-              {/* Simple Stats */}
-              <div className="grid grid-cols-3 gap-6 pt-6 border-t border-gray-100 animate-fade-in-up delay-600">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">500+</div>
-                  <div className="text-sm text-gray-500">Mutlu Müşteri</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">1000+</div>
-                  <div className="text-sm text-gray-500">Başarılı Teslimat</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">5★</div>
-                  <div className="text-sm text-gray-500">Müşteri Puanı</div>
-                </div>
+              <div className="pt-6 border-t border-gray-100">
+                <p className="text-sm text-gray-500 italic">Doğanın en taze çiçekleri ile yanınızdayız.</p>
               </div>
             </div>
 

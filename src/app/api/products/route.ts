@@ -1,166 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, doc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, deleteDoc, doc as firestoreDoc } from 'firebase/firestore';
+import { getAdminDb } from '@/lib/firebase-admin';
+
+// Helper to determine which DB to use
+async function getDbStrategy() {
+  try {
+    const adminDb = getAdminDb();
+    return { type: 'admin' as const, db: adminDb };
+  } catch (e) {
+    // Admin SDK not configured, fall back to Client SDK
+    return { type: 'client' as const, db };
+  }
+}
 
 // Lightweight fallback products for development/offline cases
-const FALLBACK_PRODUCTS: Array<Record<string, unknown>> = [
-  // Açılış & Tören
-  {
-    id: 'acilis-1',
-    name: 'Kırmızı Beyaz Açılış Çelengi',
-    description: 'Yeni iş yeri açılışları için klasik kırmızı ve beyaz gerberalardan oluşan gösterişli çelenk.',
-    price: 1500,
-    category: 'Açılış & Tören',
-    inStock: true,
-    quantity: 9999,
-    images: ['/images/categories/açılıştören.jpg'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'acilis-2',
-    name: 'Renkli Tören Çelengi',
-    description: 'Resmi törenler ve kutlamalar için renkli çiçeklerle hazırlanmış premium çelenk.',
-    price: 1750,
-    category: 'Açılış & Tören',
-    inStock: true,
-    quantity: 9999,
-    images: ['/images/categories/açılıştören.jpg'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-
-  // Cenaze Çelenkleri
-  {
-    id: 'cenaze-1',
-    name: 'Beyaz Karanfil Cenaze Çelengi',
-    description: 'Sonsuz saygı ve rahmet dilekleri için beyaz karanfillerle hazırlanmış cenaze çelengi.',
-    price: 1250,
-    category: 'Cenaze Çelenkleri',
-    inStock: true,
-    quantity: 9999,
-    images: ['/images/categories/cenaze.jpg'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cenaze-2',
-    name: 'Sade Anma Çelengi',
-    description: 'Vefat ve anma törenleri için sade ve vakur bir görünüm sunan özel tasarım çelenk.',
-    price: 1400,
-    category: 'Cenaze Çelenkleri',
-    inStock: true,
-    quantity: 9999,
-    images: ['/images/categories/cenaze.jpg'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-
-  // Ferforjeler
-  {
-    id: 'ferforje-1',
-    name: 'Tek Katlı Ferforje Aranjmanı',
-    description: 'Zarif metal ayak üzerinde sergilenen, mevsimin en taze çiçekleriyle hazırlanmış ferforje.',
-    price: 2000,
-    category: 'Ferforjeler',
-    inStock: true,
-    quantity: 9999,
-    images: ['/images/categories/ferforje.png'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'ferforje-2',
-    name: 'Lüks Çift Katlı Ferforje',
-    description: 'Gösterişli ve dikkat çekici, iki katlı özel tasarım ferforje çelenk.',
-    price: 3500,
-    category: 'Ferforjeler',
-    inStock: true,
-    quantity: 9999,
-    images: ['/images/categories/ferforje.png'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-
-  // Fuar & Stand
-  {
-    id: 'fuar-1',
-    name: 'Fuar Tebrik Aranjmanı',
-    description: 'Fuar stantlarına şıklık katmak ve başarı dilemek için hazırlanan özel aranjman.',
-    price: 1600,
-    category: 'Fuar & Stand',
-    inStock: true,
-    quantity: 9999,
-    images: ['/images/categories/fuar stand.jpg'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'fuar-2',
-    name: 'Kurumsal Stand Çiçeği',
-    description: 'Marka imajınızı güçlendirecek, kurumsal renklere uygun stand çiçeği.',
-    price: 1850,
-    category: 'Fuar & Stand',
-    inStock: true,
-    quantity: 9999,
-    images: ['/images/categories/fuar stand.jpg'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-
-  // Ofis & Saksı Bitkileri
-  {
-    id: 'ofis-1',
-    name: 'Büyük Boy Salon Bitkisi',
-    description: 'Ofis ve iş yerleri için hava temizleyen, dekoratif büyük boy yeşil bitki.',
-    price: 950,
-    category: 'Ofis & Saksı Bitkileri',
-    inStock: true,
-    quantity: 9999,
-    images: ['/images/categories/ofis bitki.jpg'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'ofis-2',
-    name: 'Orkide Aranjmanı',
-    description: 'Yeni iş tebriği için asil ve zarif beyaz orkide aranjmanı.',
-    price: 1100,
-    category: 'Ofis & Saksı Bitkileri',
-    inStock: true,
-    quantity: 9999,
-    images: ['/images/categories/ofis bitki.jpg'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-
-  // Söz & Nişan
-  {
-    id: 'soz-1',
-    name: 'Kız İsteme Çiçeği (Gondol)',
-    description: 'Kız isteme merasimi için özenle hazırlanmış, çikolata eşliğinde sunulabilecek gondol aranjman.',
-    price: 2500,
-    category: 'Söz & Nişan',
-    inStock: true,
-    quantity: 9999,
-    images: ['/images/categories/söznişan.jpg'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'soz-2',
-    name: 'Nişan Töreni Panosu',
-    description: 'Nişan tören mekanını süsleyecek, fotoğraf çekimleri için ideal çiçekli pano çelenk.',
-    price: 3000,
-    category: 'Söz & Nişan',
-    inStock: true,
-    quantity: 9999,
-    images: ['/images/categories/söznişan.jpg'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }
-];
-
 function isDataImageUrl(value: unknown): value is string {
   return typeof value === 'string' && value.startsWith('data:image');
 }
@@ -169,10 +23,19 @@ function normalizeProductForList(raw: Record<string, unknown>, mode: 'full' | 's
   const imagesRaw = Array.isArray(raw.images) ? raw.images : [];
   const images = imagesRaw.filter((v): v is string => typeof v === 'string');
 
+  // Normalize category: handle string, array of strings, or missing
+  let category = 'Diğer';
+  if (typeof raw.category === 'string' && raw.category.trim() !== '') {
+    category = raw.category;
+  } else if (Array.isArray(raw.category) && raw.category.length > 0) {
+    category = String(raw.category[0]);
+  }
+
   if (mode === 'full') {
     return {
       ...raw,
       images,
+      category
     };
   }
 
@@ -184,6 +47,7 @@ function normalizeProductForList(raw: Record<string, unknown>, mode: 'full' | 's
   return {
     ...raw,
     images: mainImage ? [mainImage] : [],
+    category
   };
 }
 
@@ -193,34 +57,32 @@ export async function GET(request: NextRequest) {
     const modeParam = searchParams.get('mode');
     const mode: 'full' | 'summary' = modeParam === 'summary' ? 'summary' : 'full';
 
-    const productsRef = collection(db, 'products');
-    const snapshot = await getDocs(productsRef);
+    const strategy = await getDbStrategy();
+    let rawProducts: any[] = [];
 
-    const products = snapshot.docs.map((docSnap) => {
-      const data = docSnap.data() as Record<string, unknown>;
+    if (strategy.type === 'admin') {
+      const snapshot = await strategy.db.collection('products').get();
+      rawProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } else {
+      const productsRef = collection(strategy.db, 'products');
+      const snapshot = await getDocs(productsRef);
+      rawProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+
+    const products = rawProducts.map((data) => {
+      // safe destructure just in case data has 'id' inside or we use the one from map
+      const { id, ...rest } = data;
       return {
-        id: docSnap.id,
-        ...normalizeProductForList(data, mode),
+        id,
+        ...normalizeProductForList(rest, mode),
       };
     });
 
-    // If Firestore is empty, serve fallback catalog to avoid blank UI
-    if (products.length === 0) {
-      const fallback = FALLBACK_PRODUCTS.map((p) => normalizeProductForList(p, mode));
-      return NextResponse.json(fallback);
-    }
-
     return NextResponse.json(products);
   } catch (error) {
-    console.error('❌ Error fetching products from Firebase:', error);
-    console.error('❌ Error details:', error instanceof Error ? error.message : 'Unknown error');
-
-    // Return fallback products if Firebase fails
-    const { searchParams } = new URL(request.url);
-    const modeParam = searchParams.get('mode');
-    const mode: 'full' | 'summary' = modeParam === 'summary' ? 'summary' : 'full';
-    const fallback = FALLBACK_PRODUCTS.map((p) => normalizeProductForList(p, mode));
-    return NextResponse.json(fallback);
+    console.error('❌ Error fetching products:', error);
+    // Return empty array if fails
+    return NextResponse.json([]);
   }
 }
 
@@ -229,57 +91,60 @@ export async function POST(request: NextRequest) {
     console.log('📦 Creating new product...');
 
     const productData = await request.json();
-    console.log('📝 Product data:', productData);
 
     // Validate required fields
     if (!productData.name || !productData.description || !productData.price || !productData.category) {
-      console.log('❌ Validation failed - missing required fields');
       return NextResponse.json({
         error: 'Missing required fields: name, description, price, category',
         received: productData
       }, { status: 400 });
     }
 
-    console.log('✅ Validation passed');
-
-    // Try Firebase
-    const productsRef = collection(db, 'products');
-    const docRef = await addDoc(productsRef, {
+    const newProduct = {
       ...productData,
-      quantity: 9999, // Stock management disabled
+      quantity: 9999,
       inStock: productData.inStock ?? true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
-    });
+    };
 
-    console.log('✅ Product created in Firebase with ID:', docRef.id);
+    const strategy = await getDbStrategy();
+    let id = '';
+
+    if (strategy.type === 'admin') {
+      const docRef = await strategy.db.collection('products').add(newProduct);
+      id = docRef.id;
+    } else {
+      const productsRef = collection(strategy.db, 'products');
+      const docRef = await addDoc(productsRef, newProduct);
+      id = docRef.id;
+    }
+
+    console.log('✅ Product created with ID:', id);
 
     return NextResponse.json({
       success: true,
-      id: docRef.id,
-      product: { id: docRef.id, ...productData },
-      message: 'Product created successfully in Firebase',
+      id,
+      product: { id, ...newProduct },
+      message: 'Product created successfully',
       timestamp: new Date().toISOString()
     });
 
   } catch (error) {
     console.error('❌ Error creating product:', error);
-    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
 
     // Check if it's a Firebase permission error
     if (error instanceof Error && error.message.includes('permission')) {
       return NextResponse.json({
         error: 'Firebase permission denied',
-        details: 'Check Firebase security rules',
-        message: error.message,
-        timestamp: new Date().toISOString()
+        details: 'Check Firebase security rules or setup Admin SDK',
+        message: error.message
       }, { status: 403 });
     }
 
     return NextResponse.json({
       error: 'Failed to create product',
-      details: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
@@ -292,34 +157,31 @@ export async function DELETE(request: NextRequest) {
     const productId = searchParams.get('id');
 
     if (!productId) {
-      console.log('❌ No product ID provided');
-      return NextResponse.json({
-        error: 'Product ID is required'
-      }, { status: 400 });
+      return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
     }
 
-    console.log('📝 Deleting product with ID:', productId);
+    const strategy = await getDbStrategy();
 
-    // Delete from Firebase
-    const productRef = doc(db, 'products', productId);
-    await deleteDoc(productRef);
+    if (strategy.type === 'admin') {
+      await strategy.db.collection('products').doc(productId).delete();
+    } else {
+      const productRef = firestoreDoc(strategy.db, 'products', productId);
+      await deleteDoc(productRef);
+    }
 
     console.log('✅ Product deleted successfully');
 
     return NextResponse.json({
       success: true,
       message: 'Product deleted successfully',
-      productId: productId,
-      timestamp: new Date().toISOString()
+      productId: productId
     });
 
   } catch (error) {
     console.error('❌ Error deleting product:', error);
-
     return NextResponse.json({
       error: 'Failed to delete product',
-      details: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
