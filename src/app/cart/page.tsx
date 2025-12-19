@@ -378,7 +378,7 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Sepet ve Sipariş (Güncellendi)</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Sepet ve Sipariş</h1>
         </div>
 
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">

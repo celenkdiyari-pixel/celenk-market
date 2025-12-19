@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
                   : `${orderData.customer.address.street || ''}, ${orderData.customer.address.district || ''}, ${orderData.customer.address.city || ''}`)
                 : (orderData.recipient?.address || ''),
               notes: orderData.notes || '',
-              items: orderData.items.map((item: any) => {
+              items: orderData.items.map((item: { productName?: string; name?: string; quantity: number; price?: number }) => {
                 const productName = item.productName || item.name || 'Ürün';
                 return `${productName} x${item.quantity} - ${(item.price || 0).toFixed(2)} ₺`;
               }).join('\n'),
@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
                 : `${orderData.customer.address.street || ''}, ${orderData.customer.address.district || ''}, ${orderData.customer.address.city || ''}`)
               : (orderData.recipient?.address || ''),
             notes: orderData.notes || '',
-            items: orderData.items.map((item: any) => {
+            items: orderData.items.map((item: { productName?: string; name?: string; quantity: number; price?: number }) => {
               const productName = item.productName || item.name || 'Ürün';
               return `${productName} x${item.quantity} - ${(item.price || 0).toFixed(2)} ₺`;
             }).join('\n'),
@@ -253,6 +253,7 @@ export async function GET(request: NextRequest) {
     const orderLimit = limitParam ? parseInt(limitParam, 10) : 100;
 
     const strategy = await getDbStrategy();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let orders: any[] = [];
 
     if (strategy.type === 'admin') {
