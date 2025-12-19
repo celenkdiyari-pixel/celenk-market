@@ -570,7 +570,7 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
                     />
                   </div>
                   <div className="col-span-2 md:col-span-1">
-                    <Label>Teslimat Zamanı Saat Aralığı *</Label>
+                    <Label>Teslimat Saati (09:00 - 22:00) *</Label>
                     <select
                       value={recipientInfo.deliveryTime}
                       onChange={(e) => setRecipientInfo({ ...recipientInfo, deliveryTime: e.target.value })}
