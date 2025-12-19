@@ -4,7 +4,7 @@ import { MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function WhatsAppButton() {
-  const phoneNumber = "905551234567"; // WhatsApp numarası
+  const phoneNumber = "905355612656"; // WhatsApp numarası
   const message = "Merhaba! Çelenk Diyarı'ndan bilgi almak istiyorum.";
 
   const handleWhatsAppClick = () => {
