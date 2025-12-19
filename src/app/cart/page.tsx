@@ -40,7 +40,51 @@ interface RecipientInfo {
   address: string;
   notes: string;
   deliveryTime: string;
+  deliveryPlaceType: string;
 }
+
+const generateTimeSlots = () => {
+  const slots = [];
+  let startHour = 11;
+  let startMinute = 0;
+  const endHour = 20;
+
+  while (startHour < endHour || (startHour === endHour && startMinute === 0)) {
+    const timeString = `${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
+
+    let endH = startHour;
+    let endM = startMinute + 30;
+    if (endM >= 60) {
+      endH += 1;
+      endM = 0;
+    }
+    const endTimeString = `${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`;
+
+    slots.push(`${timeString} - ${endTimeString}`);
+
+    startMinute += 30;
+    if (startMinute >= 60) {
+      startHour += 1;
+      startMinute = 0;
+    }
+  }
+  return slots;
+};
+
+const DELIVERY_TIME_SLOTS = generateTimeSlots();
+
+const DELIVERY_PLACES = [
+  'Ev',
+  'İş Yeri',
+  'Hastane',
+  'Cami',
+  'Düğün / Nikah Salonu',
+  'Açılış / Tören Alanı',
+  'Okul',
+  'Otel',
+  'Mezarlık',
+  'Diğer'
+];
 
 export default function CartPage() {
   const {
@@ -67,7 +111,8 @@ export default function CartPage() {
     district: '',
     address: '',
     notes: '',
-    deliveryTime: 'Gün İçinde (09:00 - 18:00)'
+    deliveryTime: DELIVERY_TIME_SLOTS[0],
+    deliveryPlaceType: 'Ev'
   });
 
   const [paymentMethod, setPaymentMethod] = useState<'credit_card' | 'transfer'>('credit_card');
@@ -115,8 +160,8 @@ export default function CartPage() {
     }
 
     // Recipient validation
-    if (!recipientInfo.name || !recipientInfo.phone || !recipientInfo.address || !recipientInfo.district) {
-      alert('Lütfen alıcı bilgilerini eksiksiz doldurunuz (Ad Soyad, Telefon, İlçe, Adres).');
+    if (!recipientInfo.name || !recipientInfo.phone || !recipientInfo.address || !recipientInfo.district || !recipientInfo.deliveryPlaceType) {
+      alert('Lütfen alıcı bilgilerini eksiksiz doldurunuz (Ad, Telefon, Bölge, Adres, Teslimat Yeri).');
       return false;
     }
     return true;
@@ -161,6 +206,7 @@ export default function CartPage() {
         notes: recipientInfo.notes,
         shippingCost: 0, // Free shipping as per UI
         delivery_time: recipientInfo.deliveryTime,
+        delivery_place_type: recipientInfo.deliveryPlaceType,
       };
 
       if (paymentMethod === 'credit_card') {
@@ -498,18 +544,28 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
                       className="h-11 rounded-xl bg-gray-50 border-gray-200"
                     />
                   </div>
-                  <div className="col-span-2">
+                  <div className="col-span-2 md:col-span-1">
+                    <Label>Teslimat Yeri *</Label>
+                    <select
+                      value={recipientInfo.deliveryPlaceType}
+                      onChange={(e) => setRecipientInfo({ ...recipientInfo, deliveryPlaceType: e.target.value })}
+                      className="w-full h-11 rounded-xl bg-gray-50 border-gray-200 px-3 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                    >
+                      {DELIVERY_PLACES.map((place) => (
+                        <option key={place} value={place}>{place}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="col-span-2 md:col-span-1">
                     <Label>Teslimat Zamanı *</Label>
                     <select
                       value={recipientInfo.deliveryTime}
                       onChange={(e) => setRecipientInfo({ ...recipientInfo, deliveryTime: e.target.value })}
                       className="w-full h-11 rounded-xl bg-gray-50 border-gray-200 px-3 focus:ring-2 focus:ring-green-500 focus:outline-none"
                     >
-                      <option value="Gün İçinde (09:00 - 18:00)">Gün İçinde (09:00 - 18:00)</option>
-                      <option value="Sabah (09:00 - 12:00)">Sabah (09:00 - 12:00)</option>
-                      <option value="Öğle (12:00 - 15:00)">Öğle (12:00 - 15:00)</option>
-                      <option value="İkindi (15:00 - 18:00)">İkindi (15:00 - 18:00)</option>
-                      <option value="Akşam (18:00 - 21:00)">Akşam (18:00 - 21:00)</option>
+                      {DELIVERY_TIME_SLOTS.map((slot) => (
+                        <option key={slot} value={slot}>{slot}</option>
+                      ))}
                     </select>
                   </div>
                 </div>

@@ -114,6 +114,7 @@ export async function POST(request: NextRequest) {
                 : (orderData.recipient?.address || ''),
               delivery_time: deliveryTime,
               delivery_date: orderData.delivery_date || '',
+              delivery_place: orderData.delivery_place_type || 'Belirtilmemiş',
 
               // Additional
               wreath_text: orderData.wreath_text || '',
@@ -180,6 +181,7 @@ export async function POST(request: NextRequest) {
               : (orderData.recipient?.address || ''),
             delivery_time: deliveryTime,
             delivery_date: orderData.delivery_date || '',
+            delivery_place: orderData.delivery_place_type || 'Belirtilmemiş',
 
             // Content
             wreath_text: orderData.wreath_text || '',

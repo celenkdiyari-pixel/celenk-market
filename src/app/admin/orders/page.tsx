@@ -19,7 +19,8 @@ import {
   Calendar,
   CreditCard,
   Filter,
-  Send
+  Send,
+  MapPin
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -73,6 +74,7 @@ interface Order {
   createdAt: string;
   updatedAt: string;
   delivery_time?: string;
+  delivery_place_type?: string;
   paymentDetails?: {
     paytrTransactionId?: string;
     paymentType?: string;
@@ -141,6 +143,7 @@ interface RawOrder {
   createdAt?: string;
   updatedAt?: string;
   delivery_time?: string;
+  delivery_place_type?: string;
   paymentDetails?: Order['paymentDetails'];
 }
 
@@ -235,6 +238,7 @@ export default function OrdersPage() {
             createdAt: order.createdAt || new Date().toISOString(),
             updatedAt: order.updatedAt || order.createdAt || new Date().toISOString(),
             delivery_time: order.delivery_time || '',
+            delivery_place_type: order.delivery_place_type || '', // Added field
             paymentDetails: order.paymentDetails || undefined
           };
         });
@@ -669,6 +673,15 @@ export default function OrdersPage() {
                             <p className="text-gray-900 mt-1 text-sm bg-gray-50 p-2 rounded">{selectedOrder.recipient.notes}</p>
                           </div>
                         )}
+                        {selectedOrder.delivery_place_type && (
+                          <div>
+                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Teslimat Yeri</label>
+                            <p className="text-green-700 font-bold mt-1 text-sm bg-green-50 p-2 rounded flex items-center">
+                              <MapPin className="w-4 h-4 mr-2" />
+                              {selectedOrder.delivery_place_type}
+                            </p>
+                          </div>
+                        )}
                         {selectedOrder.delivery_time && (
                           <div>
                             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Teslimat Zamanı</label>
@@ -1003,7 +1016,8 @@ export default function OrdersPage() {
             </div>
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }
