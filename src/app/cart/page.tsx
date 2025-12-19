@@ -40,6 +40,7 @@ interface RecipientInfo {
   address: string;
   notes: string;
   deliveryTime: string;
+  deliveryDate: string;
   deliveryPlaceType: string;
 }
 
@@ -111,6 +112,7 @@ export default function CartPage() {
     district: '',
     address: '',
     notes: '',
+    deliveryDate: new Date().toISOString().split('T')[0], // Default to today
     deliveryTime: DELIVERY_TIME_SLOTS[0],
     deliveryPlaceType: 'Ev'
   });
@@ -206,6 +208,7 @@ export default function CartPage() {
         notes: recipientInfo.notes,
         shippingCost: 0, // Free shipping as per UI
         delivery_time: recipientInfo.deliveryTime,
+        delivery_date: recipientInfo.deliveryDate,
         delivery_place_type: recipientInfo.deliveryPlaceType,
       };
 
@@ -557,7 +560,17 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
                     </select>
                   </div>
                   <div className="col-span-2 md:col-span-1">
-                    <Label>Teslimat Zamanı *</Label>
+                    <Label>Teslimat Tarihi *</Label>
+                    <Input
+                      type="date"
+                      min={new Date().toISOString().split('T')[0]}
+                      value={recipientInfo.deliveryDate}
+                      onChange={(e) => setRecipientInfo({ ...recipientInfo, deliveryDate: e.target.value })}
+                      className="h-11 rounded-xl bg-gray-50 border-gray-200"
+                    />
+                  </div>
+                  <div className="col-span-2 md:col-span-1">
+                    <Label>Teslimat Zamanı Saat Aralığı *</Label>
                     <select
                       value={recipientInfo.deliveryTime}
                       onChange={(e) => setRecipientInfo({ ...recipientInfo, deliveryTime: e.target.value })}
