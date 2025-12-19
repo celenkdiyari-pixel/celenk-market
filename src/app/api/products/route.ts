@@ -55,7 +55,10 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const modeParam = searchParams.get('mode');
-    const mode: 'full' | 'summary' = modeParam === 'summary' ? 'summary' : 'full';
+
+    // Default to 'summary' unless explicitly 'full' is requested
+    // This dramatically reduces payload size if base64 images are used.
+    const mode: 'full' | 'summary' = modeParam === 'full' ? 'full' : 'summary';
 
     const strategy = await getDbStrategy();
     let rawProducts: any[] = [];
@@ -78,7 +81,11 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    return NextResponse.json(products);
+    return NextResponse.json(products, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300'
+      }
+    });
   } catch (error) {
     console.error('❌ Error fetching products:', error);
     // Return empty array if fails
