@@ -1,15 +1,11 @@
-import { initializeApp, getApps, cert, getApp } from 'firebase-admin/app';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-
-// Helper to handle newlines in private key (common issue with env vars)
-const formatPrivateKey = (key: string | undefined) => {
-    return key?.replace(/\\n/g, '\n');
-};
+import { sanitizeEnv } from './env-utils';
 
 const serviceAccount = {
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: formatPrivateKey(process.env.FIREBASE_PRIVATE_KEY),
+    projectId: sanitizeEnv(process.env.FIREBASE_PROJECT_ID),
+    clientEmail: sanitizeEnv(process.env.FIREBASE_CLIENT_EMAIL),
+    privateKey: sanitizeEnv(process.env.FIREBASE_PRIVATE_KEY),
 };
 
 export function getAdminDb() {
