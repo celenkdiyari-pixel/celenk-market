@@ -5,6 +5,8 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import WhatsAppButton from "@/components/whatsapp-button";
 import { CartProvider } from "@/contexts/CartContext";
+import MaintenanceGuard from "@/components/MaintenanceGuard";
+import { getSiteSettings } from "@/lib/get-settings-server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -53,11 +55,14 @@ export const viewport = {
   themeColor: '#16a34a', // green-600
 };
 
-export default function RootLayout({
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getSiteSettings();
+
   return (
     <html lang="tr" className="scroll-smooth">
       <body
@@ -70,10 +75,12 @@ export default function RootLayout({
         }}
       >
         <CartProvider>
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-          <WhatsAppButton />
+          <MaintenanceGuard settings={settings}>
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+            <WhatsAppButton />
+          </MaintenanceGuard>
         </CartProvider>
       </body>
     </html>

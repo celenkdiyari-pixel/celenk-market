@@ -16,7 +16,8 @@ import {
   Share2,
   DollarSign,
   Eye,
-  RefreshCw
+  RefreshCw,
+  AlertTriangle
 } from 'lucide-react';
 import { SiteSettings, SettingsUpdateRequest } from '@/types/settings';
 
@@ -137,8 +138,8 @@ export default function SettingsPage() {
           </h1>
           <p className="text-gray-600 mt-2">Sitenizin genel ayarlarını yönetin</p>
         </div>
-        <Button 
-          onClick={handleSave} 
+        <Button
+          onClick={handleSave}
           disabled={isSaving}
           className="bg-green-600 hover:bg-green-700"
         >
@@ -189,7 +190,75 @@ export default function SettingsPage() {
             <DollarSign className="h-4 w-4 mr-2" />
             İş
           </TabsTrigger>
+          <TabsTrigger value="maintenance" className="flex items-center">
+            <AlertTriangle className="h-4 w-4 mr-2" />
+            Bakım Modu
+          </TabsTrigger>
         </TabsList>
+
+        {/* ... existing tabs ... */}
+
+        {/* Bakım Modu Ayarları */}
+        <TabsContent value="maintenance" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-red-600 flex items-center">
+                <AlertTriangle className="h-5 w-5 mr-2" />
+                Bakım Modu ve Özel Günler
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg border">
+                <div className="flex-1">
+                  <Label htmlFor="maintenanceMode" className="text-base font-semibold">Bakım Modu</Label>
+                  <p className="text-sm text-gray-500">
+                    Aktif edildiğinde site müşterilere kapatılır ve sadece bakım mesajı gösterilir. Admin paneline erişim devam eder.
+                  </p>
+                </div>
+                <div className="flex items-center">
+                  <div
+                    onClick={() => updateSettings({
+                      maintenance: { ...settings.maintenance, isActive: !settings.maintenance?.isActive }
+                    })}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full cursor-pointer transition-colors ${settings.maintenance?.isActive ? 'bg-red-600' : 'bg-gray-200'}`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings.maintenance?.isActive ? 'translate-x-6' : 'translate-x-1'}`} />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="maintenanceMessage">Bakım Mesajı</Label>
+                <Textarea
+                  id="maintenanceMessage"
+                  value={settings.maintenance?.message || ''}
+                  onChange={(e) => updateSettings({
+                    maintenance: { ...settings.maintenance!, message: e.target.value }
+                  })}
+                  placeholder="Sitemiz bakım çalışması nedeniyle kapalıdır..."
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="specialDays">Özel Günlerde Otomatik Kapanma</Label>
+                <p className="text-sm text-gray-500 mb-2">
+                  Siteyi belirli tarihlerde otomatik olarak kapatmak için tarihleri girin (YYYY-AA-GG formatında, virgülle ayırarak).
+                  Örnek: 2024-01-01, 2024-12-31
+                </p>
+                <Textarea
+                  id="specialDays"
+                  value={settings.maintenance?.specialDays?.join(', ') || ''}
+                  onChange={(e) => updateSettings({
+                    maintenance: { ...settings.maintenance!, specialDays: e.target.value.split(',').map(d => d.trim()) }
+                  })}
+                  placeholder="2024-01-01, 2024-04-23"
+                  rows={2}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         {/* Genel Ayarlar */}
         <TabsContent value="general" className="space-y-6">
@@ -218,7 +287,7 @@ export default function SettingsPage() {
                   />
                 </div>
               </div>
-              
+
               <div>
                 <Label htmlFor="siteDescription">Site Açıklaması</Label>
                 <Textarea
@@ -229,7 +298,7 @@ export default function SettingsPage() {
                   rows={3}
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="siteKeywords">Anahtar Kelimeler</Label>
                 <Input
@@ -239,7 +308,7 @@ export default function SettingsPage() {
                   placeholder="çelenk, çiçek, açılış (virgülle ayırın)"
                 />
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="logoUrl">Logo URL</Label>
@@ -277,7 +346,7 @@ export default function SettingsPage() {
                   <Input
                     id="phone"
                     value={settings.contact.phone}
-                    onChange={(e) => updateSettings({ 
+                    onChange={(e) => updateSettings({
                       contact: { ...settings.contact, phone: e.target.value }
                     })}
                     placeholder="+90 555 123 45 67"
@@ -289,34 +358,34 @@ export default function SettingsPage() {
                     id="email"
                     type="email"
                     value={settings.contact.email}
-                    onChange={(e) => updateSettings({ 
+                    onChange={(e) => updateSettings({
                       contact: { ...settings.contact, email: e.target.value }
                     })}
                     placeholder="info@example.com"
                   />
                 </div>
               </div>
-              
+
               <div>
                 <Label htmlFor="address">Adres</Label>
                 <Textarea
                   id="address"
                   value={settings.contact.address}
-                  onChange={(e) => updateSettings({ 
+                  onChange={(e) => updateSettings({
                     contact: { ...settings.contact, address: e.target.value }
                   })}
                   placeholder="Tam adres bilgisi"
                   rows={2}
                 />
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="whatsapp">WhatsApp</Label>
                   <Input
                     id="whatsapp"
                     value={settings.contact.whatsapp}
-                    onChange={(e) => updateSettings({ 
+                    onChange={(e) => updateSettings({
                       contact: { ...settings.contact, whatsapp: e.target.value }
                     })}
                     placeholder="+90 555 123 45 67"
@@ -327,7 +396,7 @@ export default function SettingsPage() {
                   <Input
                     id="workingHours"
                     value={settings.contact.workingHours}
-                    onChange={(e) => updateSettings({ 
+                    onChange={(e) => updateSettings({
                       contact: { ...settings.contact, workingHours: e.target.value }
                     })}
                     placeholder="Pazartesi - Cumartesi: 09:00 - 18:00"
@@ -351,7 +420,7 @@ export default function SettingsPage() {
                   <Input
                     id="facebook"
                     value={settings.socialMedia.facebook || ''}
-                    onChange={(e) => updateSettings({ 
+                    onChange={(e) => updateSettings({
                       socialMedia: { ...settings.socialMedia, facebook: e.target.value }
                     })}
                     placeholder="https://facebook.com/username"
@@ -362,7 +431,7 @@ export default function SettingsPage() {
                   <Input
                     id="instagram"
                     value={settings.socialMedia.instagram || ''}
-                    onChange={(e) => updateSettings({ 
+                    onChange={(e) => updateSettings({
                       socialMedia: { ...settings.socialMedia, instagram: e.target.value }
                     })}
                     placeholder="https://instagram.com/username"
@@ -373,7 +442,7 @@ export default function SettingsPage() {
                   <Input
                     id="twitter"
                     value={settings.socialMedia.twitter || ''}
-                    onChange={(e) => updateSettings({ 
+                    onChange={(e) => updateSettings({
                       socialMedia: { ...settings.socialMedia, twitter: e.target.value }
                     })}
                     placeholder="https://twitter.com/username"
@@ -384,7 +453,7 @@ export default function SettingsPage() {
                   <Input
                     id="linkedin"
                     value={settings.socialMedia.linkedin || ''}
-                    onChange={(e) => updateSettings({ 
+                    onChange={(e) => updateSettings({
                       socialMedia: { ...settings.socialMedia, linkedin: e.target.value }
                     })}
                     placeholder="https://linkedin.com/company/username"
@@ -395,7 +464,7 @@ export default function SettingsPage() {
                   <Input
                     id="youtube"
                     value={settings.socialMedia.youtube || ''}
-                    onChange={(e) => updateSettings({ 
+                    onChange={(e) => updateSettings({
                       socialMedia: { ...settings.socialMedia, youtube: e.target.value }
                     })}
                     placeholder="https://youtube.com/channel/username"
@@ -418,45 +487,45 @@ export default function SettingsPage() {
                 <Input
                   id="metaTitle"
                   value={settings.seo.metaTitle}
-                  onChange={(e) => updateSettings({ 
+                  onChange={(e) => updateSettings({
                     seo: { ...settings.seo, metaTitle: e.target.value }
                   })}
                   placeholder="Site başlığı (SEO için)"
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="metaDescription">Meta Açıklama</Label>
                 <Textarea
                   id="metaDescription"
                   value={settings.seo.metaDescription}
-                  onChange={(e) => updateSettings({ 
+                  onChange={(e) => updateSettings({
                     seo: { ...settings.seo, metaDescription: e.target.value }
                   })}
                   placeholder="Site açıklaması (SEO için)"
                   rows={3}
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="metaKeywords">Meta Anahtar Kelimeler</Label>
                 <Input
                   id="metaKeywords"
                   value={settings.seo.metaKeywords}
-                  onChange={(e) => updateSettings({ 
+                  onChange={(e) => updateSettings({
                     seo: { ...settings.seo, metaKeywords: e.target.value }
                   })}
                   placeholder="anahtar, kelimeler, virgülle, ayırın"
                 />
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="googleAnalytics">Google Analytics ID</Label>
                   <Input
                     id="googleAnalytics"
                     value={settings.seo.googleAnalytics || ''}
-                    onChange={(e) => updateSettings({ 
+                    onChange={(e) => updateSettings({
                       seo: { ...settings.seo, googleAnalytics: e.target.value }
                     })}
                     placeholder="GA-XXXXXXXXX-X"
@@ -467,7 +536,7 @@ export default function SettingsPage() {
                   <Input
                     id="facebookPixel"
                     value={settings.seo.facebookPixel || ''}
-                    onChange={(e) => updateSettings({ 
+                    onChange={(e) => updateSettings({
                       seo: { ...settings.seo, facebookPixel: e.target.value }
                     })}
                     placeholder="123456789012345"
@@ -493,14 +562,14 @@ export default function SettingsPage() {
                       id="primaryColor"
                       type="color"
                       value={settings.theme.primaryColor}
-                      onChange={(e) => updateSettings({ 
+                      onChange={(e) => updateSettings({
                         theme: { ...settings.theme, primaryColor: e.target.value }
                       })}
                       className="w-16 h-10"
                     />
                     <Input
                       value={settings.theme.primaryColor}
-                      onChange={(e) => updateSettings({ 
+                      onChange={(e) => updateSettings({
                         theme: { ...settings.theme, primaryColor: e.target.value }
                       })}
                       placeholder="#16a34a"
@@ -514,14 +583,14 @@ export default function SettingsPage() {
                       id="secondaryColor"
                       type="color"
                       value={settings.theme.secondaryColor}
-                      onChange={(e) => updateSettings({ 
+                      onChange={(e) => updateSettings({
                         theme: { ...settings.theme, secondaryColor: e.target.value }
                       })}
                       className="w-16 h-10"
                     />
                     <Input
                       value={settings.theme.secondaryColor}
-                      onChange={(e) => updateSettings({ 
+                      onChange={(e) => updateSettings({
                         theme: { ...settings.theme, secondaryColor: e.target.value }
                       })}
                       placeholder="#059669"
@@ -535,14 +604,14 @@ export default function SettingsPage() {
                       id="accentColor"
                       type="color"
                       value={settings.theme.accentColor}
-                      onChange={(e) => updateSettings({ 
+                      onChange={(e) => updateSettings({
                         theme: { ...settings.theme, accentColor: e.target.value }
                       })}
                       className="w-16 h-10"
                     />
                     <Input
                       value={settings.theme.accentColor}
-                      onChange={(e) => updateSettings({ 
+                      onChange={(e) => updateSettings({
                         theme: { ...settings.theme, accentColor: e.target.value }
                       })}
                       placeholder="#10b981"
@@ -567,7 +636,7 @@ export default function SettingsPage() {
                   <Input
                     id="currency"
                     value={settings.business.currency}
-                    onChange={(e) => updateSettings({ 
+                    onChange={(e) => updateSettings({
                       business: { ...settings.business, currency: e.target.value }
                     })}
                     placeholder="TL"
@@ -579,7 +648,7 @@ export default function SettingsPage() {
                     id="taxRate"
                     type="number"
                     value={settings.business.taxRate}
-                    onChange={(e) => updateSettings({ 
+                    onChange={(e) => updateSettings({
                       business: { ...settings.business, taxRate: Number(e.target.value) }
                     })}
                     placeholder="18"
@@ -591,7 +660,7 @@ export default function SettingsPage() {
                     id="shippingCost"
                     type="number"
                     value={settings.business.shippingCost}
-                    onChange={(e) => updateSettings({ 
+                    onChange={(e) => updateSettings({
                       business: { ...settings.business, shippingCost: Number(e.target.value) }
                     })}
                     placeholder="50"
@@ -603,7 +672,7 @@ export default function SettingsPage() {
                     id="freeShippingThreshold"
                     type="number"
                     value={settings.business.freeShippingThreshold}
-                    onChange={(e) => updateSettings({ 
+                    onChange={(e) => updateSettings({
                       business: { ...settings.business, freeShippingThreshold: Number(e.target.value) }
                     })}
                     placeholder="500"
@@ -615,7 +684,7 @@ export default function SettingsPage() {
                     id="minOrderAmount"
                     type="number"
                     value={settings.business.minOrderAmount}
-                    onChange={(e) => updateSettings({ 
+                    onChange={(e) => updateSettings({
                       business: { ...settings.business, minOrderAmount: Number(e.target.value) }
                     })}
                     placeholder="100"

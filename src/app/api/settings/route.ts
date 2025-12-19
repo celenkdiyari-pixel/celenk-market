@@ -8,14 +8,14 @@ const SETTINGS_DOC_ID = 'site-settings';
 export async function GET() {
   try {
     console.log('⚙️ Fetching site settings...');
-    
+
     const settingsRef = doc(db, 'settings', SETTINGS_DOC_ID);
     const settingsSnap = await getDoc(settingsRef);
-    
+
     if (settingsSnap.exists()) {
       const settings = { id: settingsSnap.id, ...settingsSnap.data() } as SiteSettings;
       console.log('✅ Site settings loaded successfully');
-      
+
       return NextResponse.json({
         success: true,
         settings
@@ -73,24 +73,29 @@ export async function GET() {
           allowRegistration: true,
           requireEmailVerification: false
         },
+        maintenance: {
+          isActive: false,
+          message: 'Sitemiz şu anda bakım çalışması nedeniyle hizmet verememektedir. Lütfen daha sonra tekrar deneyiniz.',
+          specialDays: []
+        },
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         updatedBy: 'admin'
       };
-      
+
       // Varsayılan ayarları kaydet
       await setDoc(settingsRef, defaultSettings);
       console.log('✅ Default settings created');
-      
+
       return NextResponse.json({
         success: true,
         settings: defaultSettings
       });
     }
-    
+
   } catch (error) {
     console.error('❌ Error fetching site settings:', error);
-    
+
     return NextResponse.json({
       error: 'Failed to fetch site settings',
       details: error instanceof Error ? error.message : 'Unknown error'
@@ -101,29 +106,29 @@ export async function GET() {
 export async function PUT(request: NextRequest) {
   try {
     console.log('⚙️ Updating site settings...');
-    
+
     const updateData: SettingsUpdateRequest = await request.json();
     console.log('📝 Update data:', updateData);
-    
+
     const settingsRef = doc(db, 'settings', SETTINGS_DOC_ID);
-    
+
     const updatePayload = {
       ...updateData,
       updatedAt: new Date().toISOString(),
       updatedBy: 'admin'
     };
-    
+
     await updateDoc(settingsRef, updatePayload);
     console.log('✅ Site settings updated successfully');
-    
+
     return NextResponse.json({
       success: true,
       message: 'Site settings updated successfully'
     });
-    
+
   } catch (error) {
     console.error('❌ Error updating site settings:', error);
-    
+
     return NextResponse.json({
       error: 'Failed to update site settings',
       details: error instanceof Error ? error.message : 'Unknown error'
