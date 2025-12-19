@@ -76,37 +76,40 @@ export async function POST(request: NextRequest) {
             subject: `Siparişiniz Alındı - ${orderNumber}`,
             role: 'customer',
             templateParams: {
-              // Standard & Snake Case fields for Customer Template
-              order_number: orderNumber,
-              order_date: new Date().toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }),
-              order_status: 'Hazırlanıyor',
+              // --- SIMPLIFIED TEMPLATE COMPATIBILITY ---
+              // These keys match the simple templates provided by the user
               customer_name: customerName.trim(),
               customer_email: customerEmail || '',
               customer_phone: orderData.customer?.phone || '',
-
-              // Items
-              items_list: orderData.items.map((item: any) => {
+              order_number: orderNumber,
+              order_date: new Date().toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }),
+              address: orderData.customer?.address ?
+                (typeof orderData.customer.address === 'string'
+                  ? orderData.customer.address
+                  : `${orderData.customer.address.street || ''}, ${orderData.customer.address.district || ''}, ${orderData.customer.address.city || ''}`)
+                : (orderData.recipient?.address || ''),
+              notes: orderData.notes || '',
+              items: orderData.items.map((item: any) => {
                 const productName = item.productName || item.name || 'Ürün';
                 return `${productName} x${item.quantity} - ${(item.price || 0).toFixed(2)} ₺`;
               }).join('\n'),
+              subtotal: (orderData.subtotal || 0).toFixed(2),
+              shipping_cost: (orderData.shippingCost || 0).toFixed(2),
+              total: totalAmount.toFixed(2),
+              payment_method: orderData.paymentMethod === 'bank_transfer' ? 'Havale/EFT' : (orderData.paymentMethod || 'Belirtilmemiş'),
 
-              // Totals
-              subtotal: `${(orderData.subtotal || 0).toFixed(2)} ₺`,
-              shipping_cost: `${(orderData.shippingCost || 0).toFixed(2)} ₺`,
+              // --- END SIMPLIFIED TEMPLATE COMPATIBILITY ---
+
+              // Detailed fields (kept for potential future use or richer templates)
+              order_status: 'Hazırlanıyor',
               tax_amount: `${(orderData.taxAmount || 0).toFixed(2)} ₺`,
               total_amount: `${totalAmount.toFixed(2)} ₺`,
-
-              // Payment
-              payment_method: orderData.paymentMethod === 'bank_transfer' ? 'Havale/EFT' : (orderData.paymentMethod || 'Belirtilmemiş'),
               payment_status: 'Ödeme Bekleniyor',
-
-              // Sender & Recipient
               sender_name: orderData.sender?.name || customerName.trim(),
               sender_phone: orderData.sender?.phone || orderData.customer?.phone || '',
               recipient_name: orderData.recipient?.name || '',
               recipient_phone: orderData.recipient?.phone || '',
-
-              // Delivery
+              // Using the mapped address from above for consistency
               delivery_address: orderData.customer?.address ?
                 (typeof orderData.customer.address === 'string'
                   ? orderData.customer.address
@@ -115,12 +118,8 @@ export async function POST(request: NextRequest) {
               delivery_time: deliveryTime,
               delivery_date: orderData.delivery_date || '',
               delivery_location: orderData.delivery_place_type || 'Belirtilmemiş',
-
-              // Additional
               wreath_text: orderData.wreath_text || '',
               additional_info: orderData.additional_info || orderData.notes || '',
-
-              // Invoice
               invoice: { needInvoice: orderData.billing?.type ? true : false },
               invoice_type: orderData.billing?.type === 'individual' ? 'Bireysel' : 'Kurumsal',
               invoice_company_name: orderData.billing?.companyName || '',
@@ -129,17 +128,10 @@ export async function POST(request: NextRequest) {
               invoice_address: orderData.billing?.address || '',
               invoice_city: orderData.billing?.city || '',
               invoice_district: orderData.billing?.district || '',
-              invoice_postal_code: '',
 
-              // Company
               company_email: 'celenkdiyari@gmail.com',
               company_phone: '0535 561 26 56',
               company_website: 'www.celenkdiyari.com',
-
-              // Backward compatibility
-              orderNumber,
-              customerName: customerName.trim(),
-              total: totalAmount.toFixed(2)
             }
           })
         }).catch(err => console.error('Failed to send customer email:', err));
@@ -155,31 +147,34 @@ export async function POST(request: NextRequest) {
           subject: `Yeni Sipariş - ${orderNumber}`,
           role: 'admin',
           templateParams: {
-            // Standard & Snake Case fields for Admin Template
+            // --- SIMPLIFIED TEMPLATE COMPATIBILITY ---
             order_number: orderNumber,
             order_date: new Date().toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }),
-            order_status: 'Yeni Sipariş',
             customer_name: customerName.trim(),
             customer_email: customerEmail || '',
             customer_phone: orderData.customer?.phone || '',
-
-            // Items
-            items_list: orderData.items.map((item: any) => {
+            address: orderData.customer?.address ?
+              (typeof orderData.customer.address === 'string'
+                ? orderData.customer.address
+                : `${orderData.customer.address.street || ''}, ${orderData.customer.address.district || ''}, ${orderData.customer.address.city || ''}`)
+              : (orderData.recipient?.address || ''),
+            notes: orderData.notes || '',
+            items: orderData.items.map((item: any) => {
               const productName = item.productName || item.name || 'Ürün';
               return `${productName} x${item.quantity} - ${(item.price || 0).toFixed(2)} ₺`;
             }).join('\n'),
+            subtotal: (orderData.subtotal || 0).toFixed(2),
+            shipping_cost: (orderData.shippingCost || 0).toFixed(2),
+            total: totalAmount.toFixed(2),
+            payment_method: orderData.paymentMethod === 'bank_transfer' ? 'Havale/EFT' : (orderData.paymentMethod || 'Belirtilmemiş'),
+            // --- END SIMPLIFIED TEMPLATE COMPATIBILITY ---
 
-            // Totals
-            subtotal: `${(orderData.subtotal || 0).toFixed(2)} ₺`,
-            shipping_cost: `${(orderData.shippingCost || 0).toFixed(2)} ₺`,
+            // Detailed fields
+            order_status: 'Yeni Sipariş',
+            shipping_cost_fmt: `${(orderData.shippingCost || 0).toFixed(2)} ₺`,
             tax_amount: `${(orderData.taxAmount || 0).toFixed(2)} ₺`,
             total_amount: `${totalAmount.toFixed(2)} ₺`,
-
-            // Payment
-            payment_method: orderData.paymentMethod === 'bank_transfer' ? 'Havale/EFT' : (orderData.paymentMethod || 'Belirtilmemiş'),
             payment_status: 'Beklemede',
-
-            // Sender & Recipient & Delivery
             sender_name: orderData.sender?.name || customerName.trim(),
             sender_phone: orderData.sender?.phone || orderData.customer?.phone || '',
             sender_email: orderData.sender?.email || customerEmail || '',
@@ -193,8 +188,6 @@ export async function POST(request: NextRequest) {
             delivery_time: deliveryTime,
             delivery_date: orderData.delivery_date || '',
             delivery_location: orderData.delivery_place_type || 'Belirtilmemiş',
-
-            // Content
             wreath_text: orderData.wreath_text || '',
             additional_info: orderData.additional_info || orderData.notes || '',
             order_note: orderData.notes || '',
@@ -210,15 +203,9 @@ export async function POST(request: NextRequest) {
             invoice_district: orderData.billing?.district || '',
             invoice_postal_code: '',
 
-            // Admin Specific
             admin_panel_url: adminPanelUrl,
             company_website: 'www.celenkdiyari.com',
             company_phone: '0535 561 26 56',
-
-            // Backward compatibility
-            orderNumber,
-            customerName: customerName.trim(),
-            total: totalAmount.toFixed(2)
           }
         })
       }).catch(err => console.error('Failed to send admin email:', err));
