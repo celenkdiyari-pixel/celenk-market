@@ -114,15 +114,26 @@ export async function POST(request: NextRequest) {
                 : (orderData.recipient?.address || ''),
               delivery_time: deliveryTime,
               delivery_date: orderData.delivery_date || '',
-              delivery_place: orderData.delivery_place_type || 'Belirtilmemiş',
+              delivery_location: orderData.delivery_place_type || 'Belirtilmemiş',
 
               // Additional
               wreath_text: orderData.wreath_text || '',
               additional_info: orderData.additional_info || orderData.notes || '',
 
+              // Invoice
+              invoice: { needInvoice: orderData.billing?.type ? true : false },
+              invoice_type: orderData.billing?.type === 'individual' ? 'Bireysel' : 'Kurumsal',
+              invoice_company_name: orderData.billing?.companyName || '',
+              invoice_tax_number: orderData.billing?.taxNumber || orderData.billing?.idNumber || '',
+              invoice_tax_office: orderData.billing?.taxOffice || '',
+              invoice_address: orderData.billing?.address || '',
+              invoice_city: orderData.billing?.city || '',
+              invoice_district: orderData.billing?.district || '',
+              invoice_postal_code: '',
+
               // Company
               company_email: 'celenkdiyari@gmail.com',
-              company_phone: '+90 532 123 45 67',
+              company_phone: '0535 561 26 56',
               company_website: 'www.celenkdiyari.com',
 
               // Backward compatibility
@@ -181,16 +192,28 @@ export async function POST(request: NextRequest) {
               : (orderData.recipient?.address || ''),
             delivery_time: deliveryTime,
             delivery_date: orderData.delivery_date || '',
-            delivery_place: orderData.delivery_place_type || 'Belirtilmemiş',
+            delivery_location: orderData.delivery_place_type || 'Belirtilmemiş',
 
             // Content
             wreath_text: orderData.wreath_text || '',
             additional_info: orderData.additional_info || orderData.notes || '',
             order_note: orderData.notes || '',
 
+            // Invoice
+            invoice: { needInvoice: orderData.billing?.type ? true : false },
+            invoice_type: orderData.billing?.type === 'individual' ? 'Bireysel' : 'Kurumsal',
+            invoice_company_name: orderData.billing?.companyName || '',
+            invoice_tax_number: orderData.billing?.taxNumber || orderData.billing?.idNumber || '',
+            invoice_tax_office: orderData.billing?.taxOffice || '',
+            invoice_address: orderData.billing?.address || '',
+            invoice_city: orderData.billing?.city || '',
+            invoice_district: orderData.billing?.district || '',
+            invoice_postal_code: '',
+
             // Admin Specific
             admin_panel_url: adminPanelUrl,
             company_website: 'www.celenkdiyari.com',
+            company_phone: '0535 561 26 56',
 
             // Backward compatibility
             orderNumber,
