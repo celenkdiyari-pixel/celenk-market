@@ -23,7 +23,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Çelenk Diyarı - Doğanın En Güzel Hali",
+  title: {
+    template: '%s | Çelenk Diyarı',
+    default: 'Çelenk Diyarı - İstanbul Çelenk Siparişi',
+  },
   description: "Özel günlerinizde sevdiklerinizi mutlu edecek, doğal ve taze çelenkler. Açılış, düğün, cenaze ve özel günler için profesyonel çelenk siparişi.",
   keywords: ["çelenk", "çiçek", "açılış çelengi", "cenaze çelengi", "düğün çelengi", "istanbul çiçekçi", "online çelenk"],
   icons: {
