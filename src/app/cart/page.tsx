@@ -44,12 +44,35 @@ interface RecipientInfo {
   deliveryPlaceType: string;
 }
 
-const DELIVERY_TIME_SLOTS = [
-  'Gün İçinde (09:00 - 20:00)',
-  'Sabah (09:00 - 12:00)',
-  'Öğle (12:00 - 16:00)',
-  'Akşam (16:00 - 20:00)'
-];
+const generateTimeSlots = () => {
+  const slots = [];
+  let startHour = 9;
+  let startMinute = 0;
+  const endHour = 22;
+
+  while (startHour < endHour || (startHour === endHour && startMinute === 0)) {
+    const timeString = `${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
+
+    let endH = startHour;
+    let endM = startMinute + 30;
+    if (endM >= 60) {
+      endH += 1;
+      endM = 0;
+    }
+    const endTimeString = `${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`;
+
+    slots.push(`${timeString} - ${endTimeString}`);
+
+    startMinute += 30;
+    if (startMinute >= 60) {
+      startHour += 1;
+      startMinute = 0;
+    }
+  }
+  return slots;
+};
+
+const DELIVERY_TIME_SLOTS = generateTimeSlots();
 
 const DELIVERY_PLACES = [
   'Ev',
