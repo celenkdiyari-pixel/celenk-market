@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Search, Menu, X, User, Heart, Heart as HeartIcon, Gift, Building, Wrench, Flower, Leaf } from "lucide-react";
+import { ShoppingCart, Search, Menu, X, User, Heart, Heart as HeartIcon, Gift, Building, Wrench, Flower, Leaf, BookOpen } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import Logo from "./logo";
 
@@ -42,7 +42,7 @@ export default function Navbar() {
                   router.push(`/categories/${category.slug}`, { scroll: false });
                 }}
                 className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-700 hover:text-green-600 hover:bg-green-50 font-medium transition-all duration-200 group"
-                style={{ 
+                style={{
                   fontFeatureSettings: '"kern" 1, "liga" 1',
                   textRendering: 'optimizeLegibility',
                   WebkitFontSmoothing: 'antialiased',
@@ -51,10 +51,10 @@ export default function Navbar() {
                 }}
               >
                 <category.icon className={`h-4 w-4 ${category.color} group-hover:scale-110 transition-transform`} />
-                <span 
-                  className="text-sm" 
-                  style={{ 
-                    letterSpacing: 'normal', 
+                <span
+                  className="text-sm"
+                  style={{
+                    letterSpacing: 'normal',
                     fontVariant: 'normal',
                     fontFeatureSettings: '"kern" 1, "liga" 1',
                     textRendering: 'optimizeLegibility'
@@ -66,16 +66,14 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Search Bar */}
+          {/* Blog Link (Replaces Search Bar) */}
           <div className="hidden lg:flex items-center space-x-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                type="text"
-                placeholder="Çelenk ara..."
-                className="pl-10 pr-4 py-2 w-64 rounded-full border-gray-200 focus:border-green-500 focus:ring-green-500 shadow-sm hover:shadow-md transition-shadow duration-200"
-              />
-            </div>
+            <Link href="/blog">
+              <Button variant="ghost" className="text-gray-600 hover:text-green-600 font-medium hover:bg-green-50 rounded-xl px-4">
+                <BookOpen className="w-4 h-4 mr-2" />
+                Blog
+              </Button>
+            </Link>
           </div>
 
           {/* Action Buttons */}
@@ -103,7 +101,7 @@ export default function Navbar() {
             <Button variant="ghost" size="icon" className="hidden sm:flex hover:bg-gray-100 transition-all duration-200">
               <User className="h-5 w-5" />
             </Button>
-            
+
             {/* Mobile Menu Button */}
             <Button
               variant="ghost"
@@ -120,15 +118,15 @@ export default function Navbar() {
         {isMenuOpen && (
           <div className="md:hidden border-t border-gray-200 py-4">
             <div className="flex flex-col space-y-4">
-              <div className="relative px-4">
-                <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  type="text"
-                  placeholder="Çelenk ara..."
-                  className="pl-10 pr-4 py-2 w-full rounded-full border-gray-300 focus:border-green-500 focus:ring-green-500"
-                />
+              <div className="px-4">
+                <Link href="/blog" onClick={() => setIsMenuOpen(false)}>
+                  <Button variant="outline" className="w-full justify-start text-gray-700 hover:text-green-600 hover:bg-green-50 border-gray-200">
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    Blog Yazıları
+                  </Button>
+                </Link>
               </div>
-              
+
               {/* Mobile Categories */}
               {categories.map((category, index) => (
                 <button
@@ -143,7 +141,7 @@ export default function Navbar() {
                   <span>{category.name}</span>
                 </button>
               ))}
-              
+
               <div className="flex items-center space-x-4 px-4 pt-4 border-t border-gray-200">
                 <Link href="/favorites" onClick={() => setIsMenuOpen(false)}>
                   <Button variant="ghost" size="sm" className="flex items-center space-x-2">
