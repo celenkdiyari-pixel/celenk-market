@@ -52,21 +52,21 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
   return (
     <div className="group relative h-full">
       <Card className="h-full border-0 shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden bg-white flex flex-col rounded-[2rem]">
-        {/* Image Container with 3:4 Aspect Ratio */}
-        <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
-          <Link href={`/products/${product.id}`} className="block h-full w-full">
+        {/* Image Container with 2:3 Aspect Ratio (Taller for Wreaths) */}
+        <div className="relative aspect-[2/3] overflow-hidden bg-gray-50 p-4">
+          <Link href={`/products/${product.id}`} className="block h-full w-full relative">
             <Image
               src={product.images?.[0] || '/images/logo.png'}
               alt={product.name}
               fill
-              className="object-cover transition-transform duration-700 group-hover:scale-110"
+              className="object-contain transition-transform duration-700 group-hover:scale-105"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               priority={false}
             />
           </Link>
 
-          {/* Overlay Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+          {/* Overlay Gradient (Subtle) */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
           {/* Badges */}
           <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
@@ -97,7 +97,7 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
             )}
           </div>
 
-          {/* Add to Cart Button - Visible on Hover (or always on mobile if needed) */}
+          {/* Add to Cart Button - Visible on Hover */}
           <div className="absolute bottom-6 left-6 right-6 z-20 translate-y-20 group-hover:translate-y-0 transition-transform duration-500 ease-out">
             <Button
               onClick={handleAddToCart}
@@ -111,12 +111,12 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
               {inCart ? (
                 <>
                   <Check className="w-5 h-5 mr-2" />
-                  Sepette Eklendi
+                  Sepette
                 </>
               ) : (
                 <>
                   <ShoppingCart className="w-5 h-5 mr-2" />
-                  Sepete Eklendi
+                  Sepete Ekle
                 </>
               )}
             </Button>
@@ -124,7 +124,7 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
         </div>
 
         {/* Content */}
-        <CardContent className="p-5 flex-1 flex flex-col justify-between relative bg-white">
+        <CardContent className="p-5 flex-1 flex flex-col justify-between relative bg-white text-center">
           <div>
             <div className="text-xs font-medium text-green-600 mb-2 uppercase tracking-wider">
               {product.category}
@@ -135,7 +135,7 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
               </h3>
             </Link>
 
-            <div className="flex items-center gap-1 mb-3">
+            <div className="flex items-center justify-center gap-1 mb-3">
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
@@ -149,18 +149,15 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
             </div>
           </div>
 
-          <div className="flex items-end justify-between mt-2">
-            <div className="flex flex-col">
-              {safeOriginalPrice > 0 && (
-                <span className="text-sm text-gray-400 line-through mb-0.5">
-                  ₺{safeOriginalPrice.toFixed(2)}
-                </span>
-              )}
-              <span className="text-2xl font-bold text-gray-900">
-                ₺{safePrice.toFixed(2)}
+          <div className="flex flex-col items-center justify-end mt-2">
+            {safeOriginalPrice > 0 && (
+              <span className="text-sm text-gray-400 line-through mb-0.5">
+                ₺{safeOriginalPrice.toFixed(2)}
               </span>
-            </div>
-            {/* Stock indicator removed */}
+            )}
+            <span className="text-2xl font-bold text-gray-900">
+              ₺{safePrice.toFixed(2)}
+            </span>
           </div>
         </CardContent>
       </Card>
