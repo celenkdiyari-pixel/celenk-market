@@ -26,7 +26,7 @@ interface Product {
     description: string;
     price: number;
     category: string;
-    inStock: boolean;
+
     images: string[];
     createdAt?: string;
     updatedAt?: string;

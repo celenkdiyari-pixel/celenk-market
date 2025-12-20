@@ -2,7 +2,7 @@ export interface ProductVariant {
   id: string;
   name: string;
   price: number;
-  inStock: boolean;
+
   attributes: {
     [key: string]: string;
   };
@@ -17,7 +17,7 @@ export interface Product {
   images: string[];
   category: string;
   tags: string[];
-  inStock: boolean;
+
   rating: number;
   reviewCount: number;
   features: string[];

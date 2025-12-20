@@ -29,7 +29,7 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
       description: product.description,
       price: product.price,
       category: product.category,
-      inStock: product.inStock,
+
       images: product.images,
     });
   };

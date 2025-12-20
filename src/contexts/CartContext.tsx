@@ -6,7 +6,7 @@ interface ProductVariant {
   id: string;
   name: string;
   price: number;
-  inStock: boolean;
+
   attributes: {
     [key: string]: string;
   };
@@ -18,7 +18,7 @@ interface Product {
   description: string;
   price: number;
   category: string;
-  inStock: boolean;
+
   images: string[];
   variants?: ProductVariant[];
   createdAt?: string;
@@ -55,10 +55,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Check if we're on the client side
     if (typeof window === 'undefined') return;
-    
+
     const savedCart = localStorage.getItem('celenk-cart');
     const savedFavorites = localStorage.getItem('celenk-favorites');
-    
+
     if (savedCart) {
       try {
         const parsedCart = JSON.parse(savedCart);
@@ -74,7 +74,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setCartItems([]);
       }
     }
-    
+
     if (savedFavorites) {
       try {
         const parsedFavorites = JSON.parse(savedFavorites);
@@ -122,12 +122,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCartItems(prev => {
       // Ensure prev is an array
       const currentItems = Array.isArray(prev) ? prev : [];
-      
+
       const cartKey = `${product.id}-${variant?.id || 'default'}`;
-      const existingItem = currentItems.find(item => 
+      const existingItem = currentItems.find(item =>
         `${item.id}-${item.variantId || 'default'}` === cartKey
       );
-      
+
       if (existingItem) {
         return currentItems.map(item =>
           `${item.id}-${item.variantId || 'default'}` === cartKey
@@ -152,7 +152,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const removeFromCart = (productId: string, variantId?: string) => {
     setCartItems(prev => {
       const currentItems = Array.isArray(prev) ? prev : [];
-      return currentItems.filter(item => 
+      return currentItems.filter(item =>
         !(item.id === productId && (item.variantId || 'default') === (variantId || 'default'))
       );
     });
@@ -163,7 +163,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       removeFromCart(productId, variantId);
       return;
     }
-    
+
     setCartItems(prev => {
       const currentItems = Array.isArray(prev) ? prev : [];
       return currentItems.map(item =>
@@ -189,7 +189,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const isInCart = (productId: string, variantId?: string) => {
     if (!Array.isArray(cartItems)) return false;
-    return cartItems.some(item => 
+    return cartItems.some(item =>
       item.id === productId && (item.variantId || 'default') === (variantId || 'default')
     );
   };
