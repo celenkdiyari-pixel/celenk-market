@@ -2,227 +2,118 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Sipariş Onayı - Çelenk Diyarı</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siparişiniz Alındı</title>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #16a34a; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
-        .order-details { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .section-title { color: #16a34a; font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #16a34a; padding-bottom: 5px; }
-        .item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .item:last-child { border-bottom: none; }
-        .label { font-weight: bold; color: #555; }
-        .value { color: #333; }
-        .total-box { background: #f0f9f4; padding: 15px; border-radius: 8px; margin-top: 20px; }
-        .total-row { display: flex; justify-content: space-between; padding: 5px 0; }
-        .total-final { font-size: 20px; font-weight: bold; color: #16a34a; border-top: 2px solid #16a34a; padding-top: 10px; margin-top: 10px; }
-        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
-        .highlight { background: #fff3cd; padding: 10px; border-radius: 5px; margin: 10px 0; }
-        .info-box { background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #16a34a; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f9fafb; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-top: 20px; margin-bottom: 20px; }
+        .header { background-color: #16a34a; padding: 30px 20px; text-align: center; color: white; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+        .content { padding: 30px; }
+        .section { margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        .section:last-child { border-bottom: none; }
+        .h2 { color: #166534; font-size: 18px; margin-bottom: 15px; border-left: 4px solid #16a34a; padding-left: 10px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .label { color: #666; font-weight: 500; }
+        .value { font-weight: 600; text-align: right; }
+        .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .items-table th { text-align: left; padding: 10px; background-color: #f3f4f6; color: #374151; font-size: 14px; }
+        .items-table td { padding: 10px; border-bottom: 1px solid #eee; font-size: 14px; }
+        .total-row { font-weight: bold; font-size: 16px; color: #16a34a; }
+        .footer { background-color: #f3f4f6; padding: 20px; text-align: center; font-size: 12px; color: #6b7280; }
+        .button { display: inline-block; background-color: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
+        .note { background-color: #fffbeb; border: 1px solid #fcd34d; color: #92400e; padding: 10px; border-radius: 4px; font-size: 14px; margin-top: 10px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🌿 Çelenk Diyarı</h1>
-            <h2>Sipariş Onayı</h2>
+            <h1>Siparişiniz Alındı! 🌿</h1>
+            <p>Sipariş Numaranız: {{order_number}}</p>
         </div>
         
         <div class="content">
-            <p>Merhaba <strong>{{customer_name}}</strong>,</p>
-            
-            <p>Siparişiniz başarıyla alınmıştır. Sipariş detaylarınız aşağıda yer almaktadır:</p>
-            
-            <div class="order-details">
-                <h3 class="section-title">📋 Sipariş Bilgileri</h3>
-                <div class="item">
-                    <span class="label">Sipariş No:</span>
-                    <span class="value">{{order_number}}</span>
-                </div>
-                <div class="item">
-                    <span class="label">Sipariş Tarihi:</span>
-                    <span class="value">{{order_date}}</span>
-                </div>
-                <div class="item">
-                    <span class="label">Sipariş Durumu:</span>
-                    <span class="value" style="color: #16a34a; font-weight: bold;">{{order_status}}</span>
+            <div class="section">
+                <p>Sayın <strong>{{customer_name}}</strong>,</p>
+                <p>Siparişiniz başarıyla alınmıştır ve ödeme onayı beklenmektedir. Bizi tercih ettiğiniz için teşekkür ederiz.</p>
+                <div class="note">
+                    <strong>Ödeme Hatırlatması:</strong> Havale/EFT ile ödeme yapacaksanız, lütfen sipariş numaranızı açıklama kısmına yazmayı unutmayınız.
                 </div>
             </div>
 
-            <div class="order-details">
-                <h3 class="section-title">🛍️ Sipariş İçeriği</h3>
-                <pre style="white-space: pre-wrap; font-family: Arial, sans-serif; background: #f9f9f9; padding: 15px; border-radius: 5px;">{{items_list}}</pre>
+            <div class="section">
+                <div class="h2">Sipariş Özeti</div>
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th>Ürün</th>
+                            <th style="text-align: right;">Tutar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- EmailJS Loop Example: {{{items}}} variable should be pre-formatted in code as HTML or simple text list -->
+                        <tr>
+                            <td colspan="2" style="white-space: pre-line;">{{items}}</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td style="padding-top: 15px;">Ara Toplam</td>
+                            <td style="text-align: right; padding-top: 15px;">{{subtotal}} ₺</td>
+                        </tr>
+                        <tr>
+                            <td>Kargo</td>
+                            <td style="text-align: right;">{{shipping_cost}} ₺</td>
+                        </tr>
+                        <tr>
+                            <td class="total-row">Genel Toplam</td>
+                            <td class="total-row" style="text-align: right;">{{total}} ₺</td>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
 
-            <div class="order-details">
-                <h3 class="section-title">💰 Fiyat Detayları</h3>
-                <div class="total-box">
-                    <div class="total-row">
-                        <span class="label">Ara Toplam:</span>
-                        <span class="value">{{subtotal}}</span>
-                    </div>
-                    <div class="total-row">
-                        <span class="label">Kargo Ücreti:</span>
-                        <span class="value">{{shipping_cost}}</span>
-                    </div>
-                    <div class="total-row">
-                        <span class="label">KDV:</span>
-                        <span class="value">{{tax_amount}}</span>
-                    </div>
-                    <div class="total-row total-final">
-                        <span>TOPLAM TUTAR:</span>
-                        <span>{{total_amount}}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="order-details">
-                <h3 class="section-title">💳 Ödeme Bilgileri</h3>
-                <div class="item">
-                    <span class="label">Ödeme Yöntemi:</span>
-                    <span class="value">{{payment_method}}</span>
-                </div>
-                <div class="item">
-                    <span class="label">Ödeme Durumu:</span>
-                    <span class="value">{{payment_status}}</span>
-                </div>
-            </div>
-
-            <div class="order-details">
-                <h3 class="section-title">👤 Gönderen Bilgileri</h3>
-                <div class="item">
-                    <span class="label">Ad Soyad:</span>
-                    <span class="value">{{sender_name}}</span>
-                </div>
-                <div class="item">
-                    <span class="label">Telefon:</span>
-                    <span class="value">{{sender_phone}}</span>
-                </div>
-                {{#wreath_text}}
-                <div class="info-box">
-                    <strong>💐 Çelenk Yazısı:</strong><br>
-                    {{wreath_text}}
-                </div>
-                {{/wreath_text}}
-                {{#additional_info}}
-                <div class="info-box">
-                    <strong>📝 Ek Bilgi:</strong><br>
-                    {{additional_info}}
-                </div>
-                {{/additional_info}}
-            </div>
-
-            <div class="order-details">
-                <h3 class="section-title">📬 Alıcı Bilgileri</h3>
-                <div class="item">
-                    <span class="label">Ad Soyad:</span>
+            <div class="section">
+                <div class="h2">Teslimat Bilgileri</div>
+                <div class="info-row">
+                    <span class="label">Alıcı:</span>
                     <span class="value">{{recipient_name}}</span>
                 </div>
-                <div class="item">
+                <div class="info-row">
                     <span class="label">Telefon:</span>
                     <span class="value">{{recipient_phone}}</span>
                 </div>
-            </div>
-
-            <div class="order-details">
-                <h3 class="section-title">🚚 Teslimat Bilgileri</h3>
-                <div class="item">
-                    <span class="label">Teslimat Adresi:</span>
-                    <span class="value">{{delivery_address}}</span>
-                </div>
-                {{#delivery_date}}
-                <div class="item">
-                    <span class="label">Teslimat Tarihi:</span>
-                    <span class="value">{{delivery_date}}</span>
-                </div>
-                {{/delivery_date}}
-                {{#delivery_time}}
-                <div class="item">
-                    <span class="label">Teslimat Saati:</span>
-                    <span class="value">{{delivery_time}}</span>
-                </div>
-                {{/delivery_time}}
-                {{#delivery_location}}
-                <div class="item">
-                    <span class="label">Teslimat Konumu:</span>
+                <div class="info-row">
+                    <span class="label">Teslimat Yeri:</span>
                     <span class="value">{{delivery_location}}</span>
                 </div>
-                {{/delivery_location}}
-            </div>
-
-            {{#invoice}}
-            {{#invoice.needInvoice}}
-            <div class="order-details">
-                <h3 class="section-title">📄 Fatura Bilgileri</h3>
-                <div class="item">
-                    <span class="label">Fatura Tipi:</span>
-                    <span class="value">{{invoice_type}}</span>
+                <div class="info-row">
+                    <span class="label">Tarih/Saat:</span>
+                    <span class="value">{{delivery_date}} / {{delivery_time}}</span>
                 </div>
-                {{#invoice_company_name}}
-                <div class="item">
-                    <span class="label">Firma Adı:</span>
-                    <span class="value">{{invoice_company_name}}</span>
-                </div>
-                {{/invoice_company_name}}
-                <div class="item">
-                    <span class="label">{{#invoice_type}}Bireysel{{/invoice_type}}{{^invoice_type}}Vergi{{/invoice_type}} No:</span>
-                    <span class="value">{{invoice_tax_number}}</span>
-                </div>
-                {{#invoice_tax_office}}
-                <div class="item">
-                    <span class="label">Vergi Dairesi:</span>
-                    <span class="value">{{invoice_tax_office}}</span>
-                </div>
-                {{/invoice_tax_office}}
-                <div class="item">
+                <div class="info-row">
                     <span class="label">Adres:</span>
-                    <span class="value">{{invoice_address}}</span>
+                    <span class="value">{{delivery_address}}</span>
                 </div>
-                <div class="item">
-                    <span class="label">İl/İlçe:</span>
-                    <span class="value">{{invoice_city}} / {{invoice_district}}</span>
+                {{#if order_note}}
+                <div class="note" style="margin-top: 10px;">
+                    <strong>Sipariş Notu:</strong> {{order_note}}
                 </div>
-                {{#invoice_postal_code}}
-                <div class="item">
-                    <span class="label">Posta Kodu:</span>
-                    <span class="value">{{invoice_postal_code}}</span>
-                </div>
-                {{/invoice_postal_code}}
-            </div>
-            {{/invoice.needInvoice}}
-            {{/invoice}}
-
-            <div class="order-details">
-                <h3 class="section-title">📞 İletişim Bilgileri</h3>
-                <div class="item">
-                    <span class="label">Müşteri Adı:</span>
-                    <span class="value">{{customer_name}}</span>
-                </div>
-                <div class="item">
-                    <span class="label">E-posta:</span>
-                    <span class="value">{{customer_email}}</span>
-                </div>
-                <div class="item">
-                    <span class="label">Telefon:</span>
-                    <span class="value">{{customer_phone}}</span>
-                </div>
+                {{/if}}
             </div>
 
-            <div class="highlight">
-                <p><strong>📞 Siparişinizle ilgili sorularınız için:</strong></p>
-                <p>📧 E-posta: {{company_email}}</p>
-                <p>📱 Telefon: {{company_phone}}</p>
+            <div class="section">
+                <div class="h2">İletişim</div>
+                <p>Herhangi bir sorunuz olursa bize aşağıdaki kanallardan ulaşabilirsiniz:</p>
+                <p>📞 <strong>Telefon:</strong> {{company_phone}}</p>
+                <p>🌐 <strong>Web:</strong> {{company_website}}</p>
             </div>
-
-            <p style="margin-top: 30px;">Teşekkür ederiz, güzel günler dileriz! 🌿</p>
         </div>
-        
+
         <div class="footer">
-            <p>© 2024 Çelenk Diyarı - Doğanın En Güzel Hali</p>
-            <p>{{company_website}}</p>
+            <p>© 2024 Çelenk Diyarı. Tüm hakları saklıdır.</p>
+            <p>Bu e-posta otomatik olarak gönderilmiştir, lütfen cevaplamayınız.</p>
         </div>
     </div>
 </body>
 </html>
-
