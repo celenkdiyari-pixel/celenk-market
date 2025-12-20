@@ -308,11 +308,22 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
           <p className="text-gray-600 mb-6">
             Sipariş numaranız: <span className="font-mono font-bold text-gray-900">{orderId}</span>
           </p>
-          <div className="bg-blue-50 p-4 rounded-xl text-sm text-blue-800 mb-8 text-left">
-            <h4 className="font-bold mb-1 flex items-center"><Building2 className="w-4 h-4 mr-2" /> Banka Hesap Bilgileri:</h4>
-            <p>IBAN: TR00 0000 0000 0000 0000 0000 00</p>
-            <p>Alıcı: Çelenk Diyarı</p>
-            <p className="mt-2 text-xs opacity-75">* Lütfen açıklama kısmına sipariş numaranızı yazınız.</p>
+          <div className="bg-green-50 p-6 rounded-xl text-green-800 mb-8 text-center space-y-4 border border-green-100">
+            <div className="flex flex-col items-center gap-2">
+              <Building2 className="w-8 h-8 text-green-600 mb-1" />
+              <h4 className="font-bold text-lg">Ödeme Bekleniyor</h4>
+            </div>
+            <p className="text-sm opacity-90">
+              Siparişinizin onaylanması için ödeme işlemini tamamlamanız gerekmektedir.
+              Aşağıdaki butona tıklayarak WhatsApp hattımızdan IBAN bilgilerini hızlıca alabilirsiniz.
+            </p>
+            <Button
+              className="bg-[#25D366] hover:bg-[#128C7E] text-white w-full font-bold shadow-lg hover:shadow-xl transition-all h-12 text-base"
+              onClick={() => window.open(`https://wa.me/905551234567?text=${encodeURIComponent(`Merhaba, ${orderId} numaralı siparişim için ödeme/IBAN bilgisi alabilir miyim?`)}`, '_blank')}
+            >
+              <Send className="w-5 h-5 mr-2" />
+              WhatsApp'tan IBAN İste
+            </Button>
           </div>
           <div className="flex flex-col gap-3">
             <Link href="/">
