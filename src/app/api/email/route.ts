@@ -50,11 +50,8 @@ export async function POST(request: NextRequest) {
     const adminTemplateId = process.env.EMAILJS_TEMPLATE_ADMIN; // e.g. template_t6bsxpr
     const customerTemplateId = process.env.EMAILJS_TEMPLATE_CUSTOMER; // e.g. template_zel5ngx
 
-    // Vercel ortam değişkenlerinde ID'ler karışmış gibi göründüğü için burada tersine çeviriyoruz.
-    // Normalde: role === 'admin' ? adminTemplateId : customerTemplateId
-    // Düzeltme:
     const selectedTemplateId =
-      role === 'admin' ? customerTemplateId : adminTemplateId;
+      role === 'admin' ? adminTemplateId : customerTemplateId;
 
     if (!selectedTemplateId) {
       console.error('❌ Template ID missing for role:', role);
