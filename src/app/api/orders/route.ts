@@ -147,6 +147,7 @@ export async function POST(request: NextRequest) {
           subject: `Yeni Sipariş - ${orderNumber}`,
           role: 'admin',
           templateParams: {
+            to_email: adminEmail,
             // --- SIMPLIFIED TEMPLATE COMPATIBILITY ---
             order_number: orderNumber,
             order_date: new Date().toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }),
