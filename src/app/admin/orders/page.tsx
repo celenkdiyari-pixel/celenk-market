@@ -415,6 +415,32 @@ export default function OrdersPage() {
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
+                  <Button
+                    variant="destructive"
+                    className="mr-2"
+                    onClick={async () => {
+                      if (window.confirm('DİKKAT! Tüm siparişleri silmek istediğinize emin misiniz? Bu işlem geri alınamaz!')) {
+                        try {
+                          setIsLoading(true);
+                          const res = await fetch('/api/orders?action=deleteAll', { method: 'DELETE' });
+                          const data = await res.json();
+                          if (res.ok) {
+                            alert(data.message || 'Tüm siparişler silindi.');
+                            loadOrders();
+                          } else {
+                            alert(data.error || 'Silme işlemi başarısız.');
+                          }
+                        } catch (e) {
+                          console.error(e);
+                          alert('Hata oluştu.');
+                        } finally {
+                          setIsLoading(false);
+                        }
+                      }
+                    }}
+                  >
+                    Tümünü Sil
+                  </Button>
                   <Filter className="h-4 w-4 text-gray-400" />
                   <select
                     value={statusFilter}
