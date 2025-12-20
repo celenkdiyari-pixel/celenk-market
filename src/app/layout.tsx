@@ -30,12 +30,9 @@ export const metadata: Metadata = {
   description: "Özel günlerinizde sevdiklerinizi mutlu edecek, doğal ve taze çelenkler. Açılış, düğün, cenaze ve özel günler için profesyonel çelenk siparişi.",
   keywords: ["çelenk", "çiçek", "açılış çelengi", "cenaze çelengi", "düğün çelengi", "istanbul çiçekçi", "online çelenk"],
   icons: {
-    icon: [
-      { url: '/favicon.ico' },
-      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icon-512x512.png', sizes: '512x512', type: 'image/png' }
-    ],
-    apple: '/apple-touch-icon.png',
+    icon: '/images/logo-removebg-preview.png',
+    apple: '/images/logo-removebg-preview.png',
+    shortcut: '/images/logo-removebg-preview.png'
   },
   manifest: '/manifest.json',
   openGraph: {
