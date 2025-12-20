@@ -265,6 +265,110 @@ export const blogPosts: BlogPost[] = [
       <h3>3. Faturalandırma ve Süreç</h3>
       <p>Kurumsal siparişlerde fatura süreçleri önemlidir. E-fatura mükellefi olan çiçekçilerle çalışmak muhasebe süreçlerinizi kolaylaştırır. Çelenk Diyarı, tüm kurumsal siparişlerinizde kurum adına fatura düzenleyerek profesyonel çözüm ortağınız olur.</p>
     `
+  },
+  {
+    id: '9',
+    slug: 'dugun-celenklerinde-renklerin-dili',
+    title: 'Düğün Çelenklerinde Renklerin Dili: Hangi Renk Neyi İfade Eder?',
+    excerpt: 'Düğün ve nişan törenlerine çelenk gönderirken renklerin gizli mesajlarını biliyor musunuz? Beyaz, pembe veya kırmızı... İşte anlamları.',
+    coverImage: 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200',
+    date: '2024-04-18',
+    author: 'Sanat Editörü',
+    tags: ['Renk Psikolojisi', 'Düğün', 'Çiçek Anlamları'],
+    readTime: '3 dk',
+    content: `
+      <h2>Mutluluğun Rengi Nedir?</h2>
+      <p>Çiçeklerin dili evrenseldir. Düğün gibi en mutlu günlerde seçeceğiniz çelengin rengi, iletmek istediğiniz mesajı güçlendirir.</p>
+
+      <h3>Beyaz: Masumiyet ve Yeni Başlangıçlar</h3>
+      <p>Düğün çelenklerinin vazgeçilmez rengi beyazdır. Temizliği, saflığı ve yeni bir hayata atılan adımı simgeler. Risk almadan en şık ve asil duruşu sergilemek isteyenlerin tercihidir.</p>
+
+      <h3>Pembe: Neşe ve Romantizm</h3>
+      <p>Pembe tonları, özellikle bahar ve yaz düğünlerinde sıkça tercih edilir. Şefkati, nezaketi ve romantizmi temsil eder. Beyaz ile harmanlandığında harika bir uyum yakalar.</p>
+
+      <h3>Kırmızı: Tutku ve Güç</h3>
+      <p>Daha iddialı bir seçimdir. Kırmızı güller veya gerberalarla hazırlanan bir çelenk, "Aşkınız daim olsun" mesajını güçlü bir şekilde verir. Genellikle çok yakın dostlar veya aile üyeleri tarafından tercih edilir.</p>
+    `
+  },
+  {
+    id: '10',
+    slug: 'acil-celenk-siparisi-istanbul',
+    title: 'İstanbul Acil Çelenk Siparişi: Son Dakika Kurtarıcısı',
+    excerpt: 'Tören saatine çok az mı kaldı? İstanbul trafiğinde hızlı çelenk gönderimi için hayat kurtaran ipuçları ve dikkat edilmesi gerekenler.',
+    coverImage: 'https://images.unsplash.com/photo-1583324622624-38c3507d47ba?q=80&w=1200',
+    date: '2024-04-25',
+    author: 'Operasyon Müdürü',
+    tags: ['Acil Sipariş', 'Hızlı Teslimat', 'İstanbul'],
+    readTime: '3 dk',
+    content: `
+      <h2>Zamanla Yarışırken Yanınızdayız</h2>
+      <p>Bazen hayatın koşturmacasında önemli bir düğünü veya maalesef aniden gelen bir cenaze haberini son dakika öğrenebilirsiniz. Panik yapmayın, doğru adımlarla törene yetişmek mümkün.</p>
+
+      <h3>1. Stoktan Gönderim (Hazır Modeller)</h3>
+      <p>Özel tasarım ferforjeler zaman alır. Ancak standart ayaklı çelenkler genellikle çiçekçilerin stoğunda iskelet olarak hazırdır ve sadece taze çiçeklerle donatılması gerekir. Acil durumlarda "Günün Çelengi" veya "Hazır Modeller" kategorisinden seçim yapmak size 1-2 saat kazandırır.</p>
+
+      <h3>2. Bölgesel Gönderim Ağı</h3>
+      <p>Siparişinizin tören yerine en yakın şubeden çıkması hayati önem taşır. Çelenk Diyarı, İstanbul'un kilit noktalarındaki çözüm ortaklarıyla trafiğe takılmadan teslimat yapar.</p>
+
+      <h3>3. Doğru İletişim</h3>
+      <p>Acil siparişlerde not kısmına mutlaka "Tören saati X:XX'de, ACİLDİR" notunu düşün veya sipariş sonrası bizi arayarak teyit alın. Ekibimiz rotayı buna göre önceliklendirecektir.</p>
+    `
+  },
+  {
+    id: '11',
+    slug: 'yapay-cicek-mi-canli-cicek-mi-celenk-secimi',
+    title: 'Yapay Çelenk vs Canlı Çelenk: Hangisini Tercih Etmeli?',
+    excerpt: 'Çelenk gönderirken yapay çiçek mi yoksa taze canlı çiçek mi seçmelisiniz? İki seçeneğin avantajları ve dezavantajları.',
+    coverImage: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=1200',
+    date: '2024-05-02',
+    author: 'Ürün Uzmanı',
+    tags: ['Ürün Karşılaştırma', 'Yapay Çiçek', 'Canlı Çiçek'],
+    readTime: '4 dk',
+    content: `
+      <h2>Prestij mi, Kalıcılık mı?</h2>
+      <p>Çelenk siparişi verirken en çok sorulan sorulardan biri de çiçeğin türüdür. Her iki seçeneğin de kendine has kullanım alanları vardır.</p>
+
+      <h3>Canlı Çiçekli Çelenkler</h3>
+      <p><strong>Avantajları:</strong></p>
+      <ul>
+        <li><strong>Prestij:</strong> Canlı çiçek her zaman daha lüks, taze ve değerli algılanır.</li>
+        <li><strong>Koku:</strong> Doğal çiçek kokusu ortamın havasını değiştirir.</li>
+        <li><strong>Geri Dönüşüm:</strong> Doğaldır, tören sonrası doğaya karışır.</li>
+      </ul>
+      <p><em>Öneri:</em> Cenaze, önemli düğünler ve üst düzey açılışlar için kesinlikle canlı çiçek öneriyoruz.</p>
+
+      <h3>Yapay Çiçekli Çelenkler</h3>
+      <p><strong>Avantajları:</strong></p>
+      <ul>
+        <li><strong>Dayanıklılık:</strong> Hava koşullarından etkilenmez (Yağmur, rüzgar, güneş).</li>
+        <li><strong>Süreklilik:</strong> Açılış yapılan mekanda günlerce, hatta haftalarca kapı önünde dekor olarak kalabilir.</li>
+      </ul>
+      <p><em>Öneri:</em> Eğer amacınız açılış yapılan dükkanın önünde uzun süre kalacak bir "reklam" ise yapay tercih edilebilir. Ancak Çelenk Diyarı olarak biz, kalitemiz gereği ağırlıklı olarak 1. sınıf taze kesme çiçekler kullanmaktayız.</p>
+    `
+  },
+  {
+    id: '12',
+    slug: 'celenk-gonderme-kulturumuzun-tarihcesi',
+    title: 'Zamana Meydan Okuyan Gelenek: Çelenk Kültürü',
+    excerpt: 'Çelenk gönderme adeti nereden geliyor? Antik çağlardan günümüze çelenklerin yolculuğu ve kültürel önemi.',
+    coverImage: 'https://images.unsplash.com/photo-1551893478-d726eaf0442c?q=80&w=1200',
+    date: '2024-05-10',
+    author: 'Kültür Sanat',
+    tags: ['Tarihçe', 'Kültür', 'Gelenek'],
+    readTime: '3 dk',
+    content: `
+      <h2>Zaferden Anmaya: Çelengin Yolculuğu</h2>
+      <p>Çelenk formunun (daire), başı ve sonu olmadığı için "sonsuzluğu" simgelediğini biliyor muydunuz?</p>
+
+      <h3>Antik Çağlar</h3>
+      <p>Antik Yunan ve Roma'da defne yapraklarından yapılan çelenkler, olimpiyat kazananlarına veya savaştan dönen muzaffer komutanlara takılırdı. Bir zafer ve güç simgesiydi.</p>
+
+      <h3>Viktorya Dönemi</h3>
+      <p>Çiçeklerin dili (floriography) bu dönemde gelişti. Çelenkler, duyguların kelimeler olmadan ifade edilmesinin en zarif yolu haline geldi. Cenaze törenlerinde "ruhsal sonsuzluk" anlamında kullanılmaya başlandı.</p>
+
+      <h3>Günümüz Türkiye'si</h3>
+      <p>Ülkemizde çelenk kültürü, toplumsal dayanışmanın en görünür halidir. Bir düğünde sıra sıra dizilen çelenkler ailenin sosyal çevresini, bir cenazedeki çelenkler ise merhuma duyulan saygıyı gösterir. Bu gelenek, dijitalleşen dünyada bile önemini yitirmeden devam etmektedir.</p>
+    `
   }
 ];
 
