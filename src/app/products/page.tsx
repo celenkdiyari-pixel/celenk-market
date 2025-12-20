@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { 
-  ShoppingCart, 
-  Search, 
+import {
+  ShoppingCart,
+  Search,
   Grid3X3,
   List,
   Heart,
@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import ProductCard from '@/components/product-card';
 
 interface Product {
   id: string;
@@ -56,7 +57,7 @@ export default function ProductsPage() {
     try {
       console.log('📦 Loading products...');
       const response = await fetch('/api/products?mode=summary');
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log('✅ Products loaded:', data.length);
@@ -75,9 +76,9 @@ export default function ProductsPage() {
   const filteredProducts = products
     .filter(product => {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           product.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === '' || selectedCategory === 'Tümü' || 
-                             product.category === selectedCategory;
+        product.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = selectedCategory === '' || selectedCategory === 'Tümü' ||
+        product.category === selectedCategory;
       return matchesSearch && matchesCategory;
     })
     .sort((a, b) => {
@@ -113,7 +114,7 @@ export default function ProductsPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <h1 
+            <h1
               className="text-4xl font-bold text-gray-900 mb-4"
               style={{
                 fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -125,7 +126,7 @@ export default function ProductsPage() {
             >
               Çelenk Koleksiyonumuz
             </h1>
-            <p 
+            <p
               className="text-xl text-gray-600 max-w-2xl mx-auto"
               style={{
                 fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -235,7 +236,7 @@ export default function ProductsPage() {
               {searchTerm || selectedCategory !== '' ? 'Ürün bulunamadı' : 'Henüz ürün eklenmemiş'}
             </h3>
             <p className="text-gray-600 mb-8 max-w-md mx-auto">
-              {searchTerm || selectedCategory !== '' 
+              {searchTerm || selectedCategory !== ''
                 ? 'Arama kriterlerinizi değiştirerek tekrar deneyin'
                 : 'Admin panelinden ürün ekleyerek başlayın'
               }
@@ -248,137 +249,82 @@ export default function ProductsPage() {
             </Link>
           </div>
         ) : (
-          <div className={viewMode === 'grid' 
+          <div className={viewMode === 'grid'
             ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
             : "space-y-4"
           }>
             {filteredProducts.map((product) => (
-              <Card key={product.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 overflow-hidden bg-white">
+              <div key={product.id} className="h-full">
                 {viewMode === 'grid' ? (
-                  // Grid View
-                  <>
-                    <div className="relative h-64 overflow-hidden">
-                      {product.images && product.images.length > 0 ? (
-                        <Image
-                          src={product.images[0]}
-                          alt={product.name}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
-                          <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center">
-                            <Package className="h-10 w-10 text-white" />
-                          </div>
-                        </div>
-                      )}
-                      <div className="absolute top-4 right-4">
-                        <Badge variant={product.inStock ? "default" : "destructive"}>
-                          {product.inStock ? 'Stokta' : 'Stokta Yok'}
-                        </Badge>
-                      </div>
-                      <div className="absolute top-4 left-4">
-                        <Badge className={`${getCategoryColor(product.category)} border-0`}>
-                          {product.category}
-                        </Badge>
-                      </div>
-                    </div>
-                    
-                    <CardContent className="p-6">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-green-600 transition-colors">
-                        {product.name}
-                      </h3>
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                        {product.description}
-                      </p>
-                      <div className="flex justify-between items-center mb-4">
-                        <span className="text-3xl font-bold text-green-600">
-                          {product.price} ₺
-                        </span>
-                        <div className="flex items-center space-x-1">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          ))}
-                        </div>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button className="flex-1 bg-green-600 hover:bg-green-700">
-                          <ShoppingCart className="h-4 w-4 mr-2" />
-                          Sepete Ekle
-                        </Button>
-                        <Button variant="outline" size="icon">
-                          <Heart className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </>
+                  <ProductCard product={product as any} />
                 ) : (
-                  // List View
-                  <div className="flex">
-                    <div className="relative w-48 h-48 flex-shrink-0">
-                      {product.images && product.images.length > 0 ? (
-                        <Image
-                          src={product.images[0]}
-                          alt={product.name}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
-                          <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center">
-                            <Package className="h-8 w-8 text-white" />
+                  <Card className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 overflow-hidden bg-white">
+                    <div className="flex">
+                      <div className="relative w-48 h-48 flex-shrink-0">
+                        {product.images && product.images.length > 0 ? (
+                          <Image
+                            src={product.images[0]}
+                            alt={product.name}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
+                            <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center">
+                              <Package className="h-8 w-8 text-white" />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <CardContent className="flex-1 p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex-1">
+                            <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
+                              {product.name}
+                            </h3>
+                            <p className="text-gray-600 mb-4">
+                              {product.description}
+                            </p>
+                            <div className="flex items-center space-x-4 mb-4">
+                              <Badge className={`${getCategoryColor(product.category)} border-0`}>
+                                {product.category}
+                              </Badge>
+                              <Badge variant={product.inStock ? "default" : "destructive"}>
+                                {product.inStock ? 'Stokta' : 'Stokta Yok'}
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-3xl font-bold text-green-600">
+                              {product.price} ₺
+                            </span>
+                            <div className="flex items-center justify-end space-x-1 mt-2">
+                              {[...Array(5)].map((_, i) => (
+                                <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                              ))}
+                            </div>
                           </div>
                         </div>
-                      )}
+                        <div className="flex space-x-4">
+                          <Button className="bg-green-600 hover:bg-green-700">
+                            <ShoppingCart className="h-4 w-4 mr-2" />
+                            Sepete Ekle
+                          </Button>
+                          <Button variant="outline">
+                            <Heart className="h-4 w-4 mr-2" />
+                            Favorilere Ekle
+                          </Button>
+                          <Button variant="outline">
+                            Detayları Gör
+                            <ArrowRight className="h-4 w-4 ml-2" />
+                          </Button>
+                        </div>
+                      </CardContent>
                     </div>
-                    
-                    <CardContent className="flex-1 p-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="flex-1">
-                          <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
-                            {product.name}
-                          </h3>
-                          <p className="text-gray-600 mb-4">
-                            {product.description}
-                          </p>
-                          <div className="flex items-center space-x-4 mb-4">
-                            <Badge className={`${getCategoryColor(product.category)} border-0`}>
-                              {product.category}
-                            </Badge>
-                            <Badge variant={product.inStock ? "default" : "destructive"}>
-                              {product.inStock ? 'Stokta' : 'Stokta Yok'}
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-3xl font-bold text-green-600">
-                            {product.price} ₺
-                          </span>
-                          <div className="flex items-center justify-end space-x-1 mt-2">
-                            {[...Array(5)].map((_, i) => (
-                              <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex space-x-4">
-                        <Button className="bg-green-600 hover:bg-green-700">
-                          <ShoppingCart className="h-4 w-4 mr-2" />
-                          Sepete Ekle
-                        </Button>
-                        <Button variant="outline">
-                          <Heart className="h-4 w-4 mr-2" />
-                          Favorilere Ekle
-                        </Button>
-                        <Button variant="outline">
-                          Detayları Gör
-                          <ArrowRight className="h-4 w-4 ml-2" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </div>
+                  </Card>
                 )}
-              </Card>
+              </div>
             ))}
           </div>
         )}
