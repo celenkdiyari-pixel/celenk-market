@@ -1,28 +1,28 @@
 export interface BlogPost {
-    id: string;
-    slug: string;
-    title: string;
-    excerpt: string;
-    content: string; // HTML content or rich text
-    coverImage: string;
-    date: string;
-    author: string;
-    tags: string[];
-    readTime: string;
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string; // HTML content or rich text
+  coverImage: string;
+  date: string;
+  author: string;
+  tags: string[];
+  readTime: string;
 }
 
 export const blogPosts: BlogPost[] = [
-    {
-        id: '1',
-        slug: 'celenk-nedir-ve-hangi-durumlarda-gonderilir',
-        title: 'Çelenk Nedir ve Hangi Durumlarda Gönderilir?',
-        excerpt: 'Çelenklerin tarihçesinden günümüzdeki kullanım alanlarına kadar kapsamlı bir rehber. Cenaze, açılış ve düğünlerde çelenk göndermenin incelikleri.',
-        coverImage: 'https://images.unsplash.com/photo-1596627670783-6f8cb7b0d912?q=80&w=1200', // Placeholder
-        date: '2024-01-15',
-        author: 'Çelenk Diyarı Editör',
-        tags: ['Çelenk Rehberi', 'Çelenk Kültürü', 'Çiçek Gönderimi'],
-        readTime: '4 dk',
-        content: `
+  {
+    id: '1',
+    slug: 'celenk-nedir-ve-hangi-durumlarda-gonderilir',
+    title: 'Çelenk Nedir ve Hangi Durumlarda Gönderilir?',
+    excerpt: 'Çelenklerin tarihçesinden günümüzdeki kullanım alanlarına kadar kapsamlı bir rehber. Cenaze, açılış ve düğünlerde çelenk göndermenin incelikleri.',
+    coverImage: 'https://images.unsplash.com/photo-1596627670783-6f8cb7b0d912?q=80&w=1200', // Placeholder
+    date: '2024-01-15',
+    author: 'Çelenk Diyarı Editör',
+    tags: ['Çelenk Rehberi', 'Çelenk Kültürü', 'Çiçek Gönderimi'],
+    readTime: '4 dk',
+    content: `
       <h2>Çelenk Nedir?</h2>
       <p>Çelenk, genellikle çiçekler, yapraklar, meyveler veya dalların bir halka şeklinde örülmesiyle oluşturulan dekoratif bir düzenlemedir. Tarih boyunca zafer, onur, anma ve kutlama sembolü olarak kullanılmıştır. Günümüzde ise hem sevinçli hem de hüzünlü günlerin en önemli ifade biçimlerinden biridir.</p>
 
@@ -48,18 +48,18 @@ export const blogPosts: BlogPost[] = [
         <li><strong>Bant Yazısı:</strong> Çelenk üzerindeki yazı okunaklı, kısa ve net olmalıdır.</li>
       </ul>
     `
-    },
-    {
-        id: '2',
-        slug: 'cenaze-torenleri-icin-celenk-secimi',
-        title: 'Cenaze Törenleri İçin Çelenk Seçimi ve Adabı',
-        excerpt: 'Cenaze törenlerinde saygınızı ifade etmenin en doğru yolu. Çelenk üzerine ne yazılır, hangi renkler tercih edilir?',
-        coverImage: 'https://images.unsplash.com/photo-1595350352554-b384a32630ce?q=80&w=1200',
-        date: '2024-02-01',
-        author: 'Çelenk Diyarı Editör',
-        tags: ['Cenaze Çelengi', 'Başsağlığı', 'Protokol'],
-        readTime: '3 dk',
-        content: `
+  },
+  {
+    id: '2',
+    slug: 'cenaze-torenleri-icin-celenk-secimi',
+    title: 'Cenaze Törenleri İçin Çelenk Seçimi ve Adabı',
+    excerpt: 'Cenaze törenlerinde saygınızı ifade etmenin en doğru yolu. Çelenk üzerine ne yazılır, hangi renkler tercih edilir?',
+    coverImage: 'https://images.unsplash.com/photo-1595350352554-b384a32630ce?q=80&w=1200',
+    date: '2024-02-01',
+    author: 'Çelenk Diyarı Editör',
+    tags: ['Cenaze Çelengi', 'Başsağlığı', 'Protokol'],
+    readTime: '3 dk',
+    content: `
       <h2>Cenaze Çelengi Nasıl Olmalı?</h2>
       <p>Cenaze törenleri, büyük bir hassasiyet ve saygı gerektirir. Bu nedenle gönderilecek çelengin de bu atmosfere uygun olması şarttır.</p>
 
@@ -84,18 +84,18 @@ export const blogPosts: BlogPost[] = [
       <h3>Zamanlama</h3>
       <p>Çelengin, cenaze namazından en az 1 saat önce cami veya tören alanında hazır bulunması gerekir. Çelenk Diyarı olarak İstanbul içi cenaze çelenk siparişlerinde tam zamanında teslimat garantisi veriyoruz.</p>
     `
-    },
-    {
-        id: '3',
-        slug: 'acilis-ve-dugunler-icin-sik-celenk-modelleri',
-        title: 'Açılış ve Düğünler İçin En Şık Çelenk Modelleri',
-        excerpt: 'Mutlu günlerde sevdiklerinizi yalnız bırakmayın. Açılış ve düğünler için en çok tercih edilen, gösterişli çelenk modelleri.',
-        coverImage: 'https://images.unsplash.com/photo-1519225448520-5616b76c8c16?q=80&w=1200',
-        date: '2024-02-20',
-        author: 'Tasarım Ekibi',
-        tags: ['Açılış Çelengi', 'Düğün Çelengi', 'Kutlama'],
-        readTime: '5 dk',
-        content: `
+  },
+  {
+    id: '3',
+    slug: 'acilis-ve-dugunler-icin-sik-celenk-modelleri',
+    title: 'Açılış ve Düğünler İçin En Şık Çelenk Modelleri',
+    excerpt: 'Mutlu günlerde sevdiklerinizi yalnız bırakmayın. Açılış ve düğünler için en çok tercih edilen, gösterişli çelenk modelleri.',
+    coverImage: 'https://images.unsplash.com/photo-1519225448520-5616b76c8c16?q=80&w=1200',
+    date: '2024-02-20',
+    author: 'Tasarım Ekibi',
+    tags: ['Açılış Çelengi', 'Düğün Çelengi', 'Kutlama'],
+    readTime: '5 dk',
+    content: `
       <h2>Mutluluğa Ortak Olun</h2>
       <p>Düğünler ve iş yeri açılışları, hayatın en heyecanlı anlarıdır. Bu özel günlerde fiziksel olarak orada olamasanız bile, göndereceğiniz şık bir çelenk ile varlığınızı hissettirebilirsiniz.</p>
 
@@ -114,18 +114,18 @@ export const blogPosts: BlogPost[] = [
       <h3>Ferforje Çelenk Nedir?</h3>
       <p>Klasik ayaklı çelenklerden farklı olarak, metal bir iskelet üzerine daha modern ve sanatsal bir şekilde hazırlanan çiçek düzenlemeleridir. Özellikle düğün ve nişan organizasyonlarında daha "şık" ve "modern" bir görüntü sunduğu için sıkça tercih edilmektedir.</p>
     `
-    },
-    {
-        id: '4',
-        slug: 'istanbul-celenk-siparisi-rehberi',
-        title: "İstanbul'da Çelenk Siparişi Verirken Dikkat Edilmesi Gerekenler",
-        excerpt: "İstanbul gibi büyük bir metropolde çelenk siparişi verirken trafiği, zamanlamayı ve kaliteyi nasıl yönetirsiniz? İşte ipuçları.",
-        coverImage: 'https://images.unsplash.com/photo-1591192949826-cf85340a6311?q=80&w=1200',
-        date: '2024-03-05',
-        author: 'Lojistik Ekibi',
-        tags: ['İstanbul Çelenk', 'Online Sipariş', 'Hızlı Teslimat'],
-        readTime: '4 dk',
-        content: `
+  },
+  {
+    id: '4',
+    slug: 'istanbul-celenk-siparisi-rehberi',
+    title: "İstanbul'da Çelenk Siparişi Verirken Dikkat Edilmesi Gerekenler",
+    excerpt: "İstanbul gibi büyük bir metropolde çelenk siparişi verirken trafiği, zamanlamayı ve kaliteyi nasıl yönetirsiniz? İşte ipuçları.",
+    coverImage: 'https://images.unsplash.com/photo-1591192949826-cf85340a6311?q=80&w=1200',
+    date: '2024-03-05',
+    author: 'Lojistik Ekibi',
+    tags: ['İstanbul Çelenk', 'Online Sipariş', 'Hızlı Teslimat'],
+    readTime: '4 dk',
+    content: `
       <h2>İstanbul'da Çiçek ve Çelenk Lojistiği</h2>
       <p>İstanbul trafiği, zamanlı teslimatlar için en büyük meydan okumadır. Özellikle cenaze törenleri gibi saati kesin olan organizasyonlarda gecikme kabul edilemez.</p>
 
@@ -146,9 +146,128 @@ export const blogPosts: BlogPost[] = [
       <h3>4. Fiyat Performans</h3>
       <p>Çelenk fiyatları kullanılan çiçek sayısına, mevsime ve çelengin boyutuna göre değişir. "Ucuz çelenk" ararken kaliteden ödün vermemek gerekir; zira solgun çiçeklerle dolu bir çelenk, mahcup olmanıza neden olabilir.</p>
     `
-    }
+  },
+  {
+    id: '5',
+    slug: 'celenk-uzerine-ne-yazilir-ornek-sozler',
+    title: 'Çelenk Üzerine Ne Yazılır? En Anlamlı Çelenk Bant Yazıları',
+    excerpt: 'Cenaze, düğün veya açılış çelenkleri için bant yazısı örnekleri. Kurumsal ve kişisel gönderimler için hazır mesaj kalıpları.',
+    coverImage: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=1200',
+    date: '2024-03-12',
+    author: 'Editör Ekibi',
+    tags: ['Çelenk Yazıları', 'Rehber', 'Mesaj Örnekleri'],
+    readTime: '3 dk',
+    content: `
+      <h2>Çelenk Bandı Neden Önemlidir?</h2>
+      <p>Çelenk üzerindeki bant (kuşak), çiçeği gönderen kişinin veya kurumun imzası niteliğindedir. Kısa, net ve okunaklı olması gerekir. Genellikle 3-5 kelimeyi geçmemesi tavsiye edilir.</p>
+
+      <h3>Cenaze Çelengi Yazı Örnekleri</h3>
+      <p>Hüzünlü günlerde şatafattan uzak, saygılı ifadeler tercih edilmelidir:</p>
+      <ul>
+        <li><strong>Standart:</strong> AD SOYAD</li>
+        <li><strong>Kurumsal:</strong> ŞİRKET ADI A.Ş. PERSONELİ</li>
+        <li><strong>Duygusal:</strong> SENİ UNUTMAYACAĞIZ - AİLESİ</li>
+        <li><strong>Saygı:</strong> SAYGI VE RAHMETLE - AD SOYAD</li>
+        <li><strong>Dua:</strong> MEKANI CENNET OLSUN</li>
+      </ul>
+
+      <h3>Düğün ve Nişan Çelengi Yazı Örnekleri</h3>
+      <p>Mutluluk dileklerini iletmek için:</p>
+      <ul>
+        <li><strong>Klasik:</strong> MUTLULUKLAR DİLERİZ - ŞİRKET ADI</li>
+        <li><strong>Samimi:</strong> BİR ÖMÜR MUTLULUKLAR - ARKADAŞIN ADI</li>
+        <li><strong>Aileden:</strong> AİLESİ ADINA - AD SOYAD</li>
+      </ul>
+
+      <h3>Açılış Çelengi Yazı Örnekleri</h3>
+      <ul>
+        <li>HAYIRLI OLSUN - FİRMA ADI</li>
+        <li>YENİ İŞİNİZDE BAŞARILAR DİLERİZ</li>
+        <li>BOL KAZANÇLAR - GÖNDEREN ADI</li>
+      </ul>
+    `
+  },
+  {
+    id: '6',
+    slug: 'ferforje-celenk-nedir-klasik-celenk-farki',
+    title: 'Ferforje Çelenk Nedir? Klasik Çelenkten Farkı Ne?',
+    excerpt: 'Son yılların trendi ferforje çelenkler hakkında bilmeniz gerekenler. Modern görünümü ve şık duruşuyla neden tercih ediliyor?',
+    coverImage: 'https://images.unsplash.com/photo-1523694576729-dc99e9c0f9b4?q=80&w=1200',
+    date: '2024-03-25',
+    author: 'Tasarım Ekibi',
+    tags: ['Ferforje', 'Lüks Çelenk', 'Düğün Trendleri'],
+    readTime: '4 dk',
+    content: `
+      <h2>Modern ve Zarif: Ferforje Çelenk</h2>
+      <p>Geleneksel ayaklı çelenklerin yerini yavaş yavaş daha modern ve estetik bir görünüme sahip olan <strong>ferforje çelenkler</strong> almaya başladı. Peki nedir bu ferforje çelenk?</p>
+
+      <h3>Ferforje Çelenk Özellikleri</h3>
+      <p>Ferforje, demirin yüksek ısıda dövülerek işlenmesi sanatıdır. Çiçekçilikte ise metal ayaklar üzerine hazırlanan, daha sanatsal ve hacimli aranjmanları ifade eder.</p>
+      <ul>
+        <li><strong>Görünüm:</strong> Klasik çelenklere göre daha kibar, modern ve "çiçek yoğunluklu" durur. Plastik veya tahta ayak yerine şık metal iskelet kullanılır.</li>
+        <li><strong>Çiçek Çeşitliliği:</strong> Genellikle daha pahalı ve gösterişli çiçekler (orkide, gül, lilyum) kullanılır.</li>
+        <li><strong>Kullanım Alanı:</strong> Özellikle lüks düğün salonları, otel davetleri, kokteyller ve prestijli açılışlar için idealdir.</li>
+      </ul>
+
+      <h3>Neden Ferforje Tercih Etmelisiniz?</h3>
+      <p>Eğer gönderiminizle fark yaratmak, "basmakalıp" bir çelenk yerine sanat eseri gibi duran bir aranjman göndermek istiyorsanız ferforje doğru tercihtir. Özellikle iç mekan organizasyonlarında dekorasyonun bir parçası gibi durur.</p>
+    `
+  },
+  {
+    id: '7',
+    slug: '2024-celenk-fiyatlari-nelerden-etkilenir',
+    title: 'Çelenk Fiyatları Neye Göre Belirlenir?',
+    excerpt: 'Çelenk siparişi verirken fiyatı etkileyen faktörler nelerdir? Ekonomik çelenk ile lüks çelenk arasındaki farklar.',
+    coverImage: 'https://images.unsplash.com/photo-1621506821957-1b50ab7777d5?q=80&w=1200',
+    date: '2024-04-02',
+    author: 'Piyasa Analiz',
+    tags: ['Fiyat Rehberi', 'Ekonomi', 'Çiçek Borsası'],
+    readTime: '3 dk',
+    content: `
+      <h2>Çelenk Fiyatlarını Etkileyen 3 Ana Faktör</h2>
+      <p>Çelenk siparişi verirken karşılaştığınız fiyat farklarının haklı sebepleri vardır. İşte fiyatı belirleyen unsurlar:</p>
+
+      <h3>1. Kullanılan Çiçeğin Cinsi ve Sayısı</h3>
+      <p>En önemli maliyet kalemidir. Mevsiminde olmayan çiçeklerin kullanımı fiyatı artırır. Örneğin:</p>
+      <ul>
+        <li><strong>Gerbera/Karanfil:</strong> Daha ekonomik seçeneklerdir.</li>
+        <li><strong>Gül/Antoryum/Orkide:</strong> Lüks kategorisindedir ve fiyatı ciddi oranda artırır.</li>
+      </ul>
+      <p>Ayrıca çelengin "doluluğu" yani kullanılan çiçek adedi de önemlidir (Tek sıralı, çift sıralı vb.).</p>
+
+      <h3>2. Çelengin Boyutu</h3>
+      <p>Standart çelenkler genellikle 2-2.5 metre yüksekliğindedir. Ancak özel tasarım, daha geniş veya çift katlı çelenklerde kullanılan yeşillik ve sünger maliyeti, dolayısıyla işçilik artar.</p>
+
+      <h3>3. Lojistik ve Ulaşım</h3>
+      <p>İstanbul gibi büyük şehirlerde, teslimatın yapılacağı mesafe fiyatlara yansıyabilir. Ancak <strong>Çelenk Diyarı</strong> olarak biz, İstanbul içi birçok noktaya ücretsiz teslimat avantajı sunuyoruz.</p>
+    `
+  },
+  {
+    id: '8',
+    slug: 'kurumsal-firma-cicek-gonderimi-adabi',
+    title: 'Kurumsal Firmalar İçin Çiçek Gönderim Rehberi',
+    excerpt: 'Şirketiniz adına çiçek veya çelenk gönderirken nelere dikkat etmelisiniz? Kurumsal itibarınızı yansıtacak seçimler.',
+    coverImage: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1200',
+    date: '2024-04-10',
+    author: 'Kurumsal İletişim',
+    tags: ['Kurumsal', 'İş Dünyası', 'Prestij'],
+    readTime: '4 dk',
+    content: `
+      <h2>Şirket İtibarınızı Çiçekle Yansıtın</h2>
+      <p>İş dünyasında tebrik ve taziye gönderimleri, profesyonel ilişkilerin sürdürülmesi için kritiktir. Yanlış bir seçim, şirket imajına zarar verebilir.</p>
+
+      <h3>1. Logo Renklerine Sadık Kalın</h3>
+      <p>Açılış törenleri için gönderilecek çelenklerde, şirketinizin kurumsal renklerini (logo renkleri) taşıyan çiçeklerin seçilmesi, markanızın akılda kalıcılığını artırır. Sipariş notunda bunu özellikle belirtmelisiniz.</p>
+
+      <h3>2. Ölçek Önemlidir</h3>
+      <p>Eğer çok büyük bir şirketin (Holding vb.) açılışına gönderiyorsanız, "sıradan" küçük bir aranjman göndermek yerine, gösterişli bir ferforje veya büyük boy bir çelenk tercih etmek, firmanızın büyüklüğünü ve olaya verdiği önemi gösterir.</p>
+
+      <h3>3. Faturalandırma ve Süreç</h3>
+      <p>Kurumsal siparişlerde fatura süreçleri önemlidir. E-fatura mükellefi olan çiçekçilerle çalışmak muhasebe süreçlerinizi kolaylaştırır. Çelenk Diyarı, tüm kurumsal siparişlerinizde kurum adına fatura düzenleyerek profesyonel çözüm ortağınız olur.</p>
+    `
+  }
 ];
 
 export function getPostBySlug(slug: string): BlogPost | undefined {
-    return blogPosts.find((post) => post.slug === slug);
+  return blogPosts.find((post) => post.slug === slug);
 }
