@@ -53,7 +53,7 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
     <div className="group relative h-full">
       <Card className="h-full border-0 shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden bg-white flex flex-col rounded-[2rem]">
         {/* Image Container with 2:3 Aspect Ratio (Taller for Wreaths) */}
-        <div className="relative aspect-[2/3] overflow-hidden bg-gray-50 p-4">
+        <div className="relative aspect-[2/3] overflow-hidden bg-gray-50 p-2 flex items-center justify-center">
           <Link href={`/products/${product.id}`} className="block h-full w-full relative">
             <Image
               src={product.images?.[0] || '/images/logo.png'}
