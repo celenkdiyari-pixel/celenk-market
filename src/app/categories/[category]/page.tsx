@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import ProductCard from '@/components/product-card';
 
 interface Product {
   id: string;
@@ -462,16 +463,20 @@ export default function CategoryPage() {
             : "space-y-4"
           }>
             {filteredProducts.map((product) => (
-              <Card key={product.id} className="group hover:shadow-lg transition-all duration-300">
-                <div className="relative">
-                  <div className={`h-48 ${viewMode === 'list' ? 'w-48' : 'w-full'} relative overflow-hidden rounded-t-lg`}>
+              viewMode === 'grid' ? (
+                <div key={product.id} className="h-full">
+                  <ProductCard product={product as any} />
+                </div>
+              ) : (
+                <Card key={product.id} className="group hover:shadow-lg transition-all duration-300 flex flex-row overflow-hidden h-48">
+                  <div className="relative w-48 shrink-0">
                     {product.images && product.images[0] ? (
                       <Image
                         src={product.images[0]}
                         alt={product.name}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        sizes={viewMode === 'list' ? "192px" : "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"}
+                        className="object-cover"
+                        sizes="192px"
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
@@ -498,54 +503,55 @@ export default function CategoryPage() {
                       />
                     </Button>
                   </div>
-                </div>
 
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-gray-900 line-clamp-2 group-hover:text-green-600 transition-colors">
-                      {product.name}
-                    </h3>
-                  </div>
-
-                  <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                    {product.description}
-                  </p>
-
-                  {/* Rating */}
-                  {product.rating && (
-                    <div className="flex items-center mb-3">
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-4 w-4 ${i < Math.floor(product.rating!) ? 'text-yellow-400 fill-current' : 'text-gray-300'
-                              }`}
-                          />
-                        ))}
+                  <CardContent className="flex-1 p-4 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="font-semibold text-gray-900 line-clamp-1 group-hover:text-green-600 transition-colors">
+                          {product.name}
+                        </h3>
                       </div>
-                      <span className="text-sm text-gray-500 ml-2">
-                        ({product.reviews || 0})
-                      </span>
-                    </div>
-                  )}
 
-                  <div className="flex items-center justify-between">
-                    <div className="text-lg font-bold text-green-600">
-                      {product.price} ₺
+                      <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+                        {product.description}
+                      </p>
+
+                      {/* Rating */}
+                      {product.rating && (
+                        <div className="flex items-center mb-2">
+                          <div className="flex items-center">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-4 w-4 ${i < Math.floor(product.rating!) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-sm text-gray-500 ml-2">
+                            ({product.reviews || 0})
+                          </span>
+                        </div>
+                      )}
                     </div>
 
-                    <Button
-                      size="sm"
-                      onClick={() => addToCart(product)}
-                      disabled={!product.inStock}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      <ShoppingCart className="h-4 w-4 mr-1" />
-                      {isInCart(product.id) ? 'Sepette' : 'Sepete Ekle'}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                    <div className="flex items-center justify-between">
+                      <div className="text-lg font-bold text-green-600">
+                        {product.price} ₺
+                      </div>
+
+                      <Button
+                        size="sm"
+                        onClick={() => addToCart(product)}
+                        disabled={!product.inStock}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-1" />
+                        {isInCart(product.id) ? 'Sepette' : 'Sepete Ekle'}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
             ))}
           </div>
         )}
