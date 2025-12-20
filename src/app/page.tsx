@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import ProductCard from '@/components/product-card';
 
 interface Product {
   id: string;
@@ -532,97 +533,9 @@ export default function Home() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {(selectedCategory === 'all' ? products : products.filter(p => p.category === selectedCategory)).map((product) => (
-                <Link key={product.id} href={`/products/${product.id}`}>
-                  <Card className="group hover:shadow-3xl transition-all duration-700 hover:-translate-y-3 border-0 overflow-hidden bg-white/95 backdrop-blur-sm rounded-3xl cursor-pointer">
-                    <div className="relative h-56 overflow-hidden">
-                      {product.images && product.images.length > 0 ? (
-                        <Image
-                          src={product.images[0]}
-                          alt={product.name}
-                          fill
-                          className="object-cover group-hover:scale-115 transition-transform duration-1000"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-green-100 via-emerald-100 to-teal-100 flex items-center justify-center">
-                          <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-3xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-xl">
-                            <Flower className="h-10 w-10 text-white" />
-                          </div>
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                      {/* Status Badges - Removed Stock */}
-                      <div className="absolute top-4 right-4 flex flex-col gap-2">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="w-8 h-8 p-0 bg-white/90 hover:bg-white rounded-full shadow-lg backdrop-blur-sm"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            toggleFavorite(product.id);
-                          }}
-                        >
-                          <Heart className={`h-4 w-4 ${isFavorite(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
-                        </Button>
-                      </div>
-
-                      {/* Category Badge */}
-                      <div className="absolute top-4 left-4">
-                        <Badge variant="outline" className="bg-white/90 backdrop-blur-sm text-gray-700 border-gray-300 text-xs shadow-lg">
-                          {product.category}
-                        </Badge>
-                      </div>
-
-                      {/* Shine Effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                    </div>
-
-                    <CardContent className="p-6">
-                      <div className="space-y-4">
-                        <div>
-                          <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-green-600 transition-colors duration-500 leading-tight">
-                            {product.name}
-                          </h3>
-                          <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
-                            {product.description}
-                          </p>
-                        </div>
-
-                        <div className="flex justify-between items-end">
-                          <div className="space-y-2">
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-2xl font-bold text-green-600">
-                                {product.price} ₺
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              {[...Array(5)].map((_, i) => (
-                                <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                              ))}
-                              <span className="text-xs text-gray-500 ml-1">(4.8)</span>
-                            </div>
-                          </div>
-
-                          <Button
-                            size="sm"
-                            className="group/btn bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all duration-500 rounded-2xl px-6 py-3"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              addToCart(product);
-                            }}
-                          >
-                            <ShoppingCart className="h-4 w-4 mr-2 group-hover/btn:rotate-12 transition-transform duration-300" />
-                            <span className="text-sm font-medium">
-                              {isInCart(product.id) ? 'Sepette' : 'Sepete Ekle'}
-                            </span>
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <div key={product.id} className="h-full">
+                  <ProductCard product={product as any} />
+                </div>
               ))}
             </div>
           )}
