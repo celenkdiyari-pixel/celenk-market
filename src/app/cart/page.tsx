@@ -257,7 +257,7 @@ export default function CartPage() {
           clearCart();
 
           // WhatsApp Yönlendirmesi
-          const waPhoneNumber = "905551234567"; // İletişim numarası
+          const waPhoneNumber = "905355612656"; // İletişim numarası
           const waMessage = `*Yeni Sipariş - Havale/EFT*
 
 *Sipariş No:* ${result.orderNumber}
@@ -319,7 +319,7 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
             </p>
             <Button
               className="bg-[#25D366] hover:bg-[#128C7E] text-white w-full font-bold shadow-lg hover:shadow-xl transition-all h-12 text-base"
-              onClick={() => window.open(`https://wa.me/905551234567?text=${encodeURIComponent(`Merhaba, ${orderId} numaralı siparişim için ödeme/IBAN bilgisi alabilir miyim?`)}`, '_blank')}
+              onClick={() => window.open(`https://wa.me/905355612656?text=${encodeURIComponent(`Merhaba, ${orderId} numaralı siparişim için ödeme/IBAN bilgisi alabilir miyim?`)}`, '_blank')}
             >
               <Send className="w-5 h-5 mr-2" />
               WhatsApp'tan IBAN İste
