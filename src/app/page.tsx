@@ -183,11 +183,18 @@ export default function Home() {
                   <Logo size="xl" showText={true} className="hover:scale-105 transition-transform duration-500" />
                 </div>
 
+                <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight text-center lg:text-left">
+                  Türkiye'nin En İyi
+                  <span className="block text-green-600">Çelenk Sipariş Sitesi</span>
+                </h1>
+
                 <p className="text-xl text-gray-600 leading-relaxed max-w-lg text-center lg:text-left animate-fade-in-up delay-300 lg:max-w-none">
-                  Her özel anınız için en güzel çelenkler ve çiçek aranjmanları.
-                  <span className="text-green-600 font-semibold bg-green-50/50 px-2 py-1 rounded-lg"> Taze, kaliteli ve özel tasarım</span> çiçeklerle anılarınızı güzelleştirin.
+                  Hızlı ve güvenilir <span className="font-semibold text-green-700">çelenk gönder</span> hizmeti ile duygularınızı en güzel şekilde ifade edin.
+                  Açılış, düğün ve cenaze törenleri için profesyonel tasarım çelenkler.
                 </p>
               </div>
+
+
 
               {/* Enhanced Features */}
               <div className="grid grid-cols-2 gap-4 animate-fade-in-up delay-400">
@@ -594,6 +601,53 @@ export default function Home() {
                 </CardDescription>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* SEO Information Section */}
+      <section className="py-24 bg-slate-50 relative z-20">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto space-y-12">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">Türkiye Geneli Online Çelenk Siparişi ve Gönderimi</h2>
+              <p className="text-lg text-gray-600 leading-relaxed">
+                Çelenk Diyarı olarak, Türkiye'nin 81 iline ve her noktasına en taze ve kaliteli <strong>çelenk sipariş</strong> hizmetini sunuyoruz.
+                Özel günlerinizde, açılışlarda, düğünlerde veya hüzünlü anlarınızda yanınızda olan sevdiklerinize <strong>çelenk gönder</strong>
+                seçeneğimizle duygularınızı en asil şekilde iletebilirsiniz.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-12 text-left">
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-green-700">Türkiye Geneli Hızlı Teslimat</h3>
+                <p className="text-gray-600 font-medium">
+                  Geniş dağıtım ağımız sayesinde 81 ilde, cenaze ve açılış gibi zamanlamanın kritik olduğu durumlarda tam vaktinde teslimat yapıyoruz.
+                  Online platformumuz üzerinden sadece birkaç tıklama ile <strong>çelenk</strong> siparişinizi oluşturabilirsiniz.
+                </p>
+              </div>
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-green-700">Geniş Ürün Yelpazesi</h3>
+                <p className="text-gray-600 font-medium">
+                  Ekonomik çelenklerden lüks ferforje tasarımlara kadar her bütçeye uygun seçeneklerimiz mevcuttur.
+                  Karanfil, gerbera ve lilyum gibi taze çiçeklerle hazırlanan modellerimizle fark yaratın.
+                </p>
+              </div>
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-green-700">Güvenilir Çelenk Gönder</h3>
+                <p className="text-gray-600 font-medium">
+                  Gönderdiğiniz çelenklerin üzerine yazılacak bant yazılarını özenle hazırlıyor ve teslimat sonrası size bilgi veriyoruz.
+                  Müşteri memnuniyeti bizim için her zaman önceliklidir.
+                </p>
+              </div>
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-green-700">81 İlde Kesintisiz Hizmet</h3>
+                <p className="text-gray-600 font-medium">
+                  Ankara, İstanbul, İzmir, Bursa, Antalya ve Türkiye'nin tüm şehirlerine <strong>çelenk gönderimi</strong> sağlıyoruz.
+                  Profesyonel ekibimizle profesyonel hizmetin keyfini çıkarın.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

@@ -73,32 +73,32 @@ export default function Footer() {
             <h3 className="text-lg font-semibold">Kategoriler</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/#products" className="text-gray-300 hover:text-green-400 transition-colors">
+                <Link href="/categories/acilistoren" className="text-gray-300 hover:text-green-400 transition-colors">
                   Açılış & Tören
                 </Link>
               </li>
               <li>
-                <Link href="/#products" className="text-gray-300 hover:text-green-400 transition-colors">
+                <Link href="/categories/cenaze" className="text-gray-300 hover:text-green-400 transition-colors">
                   Cenaze Çelenkleri
                 </Link>
               </li>
               <li>
-                <Link href="/#products" className="text-gray-300 hover:text-green-400 transition-colors">
+                <Link href="/categories/ferforje" className="text-gray-300 hover:text-green-400 transition-colors">
                   Ferforjeler
                 </Link>
               </li>
               <li>
-                <Link href="/#products" className="text-gray-300 hover:text-green-400 transition-colors">
+                <Link href="/categories/fuarstand" className="text-gray-300 hover:text-green-400 transition-colors">
                   Fuar & Stand
                 </Link>
               </li>
               <li>
-                <Link href="/#products" className="text-gray-300 hover:text-green-400 transition-colors">
+                <Link href="/categories/ofisbitki" className="text-gray-300 hover:text-green-400 transition-colors">
                   Ofis & Saksı Bitkileri
                 </Link>
               </li>
               <li>
-                <Link href="/#products" className="text-gray-300 hover:text-green-400 transition-colors">
+                <Link href="/categories/soznisan" className="text-gray-300 hover:text-green-400 transition-colors">
                   Söz & Nişan
                 </Link>
               </li>

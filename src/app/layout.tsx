@@ -7,6 +7,7 @@ import WhatsAppButton from "@/components/whatsapp-button";
 import { CartProvider } from "@/contexts/CartContext";
 import MaintenanceGuard from "@/components/MaintenanceGuard";
 import { getSiteSettings } from "@/lib/get-settings-server";
+import JsonLd from "@/components/json-ld";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,28 +25,31 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Çelenk Diyarı',
-    default: 'Çelenk Diyarı - İstanbul Çelenk Siparişi',
+    template: '%s | Çelenk Diyarı - Türkiye Online Çelenk Siparişi',
+    default: 'Çelenk Diyarı - Türkiye Çelenk Siparişi | Hızlı Çelenk Gönder',
   },
-  description: "Özel günlerinizde sevdiklerinizi mutlu edecek, doğal ve taze çelenkler. Açılış, düğün, cenaze ve özel günler için profesyonel çelenk siparişi.",
-  keywords: ["çelenk", "çiçek", "açılış çelengi", "cenaze çelengi", "düğün çelengi", "istanbul çiçekçi", "online çelenk"],
+  description: "Türkiye genelinde 81 ile aynı gün teslimat. Açılış, düğün, cenaze ve özel günler için profesyonel çelenk siparişi. En taze çiçeklerle hazırlanan ekonomik ve lüks çelenk modelleri.",
+  keywords: ["çelenk sipariş", "çelenk gönder", "çelenk", "türkiye çelenk", "online çelenk", "açılış çelengi", "cenaze çelengi", "düğün çelengi", "çiçek siparişi", "ferforje çelenk"],
   icons: {
     icon: '/images/logo-removebg-preview.png',
     apple: '/images/logo-removebg-preview.png',
     shortcut: '/images/logo-removebg-preview.png'
   },
   manifest: '/manifest.json',
+  alternates: {
+    canonical: 'https://celenkdiyari.com',
+  },
   openGraph: {
-    title: "Çelenk Diyarı - Doğanın En Güzel Hali",
-    description: "Özel günlerinizde sevdiklerinizi mutlu edecek, doğal ve taze çelenkler.",
+    title: "Çelenk Diyarı - İstanbul Çelenk Siparişi | Çelenk Gönder",
+    description: "Özel günlerinizde sevdiklerinizi mutlu edecek, doğal ve taze çelenk siparişi. Aynı gün teslimat garantisi.",
     type: "website",
     locale: "tr_TR",
     siteName: 'Çelenk Diyarı',
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Çelenk Diyarı",
-    description: "Doğanın en güzel hali kapınızda.",
+    title: "Çelenk Diyarı - Profesyonel Çelenk Gönderimi",
+    description: "Doğanın en güzel hali kapınızda. Hızlı ve güvenilir çelenk siparişi.",
   },
 };
 
@@ -74,6 +78,7 @@ export default async function RootLayout({
           MozOsxFontSmoothing: 'grayscale'
         }}
       >
+        <JsonLd />
         <CartProvider>
           <MaintenanceGuard settings={settings}>
             <Navbar />
