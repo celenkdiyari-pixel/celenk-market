@@ -111,7 +111,7 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <MapPin className="h-5 w-5 text-green-400" />
-                <span className="text-gray-300">İstanbul, Türkiye</span>
+                <span className="text-gray-300">Tüm Türkiye'ye Hizmet</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-green-400" />
@@ -122,6 +122,22 @@ export default function Footer() {
                 <span className="text-gray-300">info@celenkdiyari.com</span>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Popular Cities SEO Links */}
+        <div className="border-t border-gray-700 mt-12 py-8">
+          <h3 className="text-sm font-semibold text-gray-400 mb-4 uppercase tracking-wider">Popüler Şehirler</h3>
+          <div className="flex flex-wrap gap-4">
+            {['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Mersin'].map((city) => (
+              <Link
+                key={city}
+                href={`/sehirler/${city.toLowerCase().replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')}`}
+                className="text-gray-400 hover:text-green-400 text-sm transition-colors"
+              >
+                {city} Çelenk Siparişi
+              </Link>
+            ))}
           </div>
         </div>
 

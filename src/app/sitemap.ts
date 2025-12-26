@@ -45,5 +45,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
     }));
 
-    return [...routes, ...categoryRoutes, ...blogRoutes, ...productRoutes];
+    // City routes
+    const { cities } = await import('@/lib/cities');
+    const cityRoutes = cities.map((city) => ({
+        url: `${baseUrl}/sehirler/${city.slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+    }));
+
+    return [...routes, ...categoryRoutes, ...blogRoutes, ...productRoutes, ...cityRoutes];
 }

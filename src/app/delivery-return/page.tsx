@@ -5,7 +5,7 @@ export default function DeliveryReturnPage() {
             <div className="prose max-w-none">
 
                 <h2 className="text-xl font-bold mt-4">1. Teslimat Koşulları</h2>
-                <p>Siparişleriniz, ödeme onayının alınmasından sonra işleme alınır. İstanbul içi siparişlerinizde, sipariş verdiğiniz gün içinde veya seçtiğiniz tarih ve saat aralığında teslimat gerçekleştirilir. Yoğunluk durumuna göre teslimat saati değişiklik gösterebilir.</p>
+                <p>Siparişleriniz, ödeme onayının alınmasından sonra işleme alınır. Türkiye genelinde 81 ilde, sipariş verdiğiniz gün içinde veya seçtiğiniz tarih ve saat aralığında teslimat gerçekleştirilir. Yoğunluk durumuna göre teslimat saati değişiklik gösterebilir.</p>
                 <p>Teslimat, alıcının adresine yapılır. Alıcının adreste bulunamaması durumunda, siparişiniz alıcıya en yakın komşuya, site güvenliğine veya resepsiyona bırakılabilir. Bu durumda teslimat gerçekleşmiş sayılır.</p>
 
                 <h2 className="text-xl font-bold mt-4">2. Teslimat Ücretleri</h2>

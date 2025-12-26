@@ -82,7 +82,7 @@ export const blogPosts: BlogPost[] = [
       </ul>
 
       <h3>Zamanlama</h3>
-      <p>Çelengin, cenaze namazından en az 1 saat önce cami veya tören alanında hazır bulunması gerekir. Çelenk Diyarı olarak İstanbul içi cenaze çelenk siparişlerinde tam zamanında teslimat garantisi veriyoruz.</p>
+      <p>Çelengin, cenaze namazından en az 1 saat önce cami veya tören alanında hazır bulunması gerekir. Çelenk Diyarı olarak Türkiye genelinde cenaze çelenk siparişlerinde tam zamanında teslimat garantisi veriyoruz.</p>
     `
   },
   {
@@ -117,20 +117,20 @@ export const blogPosts: BlogPost[] = [
   },
   {
     id: '4',
-    slug: 'istanbul-celenk-siparisi-rehberi',
-    title: "İstanbul'da Çelenk Siparişi Verirken Dikkat Edilmesi Gerekenler",
-    excerpt: "İstanbul gibi büyük bir metropolde çelenk siparişi verirken trafiği, zamanlamayı ve kaliteyi nasıl yönetirsiniz? İşte ipuçları.",
+    slug: 'turkiye-geneli-celenk-siparisi-rehberi',
+    title: "Türkiye'de Çelenk Siparişi Verirken Dikkat Edilmesi Gerekenler",
+    excerpt: "Türkiye genelinde çelenk siparişi verirken lojistiği, zamanlamayı ve kaliteyi nasıl yönetirsiniz? İşte ipuçları.",
     coverImage: '/images/categories/açılıştören.jpg',
     date: '2024-03-05',
     author: 'Lojistik Ekibi',
-    tags: ['İstanbul Çelenk', 'Online Sipariş', 'Hızlı Teslimat'],
+    tags: ['Türkiye Çelenk', 'Online Sipariş', 'Hızlı Teslimat'],
     readTime: '4 dk',
     content: `
-      <h2>İstanbul'da Çiçek ve Çelenk Lojistiği</h2>
-      <p>İstanbul trafiği, zamanlı teslimatlar için en büyük meydan okumadır. Özellikle cenaze törenleri gibi saati kesin olan organizasyonlarda gecikme kabul edilemez.</p>
+      <h2>Türkiye'de Çiçek ve Çelenk Lojistiği</h2>
+      <p>Büyük şehirlerdeki trafik ve uzak mesafeler, zamanlı teslimatlar için en büyük meydan okumadır. Özellikle cenaze törenleri gibi saati kesin olan organizasyonlarda gecikme kabul edilemez.</p>
 
-      <h3>1. Lokasyona Yakın Çiçekçi Tercihi</h3>
-      <p>Sipariş vereceğiniz firmanın, teslimatın yapılacağı bölgeye hakim olması veya geniş bir dağıtım ağına sahip olması kritiktir. Çelenk Diyarı olarak İstanbul'un her iki yakasında da bulunan dağıtım noktalarımızla en hızlı teslimatı sağlıyoruz.</p>
+      <h3>1. Yaygın Dağıtım Ağı</h3>
+      <p>Sipariş vereceğiniz firmanın, teslimatın yapılacağı bölgeye hakim olması veya geniş bir dağıtım ağına sahip olması kritiktir. Çelenk Diyarı olarak Türkiye'nin 81 ilinde bulunan dağıtım noktalarımızla en hızlı teslimatı sağlıyoruz.</p>
 
       <h3>2. Online Sipariş Kolaylığı</h3>
       <p>Yoğun iş temposunda çiçekçiye gitmeye vakit bulamayabilirsiniz. Web sitemiz üzerinden:</p>
@@ -239,7 +239,7 @@ export const blogPosts: BlogPost[] = [
       <p>Standart çelenkler genellikle 2-2.5 metre yüksekliğindedir. Ancak özel tasarım, daha geniş veya çift katlı çelenklerde kullanılan yeşillik ve sünger maliyeti, dolayısıyla işçilik artar.</p>
 
       <h3>3. Lojistik ve Ulaşım</h3>
-      <p>İstanbul gibi büyük şehirlerde, teslimatın yapılacağı mesafe fiyatlara yansıyabilir. Ancak <strong>Çelenk Diyarı</strong> olarak biz, İstanbul içi birçok noktaya ücretsiz teslimat avantajı sunuyoruz.</p>
+      <p>Büyük şehirlerde, teslimatın yapılacağı mesafe fiyatlara yansıyabilir. Ancak <strong>Çelenk Diyarı</strong> olarak biz, birçok noktaya hızlı ve avantajlı teslimat imkanı sunuyoruz.</p>
     `
   },
   {
@@ -292,23 +292,23 @@ export const blogPosts: BlogPost[] = [
   },
   {
     id: '10',
-    slug: 'acil-celenk-siparisi-istanbul',
-    title: 'İstanbul Acil Çelenk Siparişi: Son Dakika Kurtarıcısı',
-    excerpt: 'Tören saatine çok az mı kaldı? İstanbul trafiğinde hızlı çelenk gönderimi için hayat kurtaran ipuçları ve dikkat edilmesi gerekenler.',
+    slug: 'acil-celenk-siparisi-turkiye',
+    title: 'Acil Çelenk Siparişi: Son Dakika Kurtarıcısı',
+    excerpt: 'Tören saatine çok az mı kaldı? Türkiye genelinde hızlı çelenk gönderimi için hayat kurtaran ipuçları ve dikkat edilmesi gerekenler.',
     coverImage: '/images/categories/açılıştören.jpg',
     date: '2024-04-25',
     author: 'Operasyon Müdürü',
-    tags: ['Acil Sipariş', 'Hızlı Teslimat', 'İstanbul'],
+    tags: ['Acil Sipariş', 'Hızlı Teslimat', 'Türkiye Geneli'],
     readTime: '3 dk',
     content: `
       <h2>Zamanla Yarışırken Yanınızdayız</h2>
       <p>Bazen hayatın koşturmacasında önemli bir düğünü veya maalesef aniden gelen bir cenaze haberini son dakika öğrenebilirsiniz. Panik yapmayın, doğru adımlarla törene yetişmek mümkün.</p>
 
       <h3>1. Stoktan Gönderim (Hazır Modeller)</h3>
-      <p>Özel tasarım ferforjeler zaman alır. Ancak standart ayaklı çelenkler genellikle çiçekçilerin stoğunda iskelet olarak hazırdır ve sadece taze çiçeklerle donatılması gerekir. Acil durumlarda "Günün Çelengi" veya "Hazır Modeller" kategorisinden seçim yapmak size 1-2 saat kazandırır.</p>
+      <p>Özel tasarım ferforjeler zaman alır. Ancak standart ayaklı çelenkler genellikle çiçekçilerin stoğunda iskelet olarak hazırdır ve sadece taze çiçeklerle donatılması gerekir. Acil durumlarda \"Günün Çelengi\" veya \"Hazır Modeller\" kategorisinden seçim yapmak size 1-2 saat kazandırır.</p>
 
       <h3>2. Bölgesel Gönderim Ağı</h3>
-      <p>Siparişinizin tören yerine en yakın şubeden çıkması hayati önem taşır. Çelenk Diyarı, İstanbul'un kilit noktalarındaki çözüm ortaklarıyla trafiğe takılmadan teslimat yapar.</p>
+      <p>Siparişinizin tören yerine en yakın şubeden çıkması hayati önem taşır. Çelenk Diyarı, Türkiye'nin kilit noktalarındaki çözüm ortaklarıyla her ilde hızlı teslimat yapar.</p>
 
       <h3>3. Doğru İletişim</h3>
       <p>Acil siparişlerde not kısmına mutlaka "Tören saati X:XX'de, ACİLDİR" notunu düşün veya sipariş sonrası bizi arayarak teyit alın. Ekibimiz rotayı buna göre önceliklendirecektir.</p>

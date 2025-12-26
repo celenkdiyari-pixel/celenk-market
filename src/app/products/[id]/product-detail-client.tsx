@@ -132,7 +132,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-gray-900 text-sm">Aynı Gün Teslimat</h4>
-                                    <p className="text-xs text-gray-500 mt-1">İstanbul içi özel kurye</p>
+                                    <p className="text-xs text-gray-500 mt-1">Türkiye geneli hızlı gönderim</p>
                                 </div>
                             </div>
                             <div className="bg-white p-4 rounded-2xl flex flex-col items-center text-center gap-3 border border-gray-100 shadow-sm">

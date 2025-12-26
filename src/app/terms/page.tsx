@@ -18,7 +18,7 @@ export default function TermsPage() {
               <h1 className="text-4xl font-bold">Kullanım Şartları</h1>
             </div>
             <p className="text-xl text-gray-200 max-w-2xl mx-auto">
-              Çelenk Diyarı hizmetlerini kullanırken uymanız gereken 
+              Çelenk Diyarı hizmetlerini kullanırken uymanız gereken
               şartlar ve koşullar hakkında detaylı bilgiler.
             </p>
           </div>
@@ -35,13 +35,13 @@ export default function TermsPage() {
                 Genel Hükümler
               </h2>
               <p className="text-gray-700 mb-6">
-                Bu kullanım şartları, Çelenk Diyarı web sitesini ve hizmetlerini kullanırken 
+                Bu kullanım şartları, Çelenk Diyarı web sitesini ve hizmetlerini kullanırken
                 uymanız gereken kuralları belirler. Sitemizi kullanarak bu şartları kabul etmiş sayılırsınız.
               </p>
 
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Hizmet Tanımı</h3>
               <p className="text-gray-700 mb-6">
-                Çelenk Diyarı, çelenk tasarımı, üretimi ve teslimatı konularında profesyonel hizmet sunan 
+                Çelenk Diyarı, çelenk tasarımı, üretimi ve teslimatı konularında profesyonel hizmet sunan
                 bir e-ticaret platformudur. Hizmetlerimiz şunları içerir:
               </p>
               <ul className="list-disc list-inside text-gray-700 mb-6 space-y-2">
@@ -72,7 +72,7 @@ export default function TermsPage() {
 
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Hesap Güvenliği</h3>
               <p className="text-gray-700 mb-6">
-                Hesabınızın güvenliğinden siz sorumlusunuz. Şifrenizi güvenli tutun ve 
+                Hesabınızın güvenliğinden siz sorumlusunuz. Şifrenizi güvenli tutun ve
                 başkalarıyla paylaşmayın. Şüpheli aktivite fark ederseniz derhal bizimle iletişime geçin.
               </p>
 
@@ -130,8 +130,8 @@ export default function TermsPage() {
                 Teslimat hizmetlerimiz hakkında bilgiler:
               </p>
               <ul className="list-disc list-inside text-gray-700 mb-6 space-y-2">
-                <li>İstanbul içi ücretsiz teslimat</li>
-                <li>Diğer şehirler için kargo ücreti</li>
+                <li>Türkiye geneli 81 ilde teslimat</li>
+                <li>Hızlı ve güvenli gönderim</li>
                 <li>Teslimat süresi 1-3 iş günü</li>
                 <li>Özel teslimat tarihi belirleme</li>
                 <li>Teslimat sırasında imza alınır</li>
@@ -154,7 +154,7 @@ export default function TermsPage() {
                 Fikri Mülkiyet Hakları
               </h2>
               <p className="text-gray-700 mb-6">
-                Web sitemizdeki tüm içerik, tasarım ve yazılımlar Çelenk Diyarı&apos;na aittir. 
+                Web sitemizdeki tüm içerik, tasarım ve yazılımlar Çelenk Diyarı&apos;na aittir.
                 İzinsiz kullanım yasaktır ve yasal işlem başlatılabilir.
               </p>
 
@@ -162,7 +162,7 @@ export default function TermsPage() {
                 Değişiklikler ve Güncellemeler
               </h2>
               <p className="text-gray-700 mb-6">
-                Bu kullanım şartlarını istediğimiz zaman güncelleyebiliriz. 
+                Bu kullanım şartlarını istediğimiz zaman güncelleyebiliriz.
                 Değişiklikler web sitemizde yayınlandığında yürürlüğe girer.
               </p>
 
@@ -187,7 +187,7 @@ export default function TermsPage() {
 
               <div className="mt-8 p-6 bg-blue-50 rounded-lg">
                 <p className="text-blue-800 text-sm">
-                  <strong>Son Güncelleme:</strong> Bu kullanım şartları son olarak 2024 yılında güncellenmiştir. 
+                  <strong>Son Güncelleme:</strong> Bu kullanım şartları son olarak 2024 yılında güncellenmiştir.
                   Değişiklikler web sitemizde yayınlanacaktır.
                 </p>
               </div>

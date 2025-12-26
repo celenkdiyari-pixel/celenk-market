@@ -10,9 +10,35 @@ export default function JsonLd() {
         "description": "Türkiye genelinde 81 ilde profesyonel çelenk siparişi ve çiçek gönderimi hizmeti. Açılış, düğün ve cenaze çelenkleri.",
         "address": {
             "@type": "PostalAddress",
-            "addressLocality": "Türkiye",
+            "addressLocality": "İstanbul",
             "addressCountry": "TR"
         },
+        "areaServed": [
+            {
+                "@type": "City",
+                "name": "İstanbul"
+            },
+            {
+                "@type": "City",
+                "name": "Ankara"
+            },
+            {
+                "@type": "City",
+                "name": "İzmir"
+            },
+            {
+                "@type": "City",
+                "name": "Bursa"
+            },
+            {
+                "@type": "City",
+                "name": "Antalya"
+            },
+            {
+                "@type": "Country",
+                "name": "Türkiye"
+            }
+        ],
         "openingHoursSpecification": {
             "@type": "OpeningHoursSpecification",
             "dayOfWeek": [
@@ -24,14 +50,15 @@ export default function JsonLd() {
                 "Saturday",
                 "Sunday"
             ],
-            "opens": "09:00",
-            "closes": "22:00"
+            "opens": "00:00",
+            "closes": "23:59"
         },
         "sameAs": [
             "https://www.instagram.com/celenkdiyari",
-            "https://www.facebook.com/celenkdiyari"
+            "https://www.facebook.com/celenkdiyari",
+            "https://twitter.com/celenkdiyari"
         ],
-        "priceRange": "$$"
+        "priceRange": "₺₺"
     };
 
     const websiteData = {

@@ -25,11 +25,27 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Çelenk Diyarı - Türkiye Online Çelenk Siparişi',
-    default: 'Çelenk Diyarı - Türkiye Çelenk Siparişi | Hızlı Çelenk Gönder',
+    template: '%s | Çelenk Diyarı - 81 İle Aynı Gün Teslimat',
+    default: 'Çelenk Diyarı - Türkiye Çelenk Siparişi | İstanbul, Ankara, İzmir Hızlı Gönderim',
   },
-  description: "Türkiye genelinde 81 ile aynı gün teslimat. Açılış, düğün, cenaze ve özel günler için profesyonel çelenk siparişi. En taze çiçeklerle hazırlanan ekonomik ve lüks çelenk modelleri.",
-  keywords: ["çelenk sipariş", "çelenk gönder", "çelenk", "türkiye çelenk", "online çelenk", "açılış çelengi", "cenaze çelengi", "düğün çelengi", "çiçek siparişi", "ferforje çelenk"],
+  description: "Türkiye'nin en güvenilir online çelenk sipariş sitesi. İstanbul, Ankara, İzmir ve 81 ile aynı gün teslimat. Cenaze, düğün, açılış ve nikah için profesyonel çelenk, ferforje ve çiçek gönderimi. %100 Müşteri Memnuniyeti.",
+  keywords: [
+    "çelenk siparişi", 
+    "çelenk gönder", 
+    "online çelenk", 
+    "istanbul çelenk siparişi", 
+    "ankara çelenk siparişi", 
+    "izmir çelenk siparişi",
+    "cenaze çelengi", 
+    "açılış çelengi", 
+    "düğün çelengi", 
+    "nikah çelengi",
+    "ferforje çelenk",
+    "çelenk fiyatları",
+    "acil çelenk",
+    "çiçek sepeti çelenk",
+    "ucuz çelenk"
+  ],
   icons: {
     icon: '/images/logo-removebg-preview.png',
     apple: '/images/logo-removebg-preview.png',
@@ -40,16 +56,46 @@ export const metadata: Metadata = {
     canonical: 'https://celenkdiyari.com',
   },
   openGraph: {
-    title: "Çelenk Diyarı - İstanbul Çelenk Siparişi | Çelenk Gönder",
-    description: "Özel günlerinizde sevdiklerinizi mutlu edecek, doğal ve taze çelenk siparişi. Aynı gün teslimat garantisi.",
+    title: "Çelenk Diyarı - Türkiye'nin Online Çelenkçisi | 81 İlde Hizmet",
+    description: "İstanbul, Ankara, İzmir ve tüm Türkiye'ye aynı gün çelenk teslimatı. Cenaze, açılış ve düğünler için en taze çiçeklerle hazırlanan özel tasarım çelenkler.",
+    url: 'https://celenkdiyari.com',
     type: "website",
     locale: "tr_TR",
     siteName: 'Çelenk Diyarı',
+    images: [
+      {
+        url: 'https://celenkdiyari.com/images/categories/açılıştören.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Çelenk Diyarı - Açılış ve Tören Çelenkleri',
+      },
+      {
+        url: 'https://celenkdiyari.com/images/categories/cenaze.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Çelenk Diyarı - Cenaze Çelenkleri',
+      }
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Çelenk Diyarı - Profesyonel Çelenk Gönderimi",
-    description: "Doğanın en güzel hali kapınızda. Hızlı ve güvenilir çelenk siparişi.",
+    title: "Çelenk Diyarı - 81 İle Çelenk Gönder",
+    description: "En taze çiçeklerle hazırlanan cenaze, düğün ve açılış çelenkleri. Türkiye geneli aynı gün teslimat garantisi.",
+    images: ['https://celenkdiyari.com/images/categories/açılıştören.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'verification_token', // User should replace this
   },
 };
 

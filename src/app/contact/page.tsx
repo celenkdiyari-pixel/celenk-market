@@ -35,7 +35,7 @@ export default function ContactPage() {
       <section className="bg-gradient-to-r from-green-600 to-emerald-700 text-white py-20">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h1 
+            <h1
               className="text-4xl lg:text-5xl font-bold mb-6"
               style={{
                 fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -47,7 +47,7 @@ export default function ContactPage() {
             >
               İletişim
             </h1>
-            <p 
+            <p
               className="text-xl text-green-100 max-w-3xl mx-auto"
               style={{
                 fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -55,7 +55,7 @@ export default function ContactPage() {
                 letterSpacing: 'normal'
               }}
             >
-              Özel günleriniz için çelenk ihtiyaçlarınızda yanınızdayız. 
+              Türkiye genelinde 81 ilde özel günleriniz için çelenk ihtiyaçlarınızda yanınızdayız.
               Size en uygun çözümü birlikte bulalım.
             </p>
           </div>
@@ -69,7 +69,7 @@ export default function ContactPage() {
             {/* Contact Information */}
             <div className="space-y-8">
               <div>
-                <h2 
+                <h2
                   className="text-3xl font-bold text-gray-900 mb-6"
                   style={{
                     fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -80,7 +80,7 @@ export default function ContactPage() {
                   İletişim Bilgileri
                 </h2>
                 <p className="text-lg text-gray-600 leading-relaxed">
-                  Çelenk ihtiyaçlarınız için bizimle iletişime geçebilirsiniz. 
+                  Çelenk ihtiyaçlarınız için bizimle iletişime geçebilirsiniz.
                   Uzman ekibimiz size en uygun çözümü sunmak için burada.
                 </p>
               </div>
@@ -123,9 +123,9 @@ export default function ContactPage() {
                         <MapPin className="h-6 w-6 text-green-600" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Adres</h3>
-                        <p className="text-gray-600">Çiçek Sokak No: 123</p>
-                        <p className="text-gray-600">Kadıköy, İstanbul</p>
+                        <h3 className="text-lg font-semibold text-gray-900">Hizmet Bölgesi</h3>
+                        <p className="text-gray-600">81 İlde Aynı Gün Teslimat</p>
+                        <p className="text-gray-600">Tüm Türkiye Geneli</p>
                       </div>
                     </div>
                   </CardContent>
@@ -256,18 +256,18 @@ export default function ContactPage() {
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Konumumuz</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Hizmet Ağımız</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              İstanbul Kadıköy&apos;de bulunan mağazamızı ziyaret edebilir, 
-              çelenklerimizi yakından inceleyebilirsiniz.
+              Türkiye'nin her noktasındaki çözüm ortaklarımızla,
+              çelenklerinizi en taze haliyle istediğiniz adrese ulaştırıyoruz.
             </p>
           </div>
           <div className="bg-gradient-to-br from-green-200 to-emerald-300 rounded-2xl h-96 flex items-center justify-center">
-            <div className="text-center">
+            <div className="text-center p-8">
               <MapPin className="h-16 w-16 text-green-600 mx-auto mb-4" />
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Çelenk Diyarı Mağazası</h3>
-              <p className="text-lg text-gray-700">Çiçek Sokak No: 123, Kadıköy, İstanbul</p>
-              <p className="text-gray-600 mt-2">Harita entegrasyonu yakında eklenecek</p>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Türkiye Geneli Teslimat Noktaları</h3>
+              <p className="text-lg text-gray-700">81 İlde Profesyonel Çelenk Gönderimi</p>
+              <p className="text-gray-600 mt-2">Çelenk Diyarı, Türkiye'nin her yerinde yanınızda.</p>
             </div>
           </div>
         </div>

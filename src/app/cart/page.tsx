@@ -108,7 +108,7 @@ export default function CartPage() {
   const [recipientInfo, setRecipientInfo] = useState<RecipientInfo>({
     name: '',
     phone: '',
-    city: 'İstanbul',
+    city: '',
     district: '',
     address: '',
     notes: '',
@@ -600,9 +600,9 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
             <div className="bg-green-50 rounded-2xl p-6 flex gap-4 items-start border border-green-100">
               <Truck className="w-6 h-6 text-green-600 flex-shrink-0" />
               <div>
-                <h4 className="font-bold text-green-900">Ücretsiz Teslimat</h4>
+                <h4 className="font-bold text-green-900">Güvenli ve Hızlı Teslimat</h4>
                 <p className="text-green-700 text-sm mt-1">
-                  İstanbul içi tüm siparişlerinizde teslimat ücretsizdir. Siparişiniz özenle hazırlanıp belirtilen adrese teslim edilecektir.
+                  Türkiye geneli tüm siparişleriniz özenle hazırlanıp en hızlı şekilde belirtilen adrese teslim edilir.
                 </p>
               </div>
             </div>

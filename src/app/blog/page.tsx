@@ -9,8 +9,8 @@ import { Button } from '@/components/ui/button';
 
 export const metadata: Metadata = {
     title: 'Blog | Çelenk Diyarı - Çiçek ve Çelenk Dünyasından Haberler',
-    description: 'Çelenk, cenaze çelengi, düğün çelengi, açılış çiçekleri ve daha fazlası hakkında rehber niteliğinde makaleler. İstanbul çelenk siparişi ipuçları.',
-    keywords: ['çelenk blog', 'çiçek bakımı', 'cenaze çelengi yazıları', 'düğün çelengi modelleri', 'çelenk diyari blog'],
+    description: 'Çelenk, cenaze çelengi, düğün çelengi, açılış çiçekleri ve daha fazlası hakkında rehber niteliğinde makaleler. Türkiye geneli çelenk siparişi ipuçları.',
+    keywords: ['çelenk blog', 'çiçek bakımı', 'cenaze çelengi yazıları', 'düğün çelengi modelleri', 'çelenk diyari blog', 'türkiye çelenk'],
 };
 
 export default function BlogPage() {
