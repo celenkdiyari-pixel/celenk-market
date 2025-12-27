@@ -658,7 +658,6 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
                       </div>
                       <Building2 className={`w-8 h-8 mb-2 ${paymentMethod === 'transfer' ? 'text-green-600' : 'text-gray-400'}`} />
                       <span className="font-bold text-sm">Havale / EFT</span>
-                      {/* <span className="text-[10px] text-gray-500">%5 İndirimli</span> */}
                     </div>
                   </div>
                 </div>

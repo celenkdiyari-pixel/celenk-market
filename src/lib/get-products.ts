@@ -64,36 +64,32 @@ export async function getProductsByCategory(categoryValue: string): Promise<Prod
         const db = getAdminDb();
         const productsRef = db.collection('products');
 
-        // Fetch all and filter in memory for now due to complex schema
-        const snapshot = await productsRef.get();
+        // Execute parallel queries for optimal performance
+        // Query 1: Matches legacy single 'category' field
+        const legacyQuery = productsRef.where('category', '==', categoryValue).get();
 
-        if (snapshot.empty) {
-            return [];
-        }
+        // Query 2: Matches new 'categories' array field
+        const modernQuery = productsRef.where('categories', 'array-contains', categoryValue).get();
 
-        const allProducts = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        } as Product));
+        const [legacySnap, modernSnap] = await Promise.all([legacyQuery, modernQuery]);
 
-        return allProducts.filter(product => {
-            const cat = product.category;
-            const cats = product.categories;
-            let productCategories: string[] = [];
+        // Use a Map to deduplicate by ID
+        const productMap = new Map<string, Product>();
 
-            if (Array.isArray(cats)) {
-                productCategories = cats;
-            } else if (typeof cat === 'string') {
-                productCategories = [cat];
-            } else if (Array.isArray(cat)) {
-                productCategories = cat as string[];
-            }
+        const addDocToMap = (doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+            productMap.set(doc.id, {
+                id: doc.id,
+                ...doc.data()
+            } as Product);
+        };
 
-            // Check if matches specific category value
-            return productCategories.includes(categoryValue) || product.category === categoryValue;
-        });
+        legacySnap.docs.forEach(addDocToMap);
+        modernSnap.docs.forEach(addDocToMap);
+
+        return Array.from(productMap.values());
     } catch (error) {
         console.error('Error fetching category products on server:', error);
+        // Fallback: Return empty array so the page renders (just empty) instead of crashing
         return [];
     }
 }

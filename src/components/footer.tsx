@@ -144,8 +144,12 @@ export default function Footer() {
         {/* Bottom Section */}
         <div className="border-t border-gray-700 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="flex items-center space-x-2 text-gray-400">
+            <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 text-gray-400 text-sm">
               <span>© 2024 Çelenk Diyarı. Tüm hakları saklıdır.</span>
+              <span className="hidden md:inline mx-2">|</span>
+              <a href="https://www.ynadijital.com" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors">
+                YNA Dijital
+              </a>
             </div>
             <div className="flex flex-wrap items-center gap-4">
               <Link
@@ -199,18 +203,10 @@ export default function Footer() {
               <Link href="/contact" className="text-gray-400 hover:text-green-400 transition-colors text-sm">
                 İletişim
               </Link>
-              <Link href="/admin" className="text-gray-400 hover:text-green-400 transition-colors text-sm">
-                Admin Panel
-              </Link>
+
             </div>
           </div>
-          <div className="text-center mt-4">
-            <p className="text-gray-400 text-sm flex items-center justify-center space-x-1">
-              <span>Made with</span>
-              <Heart className="h-4 w-4 text-red-500" />
-              <span>in Turkey</span>
-            </p>
-          </div>
+
         </div>
       </div>
     </footer>
