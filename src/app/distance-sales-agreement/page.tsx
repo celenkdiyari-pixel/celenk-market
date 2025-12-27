@@ -7,7 +7,7 @@ export default function DistanceSalesAgreement() {
                 <p><strong>1.1. SATICI:</strong></p>
                 <p>Ünvanı: Çelenk Diyarı<br />
                     Adres: İstanbul, Türkiye<br />
-                    Telefon: +90 (535) 561 26 56<br />
+                    Telefon: +90 (532) 137 81 60<br />
                     E-posta: info@celenkdiyari.com</p>
 
                 <p><strong>1.2. ALICI:</strong></p>

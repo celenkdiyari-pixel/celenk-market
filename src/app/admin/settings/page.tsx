@@ -349,7 +349,7 @@ export default function SettingsPage() {
                     onChange={(e) => updateSettings({
                       contact: { ...settings.contact, phone: e.target.value }
                     })}
-                    placeholder="0535 561 26 56"
+                    placeholder="0532 137 81 60"
                   />
                 </div>
                 <div>
@@ -388,7 +388,7 @@ export default function SettingsPage() {
                     onChange={(e) => updateSettings({
                       contact: { ...settings.contact, whatsapp: e.target.value }
                     })}
-                    placeholder="0535 561 26 56"
+                    placeholder="0532 137 81 60"
                   />
                 </div>
                 <div>

@@ -255,7 +255,7 @@ export async function POST(request: NextRequest) {
 
                 // Company
                 company_email: 'celenkdiyari@gmail.com',
-                company_phone: '+90 532 123 45 67',
+                company_phone: '0532 137 81 60',
                 company_website: 'www.celenkdiyari.com',
 
                 // Backward compatibility

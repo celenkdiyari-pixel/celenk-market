@@ -94,7 +94,7 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900">Telefon</h3>
-                        <p className="text-gray-600">+90 (212) 123 45 67</p>
+                        <p className="text-gray-600">+90 (532) 137 81 60</p>
                         <p className="text-sm text-gray-500">Pazartesi - Cuma: 09:00 - 18:00</p>
                       </div>
                     </div>

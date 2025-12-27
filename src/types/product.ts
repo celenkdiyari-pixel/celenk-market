@@ -16,6 +16,7 @@ export interface Product {
   originalPrice?: number;
   images: string[];
   category: string;
+  categories: string[];
   tags: string[];
 
   rating: number;

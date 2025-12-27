@@ -24,6 +24,7 @@ export default function ProductForm({ initialData, isEditing = false }: ProductF
         name: initialData?.name || '',
         description: initialData?.description || '',
         price: initialData?.price || 0,
+        categories: initialData?.categories || (initialData?.category ? [initialData.category] : []),
         category: initialData?.category || '',
         inStock: initialData?.inStock ?? true,
         images: initialData?.images || [] as string[],
@@ -98,8 +99,8 @@ export default function ProductForm({ initialData, isEditing = false }: ProductF
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!formData.name || !formData.description || !formData.price || !formData.category) {
-            setErrorMessage('Lütfen tüm gerekli alanları doldurun');
+        if (!formData.name || !formData.description || !formData.price || formData.categories.length === 0) {
+            setErrorMessage('Lütfen tüm gerekli alanları doldurun ve en az bir kategori seçin');
             return;
         }
 
@@ -116,6 +117,9 @@ export default function ProductForm({ initialData, isEditing = false }: ProductF
                 // @ts-ignore
                 productData.createdAt = new Date().toISOString();
             }
+
+            // Ensure category is populated (primary category = first selected)
+            productData.category = productData.categories[0] || '';
 
             const url = isEditing ? `/api/products/${initialData.id}` : '/api/products';
             const method = isEditing ? 'PUT' : 'POST';
@@ -168,18 +172,31 @@ export default function ProductForm({ initialData, isEditing = false }: ProductF
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Kategori *
                             </label>
-                            <select
-                                value={formData.category}
-                                onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                                className="w-full p-2 h-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                            >
-                                <option value="">Kategori seçin</option>
+                            <div className="space-y-2 border border-gray-200 rounded-md p-3 max-h-48 overflow-y-auto">
                                 {categories.map((category) => (
-                                    <option key={category} value={category}>
-                                        {category}
-                                    </option>
+                                    <label key={category} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.categories.includes(category)}
+                                            onChange={(e) => {
+                                                const checked = e.target.checked;
+                                                setFormData(prev => {
+                                                    const newCategories = checked
+                                                        ? [...prev.categories, category]
+                                                        : prev.categories.filter(c => c !== category);
+                                                    return {
+                                                        ...prev,
+                                                        categories: newCategories,
+                                                        category: newCategories.length > 0 ? newCategories[0] : ''
+                                                    };
+                                                });
+                                            }}
+                                            className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                                        />
+                                        <span className="text-sm text-gray-700">{category}</span>
+                                    </label>
                                 ))}
-                            </select>
+                            </div>
                         </div>
                     </div>
 

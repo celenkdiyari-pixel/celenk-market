@@ -44,10 +44,20 @@ function normalizeProductForList(raw: Record<string, unknown>, mode: 'full' | 's
   const firstAnyImage = images[0];
   const mainImage = firstNonDataUrl || firstAnyImage || '';
 
+  // Normalize categories if present, otherwise default to [category]
+  let categories: string[] = [];
+  if (Array.isArray(raw.categories)) {
+    categories = raw.categories.filter((c): c is string => typeof c === 'string');
+  }
+  if (categories.length === 0 && category !== 'Diğer') {
+    categories = [category];
+  }
+
   return {
     ...raw,
     images: mainImage ? [mainImage] : [],
-    category
+    category,
+    categories
   };
 }
 
@@ -55,13 +65,18 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const modeParam = searchParams.get('mode');
+    const categoryParam = searchParams.get('category');
 
     // Default to 'summary' unless explicitly 'full' is requested
-    // This dramatically reduces payload size if base64 images are used.
     const mode: 'full' | 'summary' = modeParam === 'full' ? 'full' : 'summary';
 
     const strategy = await getDbStrategy();
     let rawProducts: any[] = [];
+
+    // NOTE: For optimal performance with large datasets, we should use Firestore queries.
+    // However, due to mixed schema (category string vs categories array) and Turkish chars,
+    // we fetch (likely cached by Firestore) and filter in memory to ensure accuracy.
+    // This significantly reduces the payload sent to the client.
 
     if (strategy.type === 'admin') {
       const snapshot = await strategy.db.collection('products').get();
@@ -72,23 +87,39 @@ export async function GET(request: NextRequest) {
       rawProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     }
 
-    const products = rawProducts.map((data) => {
-      // safe destructure just in case data has 'id' inside or we use the one from map
-      const { id, ...rest } = data;
-      return {
-        id,
-        ...normalizeProductForList(rest, mode),
-      };
-    });
+    // Filter AND Normalize on the server to reduce payload
+    const products = rawProducts
+      .filter((data) => {
+        if (!categoryParam) return true;
+
+        // Check both single 'category' and 'categories' array
+        const cat = data.category;
+        const cats = data.categories as string[] | undefined;
+        const target = categoryParam;
+
+        if (typeof cat === 'string' && cat === target) return true;
+        if (Array.isArray(cats) && cats.includes(target)) return true;
+        // Also check if stored as array but in data.category (legacy weirdness protection)
+        if (Array.isArray(cat) && cat.includes(target)) return true;
+
+        return false;
+      })
+      .map((data) => {
+        const { id, ...rest } = data;
+        return {
+          id,
+          ...normalizeProductForList(rest, mode),
+        };
+      });
 
     return NextResponse.json(products, {
       headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300'
+        // Cache for 60 seconds on CDN, stale-while-revalidate for 5 minutes
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300, max-age=60'
       }
     });
   } catch (error) {
     console.error('❌ Error fetching products:', error);
-    // Return empty array if fails
     return NextResponse.json([]);
   }
 }

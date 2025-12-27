@@ -31,10 +31,10 @@ export async function GET() {
         logoUrl: '/images/logo-removebg-preview.png',
         faviconUrl: '/favicon.ico',
         contact: {
-          phone: '0535 561 26 56',
+          phone: '0532 137 81 60',
           email: 'info@celenkdiyari.com',
           address: 'İstanbul, Türkiye',
-          whatsapp: '0535 561 26 56',
+          whatsapp: '0532 137 81 60',
           workingHours: 'Pazartesi - Cumartesi: 09:00 - 18:00'
         },
         socialMedia: {

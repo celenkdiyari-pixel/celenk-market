@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
               invoice_district: orderData.billing?.district || '',
 
               company_email: 'celenkdiyari@gmail.com',
-              company_phone: '0535 561 26 56',
+              company_phone: '0532 137 81 60',
               company_website: 'www.celenkdiyari.com',
             }
           })
@@ -205,7 +205,7 @@ export async function POST(request: NextRequest) {
 
             admin_panel_url: adminPanelUrl,
             company_website: 'www.celenkdiyari.com',
-            company_phone: '0535 561 26 56',
+            company_phone: '0532 137 81 60',
           }
         })
       }).catch(err => console.error('Failed to send admin email:', err));

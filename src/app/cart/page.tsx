@@ -42,6 +42,7 @@ interface RecipientInfo {
   deliveryTime: string;
   deliveryDate: string;
   deliveryPlaceType: string;
+  wreathText: string;
 }
 
 const generateTimeSlots = () => {
@@ -114,7 +115,8 @@ export default function CartPage() {
     notes: '',
     deliveryDate: new Date().toISOString().split('T')[0], // Default to today
     deliveryTime: '',
-    deliveryPlaceType: 'Ev'
+    deliveryPlaceType: 'Ev',
+    wreathText: ''
   });
 
   const [paymentMethod, setPaymentMethod] = useState<'credit_card' | 'transfer'>('credit_card');
@@ -210,6 +212,7 @@ export default function CartPage() {
         delivery_time: recipientInfo.deliveryTime,
         delivery_date: recipientInfo.deliveryDate,
         delivery_place_type: recipientInfo.deliveryPlaceType,
+        wreath_text: recipientInfo.wreathText,
       };
 
       if (paymentMethod === 'credit_card') {
@@ -257,7 +260,7 @@ export default function CartPage() {
           clearCart();
 
           // WhatsApp Yönlendirmesi
-          const waPhoneNumber = "905355612656"; // İletişim numarası
+          const waPhoneNumber = "905321378160"; // İletişim numarası
           const waMessage = `*Yeni Sipariş - Havale/EFT*
 
 *Sipariş No:* ${result.orderNumber}
@@ -273,6 +276,7 @@ Telefon: ${recipientInfo.phone}
 Şehir/İlçe: ${recipientInfo.city} / ${recipientInfo.district}
 Adres: ${recipientInfo.address}
 Not: ${recipientInfo.notes || 'Yok'}
+Kuşak Yazısı: ${recipientInfo.wreathText || 'Belirtilmedi'}
 
 *SİPARİŞ DETAYLARI*
 ${cartItems.map(item => `${item.name} x${item.quantity}`).join('\n')}
@@ -319,7 +323,7 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
             </p>
             <Button
               className="bg-[#25D366] hover:bg-[#128C7E] text-white w-full font-bold shadow-lg hover:shadow-xl transition-all h-12 text-base"
-              onClick={() => window.open(`https://wa.me/905355612656?text=${encodeURIComponent(`Merhaba, ${orderId} numaralı siparişim için ödeme/IBAN bilgisi alabilir miyim?`)}`, '_blank')}
+              onClick={() => window.open(`https://wa.me/905321378160?text=${encodeURIComponent(`Merhaba, ${orderId} numaralı siparişim için ödeme/IBAN bilgisi alabilir miyim?`)}`, '_blank')}
             >
               <Send className="w-5 h-5 mr-2" />
               WhatsApp'tan IBAN İste
@@ -558,6 +562,15 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
                       className="h-11 rounded-xl bg-gray-50 border-gray-200"
                     />
                   </div>
+                  <div className="col-span-2">
+                    <Label>Kuşak Yazısı (Çelenk Üzerine Yazılacak İsim/Firma)</Label>
+                    <Input
+                      placeholder="Örn: X Ailesi, Y Şirketi"
+                      value={recipientInfo.wreathText}
+                      onChange={(e) => setRecipientInfo({ ...recipientInfo, wreathText: e.target.value })}
+                      className="h-11 rounded-xl bg-gray-50 border-gray-200"
+                    />
+                  </div>
                   <div className="col-span-2 md:col-span-1">
                     <Label>Teslimat Yeri *</Label>
                     <select
@@ -645,7 +658,7 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
                       </div>
                       <Building2 className={`w-8 h-8 mb-2 ${paymentMethod === 'transfer' ? 'text-green-600' : 'text-gray-400'}`} />
                       <span className="font-bold text-sm">Havale / EFT</span>
-                      <span className="text-[10px] text-gray-500">%5 İndirimli</span>
+                      {/* <span className="text-[10px] text-gray-500">%5 İndirimli</span> */}
                     </div>
                   </div>
                 </div>
