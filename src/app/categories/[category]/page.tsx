@@ -94,7 +94,7 @@ export default async function CategoryPage({ params }: PageProps) {
   return (
     <CategoryClient
       initialProducts={initialProducts}
-      categoryInfo={currentCategory}
+      categorySlug={category}
     />
   );
 }

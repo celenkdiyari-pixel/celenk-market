@@ -21,14 +21,15 @@ import Link from "next/link";
 import Image from "next/image";
 import ProductCard from '@/components/product-card';
 import { Product } from '@/lib/get-products';
-import { CategoryInfo } from '@/lib/constants';
+import { CATEGORY_INFO, CategoryInfo } from '@/lib/constants';
 
 interface CategoryClientProps {
     initialProducts: Product[];
-    categoryInfo: CategoryInfo;
+    categorySlug: string;
 }
 
-export default function CategoryClient({ initialProducts, categoryInfo }: CategoryClientProps) {
+export default function CategoryClient({ initialProducts, categorySlug }: CategoryClientProps) {
+    const categoryInfo = CATEGORY_INFO[categorySlug];
     const [products] = useState<Product[]>(initialProducts);
     const [filteredProducts, setFilteredProducts] = useState<Product[]>(initialProducts);
     const [searchTerm, setSearchTerm] = useState('');
