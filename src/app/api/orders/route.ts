@@ -282,9 +282,18 @@ export async function GET(request: NextRequest) {
         const snapshot = await getDocs(q);
         orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       } else {
-        const q = query(ordersRef, orderBy('createdAt', 'desc'), limit(orderLimit));
+        // Client SDK: Use limit only to avoid index requirement
+        console.log('⚠️ Using client SDK without orderBy to avoid index requirement');
+        const q = query(ordersRef, limit(orderLimit));
         const snapshot = await getDocs(q);
-        orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        // Sort in memory after fetching
+        orders = snapshot.docs
+          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .sort((a: any, b: any) => {
+            const aTime = new Date(a.createdAt || 0).getTime();
+            const bTime = new Date(b.createdAt || 0).getTime();
+            return bTime - aTime; // desc
+          });
       }
     }
 
