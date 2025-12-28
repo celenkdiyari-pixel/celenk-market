@@ -12,16 +12,9 @@ interface PageProps {
   }>;
 }
 
-// Enable Incremental Static Regeneration (ISR)
-// Revalidate every 60 seconds (or whichever interval suits)
-export const revalidate = 60;
-
-// Generate static params for all known categories at build time
-export function generateStaticParams() {
-  return Object.keys(CATEGORY_INFO).map((slug) => ({
-    category: slug,
-  }));
-}
+// Use dynamic rendering to avoid oversized ISR pages
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: PageProps) {
