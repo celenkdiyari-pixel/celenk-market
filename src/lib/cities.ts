@@ -83,5 +83,14 @@ export const cities = [
 ];
 
 export function getCityBySlug(slug: string) {
-    return cities.find(city => city.slug === slug);
+    if (!slug) return undefined;
+    const decoded = decodeURIComponent(slug);
+    // Try exact match first
+    const exact = cities.find(city => city.slug === decoded);
+    if (exact) return exact;
+
+    // Try normalized match (NFC/NFD)
+    // This handles cases like 'i\u0307stanbul' vs 'istanbul'
+    const normalized = decoded.normalize('NFC').replace(/[\u0307]/g, ''); // Remove combining dot if present on 'i'
+    return cities.find(city => city.slug === normalized);
 }

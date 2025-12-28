@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
+
 import { db } from '@/lib/firebase';
 import { collection, addDoc, getDocs, query, orderBy, limit, doc, getDoc, updateDoc, where, deleteDoc } from 'firebase/firestore';
 import { getAdminDb } from '@/lib/firebase-admin';
@@ -309,11 +311,14 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('❌ Error fetching orders:', error);
 
+    // Return empty list instead of 500 to prevent Admin Panel crash
     return NextResponse.json({
+      success: false,
+      orders: [],
       error: 'Failed to fetch orders',
       details: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
-    }, { status: 500 });
+    }, { status: 200 }); // Return 200 so UI can render "0 orders" and show error toast
   }
 }
 
