@@ -845,7 +845,9 @@ export default function OrdersPage() {
                           <div>
                             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Ödeme Tutarı</label>
                             <p className="text-gray-900 mt-1 font-medium">
-                              {selectedOrder.paymentDetails.paymentAmount.toFixed(2)} {selectedOrder.paymentDetails.currency || '₺'}
+                              {typeof selectedOrder.paymentDetails.paymentAmount === 'number'
+                                ? selectedOrder.paymentDetails.paymentAmount.toFixed(2)
+                                : parseFloat(selectedOrder.paymentDetails.paymentAmount as any || '0').toFixed(2)} {selectedOrder.paymentDetails.currency || '₺'}
                             </p>
                           </div>
                         )}

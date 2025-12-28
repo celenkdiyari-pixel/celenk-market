@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
             paymentDetails: {
               paytrTransactionId: callbackData.merchant_oid,
               paymentType: callbackData.payment_type,
-              paymentAmount: callbackData.payment_amount,
+              paymentAmount: parseFloat(callbackData.payment_amount || '0'),
               currency: callbackData.currency,
               testMode: callbackData.test_mode === '1',
               processedAt: new Date().toISOString()
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
             paymentDetails: {
               paytrTransactionId: callbackData.merchant_oid,
               paymentType: callbackData.payment_type,
-              paymentAmount: callbackData.payment_amount,
+              paymentAmount: parseFloat(callbackData.payment_amount || '0'),
               currency: callbackData.currency,
               testMode: callbackData.test_mode === '1',
               processedAt: new Date().toISOString()
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
       paymentDetails: {
         paytrTransactionId: callbackData.merchant_oid,
         paymentType: callbackData.payment_type,
-        paymentAmount: callbackData.payment_amount,
+        paymentAmount: parseFloat(callbackData.payment_amount || '0'),
         currency: callbackData.currency,
         testMode: callbackData.test_mode === '1',
         failedReasonCode: callbackData.failed_reason_code,
