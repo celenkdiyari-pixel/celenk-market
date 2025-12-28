@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Heart } from "lucide-react";
+import { cities } from "@/lib/cities";
 
 export default function Footer() {
+  // Get popular cities with their proper slugs
+  const popularCityNames = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Mersin'];
+  const popularCities = popularCityNames.map(name =>
+    cities.find(city => city.name === name)
+  ).filter(Boolean);
+
   return (
     <footer className="bg-gradient-to-r from-gray-900 to-gray-800 text-white">
       <div className="container mx-auto px-4 py-12">
@@ -129,13 +136,13 @@ export default function Footer() {
         <div className="border-t border-gray-700 mt-12 py-8">
           <h3 className="text-sm font-semibold text-gray-400 mb-4 uppercase tracking-wider">Popüler Şehirler</h3>
           <div className="flex flex-wrap gap-4">
-            {['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Mersin'].map((city) => (
+            {popularCities.map((city) => (
               <Link
-                key={city}
-                href={`/sehirler/${city.toLowerCase().replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')}`}
+                key={city!.slug}
+                href={`/sehirler/${city!.slug}`}
                 className="text-gray-400 hover:text-green-400 text-sm transition-colors"
               >
-                {city} Çelenk Siparişi
+                {city!.name} Çelenk Siparişi
               </Link>
             ))}
           </div>
