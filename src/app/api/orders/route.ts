@@ -7,8 +7,14 @@ import { getAdminDb } from '@/lib/firebase-admin';
 async function getDbStrategy() {
   try {
     const adminDb = getAdminDb();
+    // Test if admin DB is actually working
+    if (!adminDb) {
+      console.warn('⚠️ Admin DB returned null, falling back to client SDK');
+      return { type: 'client' as const, db };
+    }
     return { type: 'admin' as const, db: adminDb };
   } catch (e) {
+    console.warn('⚠️ Admin DB initialization failed, using client SDK:', e instanceof Error ? e.message : 'Unknown error');
     return { type: 'client' as const, db };
   }
 }
