@@ -91,6 +91,7 @@ export function getCityBySlug(slug: string) {
 
     // Try normalized match (NFC/NFD)
     // This handles cases like 'i\u0307stanbul' vs 'istanbul'
-    const normalized = decoded.normalize('NFC').replace(/[\u0307]/g, ''); // Remove combining dot if present on 'i'
+    // Also handle 'İzmir' -> 'izmir'
+    const normalized = decoded.normalize('NFC').replace(/[\u0307]/g, '').toLowerCase();
     return cities.find(city => city.slug === normalized);
 }

@@ -10,10 +10,13 @@ const serviceAccount = {
 
 export function getAdminDb() {
     if (!serviceAccount.projectId || !serviceAccount.clientEmail || !serviceAccount.privateKey) {
-        console.warn('⚠️ Firebase Admin SDK config missing. Server-side writes may fail if rules are restricted.');
-        // In development without admin keys, we might want to throw or return null
-        // But throwing allows the API to catch and report the configuration error
-        throw new Error('Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.');
+        // Suppress warning during build time to keep logs clean
+        if (process.env.NODE_ENV !== 'production' || process.env.NEXT_PHASE === 'phase-production-build') {
+            return null;
+        }
+        console.warn('⚠️ Firebase Admin SDK config missing options.');
+        // Return null instead of throwing, let the caller handle fallback
+        return null;
     }
 
     if (getApps().length === 0) {
