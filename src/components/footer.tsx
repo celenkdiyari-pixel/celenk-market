@@ -5,9 +5,10 @@ import { cities } from "@/lib/cities";
 export default function Footer() {
   // Get popular cities with their proper slugs
   const popularCityNames = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Mersin'];
-  const popularCities = popularCityNames.map(name =>
-    cities.find(city => city.name === name)
-  ).filter(Boolean);
+  const popularCities = popularCityNames
+    .map(name => cities.find(city => city.name === name))
+    .filter((city): city is NonNullable<typeof city> => city !== undefined);
+
 
   return (
     <footer className="bg-gradient-to-r from-gray-900 to-gray-800 text-white">
@@ -138,11 +139,11 @@ export default function Footer() {
           <div className="flex flex-wrap gap-4">
             {popularCities.map((city) => (
               <Link
-                key={city!.slug}
-                href={`/sehirler/${city!.slug}`}
+                key={city.slug}
+                href={`/sehirler/${city.slug}`}
                 className="text-gray-400 hover:text-green-400 text-sm transition-colors"
               >
-                {city!.name} Çelenk Siparişi
+                {city.name} Çelenk Siparişi
               </Link>
             ))}
           </div>
