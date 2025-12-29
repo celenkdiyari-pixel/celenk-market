@@ -74,14 +74,15 @@ export async function POST(request: NextRequest) {
       const productName = (item.productName || item.name || 'Ürün').slice(0, 100);
       const quantity = item.quantity || 1;
       const price = item.price || 0;
-      return [productName, quantity.toString(), price.toFixed(2)];
+      // PayTR Format: [Product Name, Unit Price, Quantity]
+      return [productName, price.toFixed(2), quantity.toString()];
     });
 
     const shippingCost = typeof orderData.shippingCost === 'number' ? orderData.shippingCost : 0;
 
     // If there is a shipping cost, add it as a basket item to ensure totals match
     if (shippingCost > 0) {
-      basketArray.push(['Kargo Ücreti', '1', shippingCost.toFixed(2)]);
+      basketArray.push(['Kargo Ücreti', shippingCost.toFixed(2), '1']);
     }
 
     const encodedBasket = Buffer.from(JSON.stringify(basketArray), 'utf-8').toString('base64');
@@ -91,8 +92,8 @@ export async function POST(request: NextRequest) {
     // Recalculate strict total from the final basket array to ensure 100% match with PayTR requirements
     // PayTR requires payment_amount equal to sum(price * quantity) of user_basket
     const strictBasketTotal = basketArray.reduce((sum: number, item: string[]) => {
-      const qty = parseInt(item[1], 10);
-      const price = parseFloat(item[2]);
+      const price = parseFloat(item[1]);
+      const qty = parseInt(item[2], 10);
       return sum + (qty * price);
     }, 0);
 
