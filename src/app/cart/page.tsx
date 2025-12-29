@@ -25,6 +25,7 @@ import {
 import { useCart } from '@/contexts/CartContext';
 import Link from 'next/link';
 import Image from 'next/image';
+import { DELIVERY_PLACES, DELIVERY_TIME_SLOTS } from '@/lib/constants';
 
 interface CustomerInfo {
   name: string;
@@ -44,49 +45,6 @@ interface RecipientInfo {
   deliveryPlaceType: string;
   wreathText: string;
 }
-
-const generateTimeSlots = () => {
-  const slots = [];
-  let startHour = 9;
-  let startMinute = 0;
-  const endHour = 20; // Updated to 20:00
-
-  while (startHour < endHour || (startHour === endHour && startMinute === 0)) {
-    const timeString = `${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
-
-    let endH = startHour;
-    let endM = startMinute + 30;
-    if (endM >= 60) {
-      endH += 1;
-      endM = 0;
-    }
-    const endTimeString = `${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`;
-
-    slots.push(`${timeString} - ${endTimeString}`);
-
-    startMinute += 30;
-    if (startMinute >= 60) {
-      startHour += 1;
-      startMinute = 0;
-    }
-  }
-  return slots;
-};
-
-const DELIVERY_TIME_SLOTS = generateTimeSlots();
-
-const DELIVERY_PLACES = [
-  'Ev',
-  'İş Yeri',
-  'Hastane',
-  'Cami',
-  'Düğün / Nikah Salonu',
-  'Açılış / Tören Alanı',
-  'Okul',
-  'Otel',
-  'Mezarlık',
-  'Diğer'
-];
 
 export default function CartPage() {
   const {

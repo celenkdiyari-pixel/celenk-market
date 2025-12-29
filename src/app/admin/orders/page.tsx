@@ -24,1069 +24,424 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 
-interface OrderItem {
-  productId: string;
-  productName: string;
-  variantId?: string;
-  variantName?: string;
-  quantity: number;
-  price: number;
-  image?: string;
-}
-
-interface CustomerInfo {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  address: {
-    street: string;
-    city: string;
-    district: string;
-    postalCode: string;
-    country: string;
-  };
-  notes?: string;
-}
-
-interface Order {
-  id: string;
-  orderNumber: string;
-  sender?: CustomerInfo;
-  recipient?: {
-    name: string;
-    phone: string;
-    city: string;
-    district: string;
-    address: string;
-    notes: string;
-  };
-  customer: CustomerInfo;
-  items: OrderItem[];
-  subtotal: number;
-  shippingCost: number;
-  total: number;
-  status: 'pending' | 'confirmed' | 'preparing' | 'shipped' | 'delivered' | 'cancelled';
-  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
-  paymentMethod: 'cash' | 'credit_card' | 'bank_transfer';
-  shippingMethod: 'standard' | 'express' | 'pickup';
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-  delivery_time?: string;
-  delivery_date?: string;
-  delivery_place_type?: string;
-  paymentDetails?: {
-    paytrTransactionId?: string;
-    paymentType?: string;
-    paymentAmount?: number;
-    currency?: string;
-    testMode?: boolean;
-    failedReasonCode?: string;
-    failedReasonMsg?: string;
-    processedAt?: string;
-  };
-}
-
-interface RawOrder {
-  id?: string;
-  orderNumber?: string;
-  sender?: {
-    name?: string;
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    phone?: string;
-  };
-  recipient?: {
-    name?: string;
-    phone?: string;
-    city?: string;
-    district?: string;
-    address?: string;
-    notes?: string;
-  };
-  customer?: {
-    firstName?: string;
-    lastName?: string;
-    name?: string;
-    email?: string;
-    phone?: string;
-    address?: {
-      street?: string;
-      city?: string;
-      district?: string;
-      postalCode?: string;
-      country?: string;
-      fullAddress?: string;
-    } | string;
-    notes?: string;
-  };
-  items?: Array<{
-    productId?: string;
-    productName?: string;
-    name?: string;
-    variantId?: string;
-    variantName?: string;
-    quantity?: number;
-    price?: number;
-    image?: string;
-    productImage?: string;
-  }>;
-  subtotal?: number;
-  shippingCost?: number;
-  total?: number;
-  status?: string;
-  paymentStatus?: string;
-  paymentMethod?: string;
-  shippingMethod?: string;
-  notes?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  delivery_time?: string;
-  delivery_date?: string;
-  delivery_place_type?: string;
-  paymentDetails?: Order['paymentDetails'];
-}
+// Shared Types & Constants
+import { Order, OrderStatus } from '@/types';
+import { ORDER_STATUS, ORDER_STATUS_LABELS } from '@/lib/constants';
+import { OrderService } from '@/services/orderService';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadOrders();
-  }, []);
-
+  // Load Orders
   const loadOrders = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/orders');
-      if (response.ok) {
-        const data = await response.json();
-        // Validate and sanitize orders data from Firebase
-        const validOrders = (data.orders || []).map((order: RawOrder) => {
-          // Ensure customer object exists and has proper structure
-          const customer = order.customer || {} as any;
-          const address = customer.address || {};
+      // Service call
+      const data = await OrderService.getAllOrders();
 
-          // Map Sender
-          const sender = order.sender ? {
-            firstName: order.sender.name ? order.sender.name.split(' ')[0] : (order.sender.firstName || ''),
-            lastName: order.sender.name ? order.sender.name.split(' ').slice(1).join(' ') : (order.sender.lastName || ''),
-            email: order.sender.email || '',
-            phone: order.sender.phone || '',
-            address: { street: '', city: '', district: '', postalCode: '', country: '' } // Sender usually doesn't have address in this flow
-          } : undefined;
+      // Sort by createdAt desc
+      const sorted = data.sort((a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
 
-          // Map Recipient
-          const recipient = order.recipient ? {
-            name: order.recipient.name || '',
-            phone: order.recipient.phone || '',
-            city: order.recipient.city || '',
-            district: order.recipient.district || '',
-            address: order.recipient.address || '',
-            notes: order.recipient.notes || ''
-          } : undefined;
-
-          return {
-            id: order.id || '',
-            orderNumber: order.orderNumber || `ORD-${order.id || 'UNKNOWN'}`,
-            sender,
-            recipient,
-            customer: {
-              firstName: customer.firstName || (customer.name ? customer.name.split(' ')[0] : 'Bilinmiyor'),
-              lastName: customer.lastName || (customer.name ? customer.name.split(' ').slice(1).join(' ') : ''),
-              email: customer.email || 'N/A',
-              phone: customer.phone || 'N/A',
-              address: {
-                street: typeof address === 'string' ? address : (address.street || address.fullAddress || ''),
-                city: typeof address !== 'string' ? (address.city || '') : '',
-                district: typeof address !== 'string' ? (address.district || '') : '',
-                postalCode: typeof address !== 'string' ? (address.postalCode || '') : '',
-                country: typeof address !== 'string' ? (address.country || 'Türkiye') : 'Türkiye'
-              },
-              notes: customer.notes || ''
-            },
-            items: Array.isArray(order.items) ? order.items.map((item: Partial<OrderItem> & { name?: string; productImage?: string }) => ({
-              productId: item.productId || '',
-              productName: item.productName || item.name || 'Ürün Adı Yok',
-              variantId: item.variantId,
-              variantName: item.variantName,
-              quantity: item.quantity || 1,
-              price: item.price || 0,
-              image: item.image || item.productImage
-            })) : [],
-            subtotal: typeof order.subtotal === 'number' ? order.subtotal : 0,
-            shippingCost: typeof order.shippingCost === 'number' ? order.shippingCost : 0,
-            total: typeof order.total === 'number' ? order.total : (order.subtotal || 0) + (order.shippingCost || 0),
-            status: ['pending', 'confirmed', 'preparing', 'shipped', 'delivered', 'cancelled'].includes(order.status || '')
-              ? (order.status as Order['status'])
-              : 'pending',
-            paymentStatus: ['pending', 'paid', 'failed', 'refunded'].includes(order.paymentStatus || '')
-              ? (order.paymentStatus as Order['paymentStatus'])
-              : 'pending',
-            paymentMethod: ['cash', 'credit_card', 'bank_transfer'].includes(order.paymentMethod || '')
-              ? (order.paymentMethod as Order['paymentMethod'])
-              : 'cash',
-            shippingMethod: ['standard', 'express', 'pickup'].includes(order.shippingMethod || '')
-              ? (order.shippingMethod as Order['shippingMethod'])
-              : 'standard',
-            notes: order.notes || '',
-            createdAt: order.createdAt || new Date().toISOString(),
-            updatedAt: order.updatedAt || order.createdAt || new Date().toISOString(),
-            delivery_time: order.delivery_time || '',
-            delivery_date: order.delivery_date || '', // Added field
-            delivery_place_type: order.delivery_place_type || '', // Added field
-            paymentDetails: order.paymentDetails || undefined
-          };
-        });
-        setOrders(validOrders);
-      } else {
-        console.error('Failed to load orders:', response.status, response.statusText);
-        setOrders([]);
-      }
+      setOrders(sorted);
+      setFilteredOrders(sorted);
     } catch (error) {
-      console.error('Error loading orders:', error);
-      setOrders([]);
+      console.error('Sipariş yükleme hatası:', error);
+      alert('Siparişler yüklenirken bir sorun oluştu.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+  useEffect(() => {
+    loadOrders();
+  }, []);
+
+  // Filter Logic
+  useEffect(() => {
+    let result = orders;
+
+    if (statusFilter !== 'all') {
+      result = result.filter(order => order.status === statusFilter);
+    }
+
+    if (searchTerm) {
+      const lowerTerm = searchTerm.toLowerCase();
+      result = result.filter(order =>
+        order.orderNumber?.toLowerCase().includes(lowerTerm) ||
+        order.customer?.firstName?.toLowerCase().includes(lowerTerm) ||
+        order.customer?.email?.toLowerCase().includes(lowerTerm) ||
+        order.sender?.firstName?.toLowerCase().includes(lowerTerm)
+      );
+    }
+
+    setFilteredOrders(result);
+  }, [searchTerm, statusFilter, orders]);
+
+  // Actions
+  const handleUpdateStatus = async (orderId: string, newStatus: OrderStatus) => {
     try {
-      const response = await fetch(`/api/orders/${orderId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          status: newStatus,
-          updatedAt: new Date().toISOString()
-        }),
-      });
+      const updatedOrder = await OrderService.updateStatus(orderId, newStatus);
 
-      if (response.ok) {
-        const data = await response.json();
-        const updatedOrder = data.order || { status: newStatus };
+      // Update local state
+      setOrders(prev => prev.map(o => o.id === orderId ? updatedOrder : o));
 
-        // Update local state
-        setOrders(prev => prev.map(order =>
-          order.id === orderId
-            ? { ...order, status: updatedOrder.status as Order['status'], updatedAt: updatedOrder.updatedAt || new Date().toISOString() }
-            : order
-        ));
-
-        // Update modal if open
-        if (selectedOrder && selectedOrder.id === orderId) {
-          setSelectedOrder(prev => prev ? {
-            ...prev,
-            status: updatedOrder.status as Order['status'],
-            updatedAt: updatedOrder.updatedAt || new Date().toISOString()
-          } : null);
-        }
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        alert(errorData.error || 'Sipariş durumu güncellenirken hata oluştu');
+      // Update modal if open
+      if (selectedOrder?.id === orderId) {
+        setSelectedOrder(updatedOrder);
       }
     } catch (error) {
-      console.error('Error updating order status:', error);
-      alert('Sipariş durumu güncellenirken hata oluştu. Lütfen tekrar deneyin.');
+      console.error(error);
+      alert('Durum güncellenemedi.');
     }
   };
 
-  const deleteOrder = async (orderId: string, paymentStatus: string) => {
-    const isPaid = paymentStatus === 'paid';
-    const confirmed = window.confirm(
-      isPaid
-        ? 'Bu sipariş ÖDENDİ görünüyor. Yine de silmek istiyor musunuz?'
-        : 'Siparişi silmek istediğinize emin misiniz?'
-    );
-    if (!confirmed) return;
+  const handleDelete = async (order: Order) => {
+    if (!window.confirm(`#${order.orderNumber} numaralı siparişi silmek istediğinize emin misiniz?`)) return;
 
     try {
-      setIsDeleting(orderId);
-      const response = await fetch(`/api/orders/${orderId}`, {
-        method: 'DELETE',
-      });
-      if (response.ok) {
-        setOrders(prev => prev.filter(o => o.id !== orderId));
-        if (selectedOrder?.id === orderId) {
-          setShowOrderModal(false);
-          setSelectedOrder(null);
-        }
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        alert(errorData.error || 'Sipariş silinirken hata oluştu');
+      setIsDeleting(order.id);
+      await OrderService.deleteOrder(order.id);
+
+      setOrders(prev => prev.filter(o => o.id !== order.id));
+      if (selectedOrder?.id === order.id) {
+        setShowOrderModal(false);
+        setSelectedOrder(null);
       }
     } catch (error) {
-      console.error('Error deleting order:', error);
-      alert('Sipariş silinirken hata oluştu. Lütfen tekrar deneyin.');
+      console.error(error);
+      alert('Silme işlemi başarısız.');
     } finally {
       setIsDeleting(null);
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      pending: { label: 'Beklemede', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
-      confirmed: { label: 'Onaylandı', color: 'bg-blue-100 text-blue-800', icon: CheckCircle },
-      preparing: { label: 'Hazırlanıyor', color: 'bg-orange-100 text-orange-800', icon: Package },
-      shipped: { label: 'Kargoya Verildi', color: 'bg-purple-100 text-purple-800', icon: Truck },
-      delivered: { label: 'Teslim Edildi', color: 'bg-green-100 text-green-800', icon: CheckCircle },
-      cancelled: { label: 'İptal Edildi', color: 'bg-red-100 text-red-800', icon: XCircle }
-    };
+  const handleDeleteAll = async () => {
+    if (!window.confirm('DİKKAT! Tüm siparişler silinecek. Bu işlem geri alınamaz!')) return;
+    try {
+      setIsLoading(true);
+      await OrderService.deleteAll();
+      setOrders([]);
+      setFilteredOrders([]);
+      alert('Tüm siparişler silindi.');
+    } catch (error) {
+      alert('Toplu silme başarısız.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    const Icon = config.icon;
+  // UI Helpers
+  const getStatusBadge = (status: string) => {
+    let colorClass = 'bg-gray-100 text-gray-800';
+    let Icon = Clock;
+    let label = status;
+
+    switch (status) {
+      case ORDER_STATUS.PENDING:
+        colorClass = 'bg-yellow-100 text-yellow-800';
+        label = 'Beklemede';
+        break;
+      case ORDER_STATUS.CONFIRMED:
+        colorClass = 'bg-blue-100 text-blue-800';
+        Icon = CheckCircle;
+        label = 'Onaylandı';
+        break;
+      case ORDER_STATUS.PREPARING:
+        colorClass = 'bg-orange-100 text-orange-800';
+        Icon = Package;
+        label = 'Hazırlanıyor';
+        break;
+      case ORDER_STATUS.SHIPPED:
+        colorClass = 'bg-purple-100 text-purple-800';
+        Icon = Truck;
+        label = 'Kargoya Verildi';
+        break;
+      case ORDER_STATUS.DELIVERED:
+        colorClass = 'bg-green-100 text-green-800';
+        Icon = CheckCircle;
+        label = 'Teslim Edildi';
+        break;
+      case ORDER_STATUS.CANCELLED:
+        colorClass = 'bg-red-100 text-red-800';
+        Icon = XCircle;
+        label = 'İptal Edildi';
+        break;
+    }
 
     return (
-      <Badge className={`${config.color} border-0`}>
-        <Icon className="h-3 w-3 mr-1" />
-        {config.label}
+      <Badge className={`${colorClass} border-0 flex items-center gap-1`}>
+        <Icon className="w-3 h-3" /> {label}
       </Badge>
     );
   };
 
   const getPaymentStatusBadge = (status: string) => {
-    const statusConfig = {
-      pending: { label: 'Beklemede', color: 'bg-yellow-100 text-yellow-800' },
-      paid: { label: 'Ödendi', color: 'bg-green-100 text-green-800' },
-      failed: { label: 'Başarısız', color: 'bg-red-100 text-red-800' },
-      refunded: { label: 'İade Edildi', color: 'bg-gray-100 text-gray-800' }
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-
+    const isPaid = status === 'paid';
     return (
-      <Badge className={`${config.color} border-0`}>
-        {config.label}
+      <Badge variant={isPaid ? 'default' : 'secondary'} className={isPaid ? 'bg-green-600' : 'bg-yellow-500'}>
+        {isPaid ? 'Ödendi' : 'Ödeme Bekliyor'}
       </Badge>
     );
   };
 
-  const filteredOrders = orders.filter(order => {
-    if (!order || !order.customer) return false;
-
-    const matchesSearch =
-      (order.orderNumber || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (order.customer.firstName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (order.customer.lastName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (order.customer.email || '').toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
-  });
-
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Sipariş Yönetimi</h1>
-            <p className="text-gray-600">Tüm siparişleri görüntüleyin ve yönetin</p>
-          </div>
-
-          {/* Filters */}
-          <Card className="mb-6">
-            <CardContent className="pt-6">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                    <Input
-                      placeholder="Sipariş numarası, müşteri adı veya e-posta ile ara..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 rounded-xl"
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="destructive"
-                    className="mr-2"
-                    onClick={async () => {
-                      if (window.confirm('DİKKAT! Tüm siparişleri silmek istediğinize emin misiniz? Bu işlem geri alınamaz!')) {
-                        try {
-                          setIsLoading(true);
-                          const res = await fetch('/api/orders?action=deleteAll', { method: 'DELETE' });
-                          const data = await res.json();
-                          if (res.ok) {
-                            alert(data.message || 'Tüm siparişler silindi.');
-                            loadOrders();
-                          } else {
-                            alert(data.error || 'Silme işlemi başarısız.');
-                          }
-                        } catch (e) {
-                          console.error(e);
-                          alert('Hata oluştu.');
-                        } finally {
-                          setIsLoading(false);
-                        }
-                      }
-                    }}
-                  >
-                    Tümünü Sil
-                  </Button>
-                  <Filter className="h-4 w-4 text-gray-400" />
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  >
-                    <option value="all">Tüm Durumlar</option>
-                    <option value="pending">Beklemede</option>
-                    <option value="confirmed">Onaylandı</option>
-                    <option value="preparing">Hazırlanıyor</option>
-                    <option value="shipped">Kargoya Verildi</option>
-                    <option value="delivered">Teslim Edildi</option>
-                    <option value="cancelled">İptal Edildi</option>
-                  </select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Orders List */}
-          <div className="grid grid-cols-1 gap-6">
-            {filteredOrders.length === 0 ? (
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Sipariş Bulunamadı</h3>
-                  <p className="text-gray-500">
-                    {searchTerm || statusFilter !== 'all'
-                      ? 'Arama kriterlerinize uygun sipariş bulunamadı.'
-                      : 'Henüz hiç sipariş alınmamış.'
-                    }
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              filteredOrders.map((order) => (
-                <Card key={order.id} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                      {/* Order Info */}
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-4 mb-3">
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            #{order.orderNumber}
-                          </h3>
-                          {getStatusBadge(order.status)}
-                          {getPaymentStatusBadge(order.paymentStatus)}
-                        </div>
-
-                        <div className="flex gap-4">
-                          {/* Add Product Image Thumbnail */}
-                          <div className="relative w-20 h-20 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-200">
-                            {order.items && order.items.length > 0 && order.items[0].image ? (
-                              <Image
-                                src={order.items[0].image}
-                                alt={order.items[0].productName || 'Product'}
-                                fill
-                                className="object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Package className="w-8 h-8 text-gray-400" />
-                              </div>
-                            )}
-                            {order.items && order.items.length > 1 && (
-                              <div className="absolute bottom-0 right-0 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded-tl-md">
-                                +{order.items.length - 1}
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 flex-1">
-                            <div className="flex items-center space-x-2">
-                              <User className="h-4 w-4" />
-                              <span>
-                                {order.customer?.firstName || 'Bilinmiyor'} {order.customer?.lastName || ''}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Mail className="h-4 w-4" />
-                              <span className="truncate max-w-[200px]" title={order.customer?.email || 'N/A'}>
-                                {order.customer?.email || 'N/A'}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Phone className="h-4 w-4" />
-                              <span>{order.customer?.phone || 'N/A'}</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Calendar className="h-4 w-4" />
-                              <span>
-                                {order.createdAt
-                                  ? new Date(order.createdAt).toLocaleString('tr-TR', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                  })
-                                  : 'Tarih yok'}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="mt-3">
-                          <div className="flex items-center space-x-2 text-sm text-gray-600">
-                            <Package className="h-4 w-4" />
-                            <span>{(order.items || []).length} ürün</span>
-                            <span className="mx-2">•</span>
-                            <CreditCard className="h-4 w-4" />
-                            <span className="capitalize">
-                              {order.paymentMethod === 'cash' ? 'Kapıda Ödeme' :
-                                order.paymentMethod === 'credit_card' ? 'Kredi Kartı' :
-                                  'Havale/EFT'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Order Total & Actions */}
-                      <div className="flex flex-col items-end space-y-3">
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-green-600">
-                            {(order.total || 0).toFixed(2)} ₺
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            Kargo: {(order.shippingCost || 0).toFixed(2)} ₺
-                          </p>
-                        </div>
-
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedOrder(order);
-                              setShowOrderModal(true);
-                            }}
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            Detay
-                          </Button>
-
-                          {order.status === 'pending' && (
-                            <Button
-                              size="sm"
-                              onClick={() => updateOrderStatus(order.id, 'confirmed')}
-                              className="bg-green-600 hover:bg-green-700"
-                            >
-                              Onayla
-                            </Button>
-                          )}
-
-                          {order.status === 'confirmed' && (
-                            <Button
-                              size="sm"
-                              onClick={() => updateOrderStatus(order.id, 'preparing')}
-                              className="bg-blue-600 hover:bg-blue-700"
-                            >
-                              Hazırla
-                            </Button>
-                          )}
-
-                          {order.status === 'preparing' && (
-                            <Button
-                              size="sm"
-                              onClick={() => updateOrderStatus(order.id, 'shipped')}
-                              className="bg-purple-600 hover:bg-purple-700"
-                            >
-                              Kargoya Ver
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
+    <div className="min-h-screen bg-gray-50/50 py-8">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Sipariş Yönetimi</h1>
+            <p className="text-gray-500 mt-1">Tüm siparişleri görüntüleyin ve yönetin</p>
           </div>
         </div>
-      </div>
 
-      {/* Order Detail Modal */}
-      {showOrderModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    Sipariş Detayı - #{selectedOrder.orderNumber}
-                  </h2>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Sipariş ID: {selectedOrder.id}
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowOrderModal(false)}
+        {/* Search & Filter */}
+        <Card className="mb-6 border-0 shadow-sm">
+          <CardContent className="pt-6">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Sipariş no, isim veya e-posta..."
+                  className="pl-10"
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="destructive" onClick={handleDeleteAll}>Tümünü Sil</Button>
+                <select
+                  className="h-10 rounded-md border border-gray-200 px-3 bg-white"
+                  value={statusFilter}
+                  onChange={e => setStatusFilter(e.target.value)}
                 >
-                  Kapat
-                </Button>
+                  <option value="all">Tüm Durumlar</option>
+                  {Object.values(ORDER_STATUS).map(s => (
+                    <option key={s} value={s}>{ORDER_STATUS_LABELS[s]}</option>
+                  ))}
+                </select>
               </div>
+            </div>
+          </CardContent>
+        </Card>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Sender Information */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <User className="h-5 w-5 mr-2" />
-                      Gönderici (Ödeyen)
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Ad Soyad</label>
-                      <p className="text-gray-900 font-medium mt-1">
-                        {selectedOrder.sender
-                          ? `${selectedOrder.sender.firstName} ${selectedOrder.sender.lastName}`
-                          : `${selectedOrder.customer.firstName} ${selectedOrder.customer.lastName}`}
-                      </p>
+        {/* Order List */}
+        <div className="space-y-4">
+          {filteredOrders.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-100">
+              <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <h3 className="text-lg font-medium text-gray-900">Sipariş Bulunamadı</h3>
+              <p className="text-gray-500">Arama kriterlerinize uygun sipariş yok.</p>
+            </div>
+          ) : (
+            filteredOrders.map(order => (
+              <Card key={order.id} className="hover:shadow-md transition-all duration-200 border-gray-100">
+                <CardContent className="p-6">
+                  <div className="flex flex-col lg:flex-row gap-6">
+                    {/* Image Thumbnail */}
+                    <div className="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0 relative overflow-hidden border border-gray-200">
+                      {order.items && order.items[0]?.image ? (
+                        <Image src={order.items[0].image} alt="Product" fill className="object-cover" />
+                      ) : (
+                        <Package className="w-8 h-8 m-auto text-gray-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                      )}
+                      {order.items.length > 1 && (
+                        <div className="absolute bottom-0 right-0 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded-tl-md">
+                          +{order.items.length - 1}
+                        </div>
+                      )}
                     </div>
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">E-posta</label>
-                      <p className="text-gray-900 mt-1 break-all">
-                        <a href={`mailto:${selectedOrder.sender?.email || selectedOrder.customer.email}`} className="text-blue-600 hover:underline">
-                          {selectedOrder.sender?.email || selectedOrder.customer.email}
-                        </a>
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Telefon</label>
-                      <p className="text-gray-900 mt-1">
-                        <a href={`tel:${selectedOrder.sender?.phone || selectedOrder.customer.phone}`} className="text-blue-600 hover:underline">
-                          {selectedOrder.sender?.phone || selectedOrder.customer.phone}
-                        </a>
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
 
-                {/* Recipient Information */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <Send className="h-5 w-5 mr-2" />
-                      Alıcı (Teslim Edilecek)
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {selectedOrder.recipient ? (
-                      <>
-                        <div>
-                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Alıcı Adı</label>
-                          <p className="text-gray-900 font-medium mt-1">{selectedOrder.recipient.name}</p>
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Telefon</label>
-                          <p className="text-gray-900 mt-1">
-                            <a href={`tel:${selectedOrder.recipient.phone}`} className="text-blue-600 hover:underline">
-                              {selectedOrder.recipient.phone}
-                            </a>
-                          </p>
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Adres</label>
-                          <div className="text-gray-900 mt-1 space-y-1">
-                            <p>{selectedOrder.recipient.address}</p>
-                            <p className="font-medium text-gray-700">
-                              {selectedOrder.recipient.district} / {selectedOrder.recipient.city}
-                            </p>
-                          </div>
-                        </div>
-                        {selectedOrder.recipient.notes && (
-                          <div>
-                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Sipariş Notu</label>
-                            <p className="text-gray-900 mt-1 text-sm bg-gray-50 p-2 rounded">{selectedOrder.recipient.notes}</p>
-                          </div>
-                        )}
-                        {selectedOrder.delivery_place_type && (
-                          <div>
-                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Teslimat Yeri</label>
-                            <p className="text-green-700 font-bold mt-1 text-sm bg-green-50 p-2 rounded flex items-center">
-                              <MapPin className="w-4 h-4 mr-2" />
-                              {selectedOrder.delivery_place_type}
-                            </p>
-                          </div>
-                        )}
-                        {selectedOrder.delivery_date && (
-                          <div className="mb-4">
-                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Teslimat Tarihi</label>
-                            <p className="text-gray-900 font-bold mt-1 text-sm bg-blue-50 p-2 rounded flex items-center text-blue-700">
-                              <Calendar className="w-4 h-4 mr-2" />
-                              {new Date(selectedOrder.delivery_date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' })}
-                            </p>
-                          </div>
-                        )}
-                        {selectedOrder.delivery_time && (
-                          <div>
-                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Teslimat Zamanı</label>
-                            <p className="text-green-700 font-bold mt-1 text-sm bg-green-50 p-2 rounded flex items-center">
-                              <Clock className="w-4 h-4 mr-2" />
-                              {selectedOrder.delivery_time}
-                            </p>
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      // Fallback for old orders or PayTR orders without structured recipient info
-                      <>
-                        <div>
-                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Adres</label>
-                          <div className="text-gray-900 mt-1 space-y-1">
-                            {selectedOrder.customer.address.street && <p>{selectedOrder.customer.address.street}</p>}
-                            <p>
-                              {selectedOrder.customer.address.district}
-                              {selectedOrder.customer.address.district && selectedOrder.customer.address.city ? ', ' : ''}
-                              {selectedOrder.customer.address.city}
-                            </p>
-                            <p>{selectedOrder.customer.address.country}</p>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {/* Order Information */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <Package className="h-5 w-5 mr-2" />
-                      Sipariş Bilgileri
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Sipariş Tarihi</label>
-                      <p className="text-gray-900 mt-1 font-medium">
-                        {new Date(selectedOrder.createdAt).toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Durum</label>
-                      <div className="mt-1">
-                        {getStatusBadge(selectedOrder.status)}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Ödeme Durumu</label>
-                      <div className="mt-1">
-                        {getPaymentStatusBadge(selectedOrder.paymentStatus)}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Ödeme Yöntemi</label>
-                      <p className="text-gray-900 mt-1 font-medium">
-                        {selectedOrder.paymentMethod === 'cash' ? 'Kapıda Ödeme' :
-                          selectedOrder.paymentMethod === 'credit_card' ? 'Kredi Kartı' :
-                            selectedOrder.paymentMethod === 'bank_transfer' ? 'Havale/EFT' :
-                              selectedOrder.paymentMethod || 'Belirtilmemiş'}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Teslimat Yöntemi</label>
-                      <p className="text-gray-900 mt-1 font-medium">
-                        {selectedOrder.shippingMethod === 'standard' ? 'Standart Kargo' :
-                          selectedOrder.shippingMethod === 'express' ? 'Hızlı Kargo' :
-                            selectedOrder.shippingMethod === 'pickup' ? 'Mağazadan Teslim' :
-                              selectedOrder.shippingMethod || 'Belirtilmemiş'}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Sipariş Tarihi</label>
-                      <p className="text-gray-900 mt-1">
-                        {selectedOrder.createdAt
-                          ? new Date(selectedOrder.createdAt).toLocaleString('tr-TR', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit'
-                          })
-                          : 'Tarih yok'}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Son Güncelleme</label>
-                      <p className="text-gray-900 mt-1">
-                        {selectedOrder.updatedAt
-                          ? new Date(selectedOrder.updatedAt).toLocaleString('tr-TR', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit'
-                          })
-                          : 'Tarih yok'}
-                      </p>
-                    </div>
-                    {selectedOrder.notes && (
+                    {/* Info */}
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Sipariş Notları</label>
-                        <p className="text-gray-900 mt-1 text-sm bg-gray-50 p-2 rounded">{selectedOrder.notes}</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {/* Payment Details */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <CreditCard className="h-5 w-5 mr-2" />
-                      Ödeme Detayları
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {selectedOrder.paymentDetails ? (
-                      <>
-                        {selectedOrder.paymentDetails.paytrTransactionId && (
-                          <div>
-                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">PayTR İşlem ID</label>
-                            <p className="text-gray-900 mt-1 font-mono text-sm break-all">
-                              {selectedOrder.paymentDetails.paytrTransactionId}
-                            </p>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="font-bold text-lg text-gray-900">#{order.orderNumber}</span>
+                          {getStatusBadge(order.status)}
+                          {getPaymentStatusBadge(order.paymentStatus || 'pending')}
+                        </div>
+                        <div className="text-sm text-gray-600 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <User className="w-4 h-4 text-gray-400" />
+                            {order.customer?.firstName} {order.customer?.lastName}
                           </div>
-                        )}
-                        {selectedOrder.paymentDetails.paymentType && (
-                          <div>
-                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Ödeme Tipi</label>
-                            <p className="text-gray-900 mt-1">{selectedOrder.paymentDetails.paymentType}</p>
+                          <div className="flex items-center gap-2">
+                            <Mail className="w-4 h-4 text-gray-400" />
+                            {order.customer?.email}
                           </div>
-                        )}
-                        {selectedOrder.paymentDetails.paymentAmount && (
-                          <div>
-                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Ödeme Tutarı</label>
-                            <p className="text-gray-900 mt-1 font-medium">
-                              {typeof selectedOrder.paymentDetails.paymentAmount === 'number'
-                                ? selectedOrder.paymentDetails.paymentAmount.toFixed(2)
-                                : parseFloat(selectedOrder.paymentDetails.paymentAmount as any || '0').toFixed(2)} {selectedOrder.paymentDetails.currency || '₺'}
-                            </p>
-                          </div>
-                        )}
-                        {selectedOrder.paymentDetails.processedAt && (
-                          <div>
-                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">İşlem Tarihi</label>
-                            <p className="text-gray-900 mt-1">
-                              {new Date(selectedOrder.paymentDetails.processedAt).toLocaleString('tr-TR', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                second: '2-digit'
-                              })}
-                            </p>
-                          </div>
-                        )}
-                        {selectedOrder.paymentDetails.testMode !== undefined && (
-                          <div>
-                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Test Modu</label>
-                            <div className="mt-1">
-                              <Badge className={selectedOrder.paymentDetails.testMode ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}>
-                                {selectedOrder.paymentDetails.testMode ? 'Aktif' : 'Kapalı'}
-                              </Badge>
-                            </div>
-                          </div>
-                        )}
-                        {selectedOrder.paymentDetails.failedReasonCode && (
-                          <div>
-                            <label className="text-xs font-medium text-red-500 uppercase tracking-wide">Hata Kodu</label>
-                            <p className="text-red-600 mt-1 font-medium">{selectedOrder.paymentDetails.failedReasonCode}</p>
-                          </div>
-                        )}
-                        {selectedOrder.paymentDetails.failedReasonMsg && (
-                          <div>
-                            <label className="text-xs font-medium text-red-500 uppercase tracking-wide">Hata Mesajı</label>
-                            <p className="text-red-600 mt-1 text-sm">{selectedOrder.paymentDetails.failedReasonMsg}</p>
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <div className="text-center py-4 text-gray-500">
-                        <CreditCard className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                        <p className="text-sm">Ödeme detayı bulunmuyor</p>
-                        {selectedOrder.paymentMethod === 'cash' && (
-                          <p className="text-xs mt-1">Kapıda ödeme siparişi</p>
-                        )}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Order Items */}
-              <Card className="mt-6">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>Sipariş Ürünleri</span>
-                    <Badge variant="outline">{(selectedOrder.items || []).length} Ürün</Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {(selectedOrder.items || []).length > 0 ? (
-                      selectedOrder.items.map((item, index) => (
-                        <div key={index} className="flex items-start space-x-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                          <div className="relative w-24 h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                            {item.image ? (
-                              <Image
-                                src={item.image}
-                                alt={item.productName || 'Ürün'}
-                                fill
-                                className="object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Package className="h-10 w-10 text-gray-400" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-gray-900 mb-1">{item.productName || 'Ürün Adı Yok'}</h4>
-                            {item.productId && (
-                              <p className="text-xs text-gray-500 font-mono mb-1">ID: {item.productId}</p>
-                            )}
-                            {item.variantName && (
-                              <p className="text-sm text-gray-600 mb-1">Varyant: {item.variantName}</p>
-                            )}
-                            {item.variantId && (
-                              <p className="text-xs text-gray-500 font-mono">Varyant ID: {item.variantId}</p>
-                            )}
-                            <div className="mt-2 flex items-center space-x-4 text-sm text-gray-600">
-                              <span>Adet: <strong>{item.quantity || 1}</strong></span>
-                              <span>Birim Fiyat: <strong>{item.price ? item.price.toFixed(2) : '0.00'} ₺</strong></span>
-                            </div>
-                          </div>
-                          <div className="text-right flex-shrink-0">
-                            <p className="font-bold text-lg text-gray-900">
-                              {((item.price || 0) * (item.quantity || 1)).toFixed(2)} ₺
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {item.price ? item.price.toFixed(2) : '0.00'} ₺ × {item.quantity || 1}
-                            </p>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-gray-400" />
+                            {/* Creation Date Format */}
+                            {new Date(order.createdAt).toLocaleString('tr-TR', {
+                              day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                            })}
                           </div>
                         </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-8 text-gray-500">
-                        <Package className="h-12 w-12 mx-auto mb-2 text-gray-400" />
-                        <p>Bu siparişte ürün bulunmuyor</p>
                       </div>
-                    )}
-                  </div>
+                      <div className="flex flex-col items-end justify-center">
+                        <span className="text-2xl font-bold text-green-600">{order.total?.toFixed(2)} ₺</span>
+                        <span className="text-sm text-gray-400">Kargo: {order.shippingCost?.toFixed(2)} ₺</span>
+                      </div>
+                    </div>
 
-                  <div className="border-t pt-4 mt-6 space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Ara Toplam:</span>
-                      <span className="font-medium">{(selectedOrder.subtotal || 0).toFixed(2)} ₺</span>
+                    {/* Actions */}
+                    <div className="flex flex-col justify-center gap-2">
+                      <Button variant="outline" onClick={() => { setSelectedOrder(order); setShowOrderModal(true); }}>
+                        <Eye className="w-4 h-4 mr-2" /> Detay
+                      </Button>
+                      {order.status === ORDER_STATUS.PENDING && (
+                        <Button className="bg-green-600 hover:bg-green-700" onClick={() => handleUpdateStatus(order.id, ORDER_STATUS.CONFIRMED)}>
+                          Onayla
+                        </Button>
+                      )}
+                      {order.status === ORDER_STATUS.CONFIRMED && (
+                        <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => handleUpdateStatus(order.id, ORDER_STATUS.PREPARING)}>
+                          Hazırla
+                        </Button>
+                      )}
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Kargo Ücreti:</span>
-                      <span className="font-medium">{(selectedOrder.shippingCost || 0).toFixed(2)} ₺</span>
-                    </div>
-                    {selectedOrder.subtotal && selectedOrder.shippingCost && (
-                      <div className="flex justify-between text-sm text-gray-500 pt-2 border-t">
-                        <span>KDV Dahil:</span>
-                        <span>{(selectedOrder.subtotal + selectedOrder.shippingCost).toFixed(2)} ₺</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between text-xl font-bold pt-2 border-t-2">
-                      <span>Toplam Tutar:</span>
-                      <span className="text-green-600">{(selectedOrder.total || 0).toFixed(2)} ₺</span>
-                    </div>
-                    {selectedOrder.total && selectedOrder.subtotal && selectedOrder.shippingCost && (
-                      <div className="text-xs text-gray-500 text-right mt-1">
-                        (Ara Toplam: {(selectedOrder.subtotal).toFixed(2)} ₺ + Kargo: {(selectedOrder.shippingCost).toFixed(2)} ₺)
-                      </div>
-                    )}
                   </div>
                 </CardContent>
               </Card>
+            ))
+          )}
+        </div>
 
-              {/* Status Update Actions */}
-              <div className="mt-6 flex justify-center space-x-4">
-                {selectedOrder.status === 'pending' && (
-                  <Button
-                    onClick={() => {
-                      updateOrderStatus(selectedOrder.id, 'confirmed');
-                      setShowOrderModal(false);
-                    }}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    Siparişi Onayla
-                  </Button>
-                )}
+        {/* Order Detail Modal */}
+        {showOrderModal && selectedOrder && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold">Sipariş: #{selectedOrder.orderNumber}</h2>
+                    <p className="text-sm text-gray-500">ID: {selectedOrder.id}</p>
+                  </div>
+                  <Button variant="outline" onClick={() => setShowOrderModal(false)}>Kapat</Button>
+                </div>
 
-                {selectedOrder.status === 'confirmed' && (
-                  <Button
-                    onClick={() => {
-                      updateOrderStatus(selectedOrder.id, 'preparing');
-                      setShowOrderModal(false);
-                    }}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    Hazırlamaya Başla
-                  </Button>
-                )}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Left Column: Customer & Recipient */}
+                  <div className="space-y-6">
+                    <Card>
+                      <CardHeader><CardTitle className="text-lg flex items-center"><User className="w-5 h-5 mr-2" /> Gönderici</CardTitle></CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        <p><span className="font-semibold">Ad Soyad:</span> {selectedOrder.sender?.firstName || selectedOrder.customer?.firstName} {selectedOrder.sender?.lastName || selectedOrder.customer?.lastName}</p>
+                        <p><span className="font-semibold">Email:</span> {selectedOrder.sender?.email || selectedOrder.customer?.email}</p>
+                        <p><span className="font-semibold">Telefon:</span> {selectedOrder.sender?.phone || selectedOrder.customer?.phone}</p>
+                      </CardContent>
+                    </Card>
 
-                {selectedOrder.status === 'preparing' && (
-                  <Button
-                    onClick={() => {
-                      updateOrderStatus(selectedOrder.id, 'shipped');
-                      setShowOrderModal(false);
-                    }}
-                    className="bg-purple-600 hover:bg-purple-700"
-                  >
-                    Kargoya Ver
-                  </Button>
-                )}
+                    <Card>
+                      <CardHeader><CardTitle className="text-lg flex items-center"><Send className="w-5 h-5 mr-2" /> Alıcı (Teslimat)</CardTitle></CardHeader>
+                      <CardContent className="space-y-3 text-sm">
+                        <p><span className="font-semibold">Alıcı:</span> {selectedOrder.recipient?.name}</p>
+                        <p><span className="font-semibold">Telefon:</span> {selectedOrder.recipient?.phone}</p>
+                        <div className="bg-gray-50 p-2 rounded">
+                          <p className="font-semibold">Adres:</p>
+                          <p>{selectedOrder.recipient?.address}</p>
+                          <p>{selectedOrder.recipient?.district} / {selectedOrder.recipient?.city}</p>
+                        </div>
+                        <div className="flex gap-4 mt-2">
+                          {/* Delivery Date */}
+                          {selectedOrder.delivery_date && (
+                            <div className="flex-1 bg-blue-50 p-2 rounded text-blue-800">
+                              <span className="block text-xs font-bold uppercase text-blue-400">Tarih</span>
+                              <div className="flex items-center font-bold">
+                                <Calendar className="w-4 h-4 mr-1" />
+                                {new Date(selectedOrder.delivery_date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' })}
+                              </div>
+                            </div>
+                          )}
+                          {/* Delivery Time */}
+                          {selectedOrder.delivery_time && (
+                            <div className="flex-1 bg-orange-50 p-2 rounded text-orange-800">
+                              <span className="block text-xs font-bold uppercase text-orange-400">Saat</span>
+                              <div className="flex items-center font-bold">
+                                <Clock className="w-4 h-4 mr-1" />
+                                {selectedOrder.delivery_time}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
 
-                {selectedOrder.status === 'shipped' && (
-                  <Button
-                    onClick={() => {
-                      updateOrderStatus(selectedOrder.id, 'delivered');
-                      setShowOrderModal(false);
-                    }}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    Teslim Edildi Olarak İşaretle
-                  </Button>
-                )}
+                  {/* Right Column: Order Info & Items */}
+                  <div className="space-y-6">
+                    <Card>
+                      <CardHeader><CardTitle className="text-lg flex items-center"><Package className="w-5 h-5 mr-2" /> Sipariş Özeti</CardTitle></CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <span className="text-xs text-gray-500 uppercase font-bold">Sipariş Tarihi</span>
+                          <p className="font-medium">
+                            {new Date(selectedOrder.createdAt).toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-xs text-gray-500 uppercase font-bold">Durum</span>
+                            <div className="mt-1">{getStatusBadge(selectedOrder.status)}</div>
+                          </div>
+                          <div>
+                            <span className="text-xs text-gray-500 uppercase font-bold">Ödeme</span>
+                            <div className="mt-1">{getPaymentStatusBadge(selectedOrder.paymentStatus || 'pending')}</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader><CardTitle className="text-lg">Ürünler</CardTitle></CardHeader>
+                      <CardContent className="p-0">
+                        {selectedOrder.items?.map((item, idx) => (
+                          <div key={idx} className="flex gap-4 p-4 border-b last:border-0 hover:bg-gray-50">
+                            <div className="w-16 h-16 bg-gray-100 rounded relative overflow-hidden flex-shrink-0">
+                              {item.image ? (
+                                <Image src={item.image} alt={item.name} fill className="object-cover" />
+                              ) : <Package className="w-6 h-6 m-auto text-gray-300 absolute inset-0" />}
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-medium text-sm">{item.productName || item.name}</p>
+                              <div className="flex justify-between mt-1 text-sm text-gray-500">
+                                <span>x{item.quantity}</span>
+                                <span className="font-bold text-gray-900">{item.price?.toFixed(2)} ₺</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        <div className="p-4 bg-gray-50 rounded-b-xl">
+                          <div className="flex justify-between text-lg font-bold">
+                            <span>Toplam</span>
+                            <span className="text-green-600">{selectedOrder.total?.toFixed(2)} ₺</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )
-      }
-    </div >
+        )}
+      </div>
+    </div>
   );
 }
