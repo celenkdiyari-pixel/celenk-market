@@ -108,7 +108,7 @@ export default function OrderTrackingPage() {
                         Sipariş Takibi
                     </h1>
                     <p className="mt-4 text-lg text-gray-600">
-                        Size gönderilen maildeki veya SMS'teki sipariş numarasını giriniz.
+                        Tarafınıza iletilen sipariş takip kodunu giriniz.
                     </p>
                 </div>
 
@@ -120,7 +120,7 @@ export default function OrderTrackingPage() {
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                                 <Input
                                     type="text"
-                                    placeholder="Sipariş Numaranız (Örn: 1234)"
+                                    placeholder="Sipariş Takip Kodunuz (Örn: CD251229-X8A2)"
                                     value={orderNumber}
                                     onChange={(e) => setOrderNumber(e.target.value)}
                                     className="pl-10 h-12 text-lg rounded-xl border-gray-300 focus:border-green-500 focus:ring-green-500"
