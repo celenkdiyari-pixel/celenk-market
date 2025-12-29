@@ -138,31 +138,31 @@ export default function ProductsPage() {
                             )}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
                             {filteredProducts.map((product) => (
-                                <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                                    <div className="relative h-48 bg-gray-100">
+                                <Card key={product.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-md flex flex-col items-center">
+                                    <div className="relative w-full aspect-[3/4] bg-white pt-2">
                                         {product.images && product.images.length > 0 ? (
                                             <Image
                                                 src={product.images[0]}
                                                 alt={product.name}
                                                 fill
-                                                className="object-cover"
+                                                className="object-contain hover:scale-105 transition-transform duration-500"
                                             />
                                         ) : (
-                                            <div className="flex items-center justify-center h-full">
+                                            <div className="flex items-center justify-center h-full bg-gray-50">
                                                 <Package className="h-12 w-12 text-gray-300" />
                                             </div>
                                         )}
-                                        <div className="absolute top-2 right-2">
+                                        <div className="absolute top-3 right-3 z-10">
                                             {product.inStock ? (
-                                                <Badge className="bg-green-500 hover:bg-green-600">Stokta</Badge>
+                                                <Badge className="bg-green-500/90 hover:bg-green-600 backdrop-blur-sm">Stokta</Badge>
                                             ) : (
-                                                <Badge variant="destructive">Tükendi</Badge>
+                                                <Badge variant="destructive" className="opacity-90 backdrop-blur-sm">Tükendi</Badge>
                                             )}
                                         </div>
                                     </div>
-                                    <CardContent className="p-4">
+                                    <CardContent className="p-4 w-full">
                                         <div className="mb-4">
                                             <h3 className="font-semibold text-gray-900 truncate" title={product.name}>
                                                 {product.name}
