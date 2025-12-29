@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendEmail } from '@/lib/email';
-import { sendSms } from '@/lib/sms';
+import { sendTelegramMessage } from '@/lib/telegram';
 export const dynamic = 'force-dynamic';
 
 import { db } from '@/lib/firebase';
@@ -150,12 +150,20 @@ export async function POST(request: NextRequest) {
       await Promise.allSettled(promises);
       console.log('✅ Emails processed');
 
-      // Send SMS to admin
-      const adminSmsNumber = '05355612656';
-      const smsMessage = `Yeni Sipariş Alındı!\nNo: ${orderNumber}\nMüşteri: ${customerName}\nTutar: ${totalAmount.toFixed(2)} TL\nTarih: ${orderData.delivery_date || 'Belirtilmedi'}`;
+      // Send Telegram notification to admin
+      const telegramMessage = `
+<b>🆕 YENİ SİPARİŞ (Havale/EFT)</b>
+──────────────────
+<b>Sipariş No:</b> ${orderNumber}
+<b>Müşteri:</b> ${customerName}
+<b>Tutar:</b> ${totalAmount.toFixed(2)} TL
+<b>Teslimat Tarihi:</b> ${orderData.delivery_date || 'Belirtilmedi'}
+<b>Teslimat Saati:</b> ${orderData.delivery_time || 'Belirtilmedi'}
+──────────────────
+<a href="https://celenkdiyari.com/admin/orders">Siparişi Görüntüle</a>`;
 
-      await sendSms({ to: adminSmsNumber, message: smsMessage });
-      console.log('✅ SMS notification sent to admin');
+      await sendTelegramMessage(telegramMessage);
+      console.log('✅ Telegram notification sent to admin');
 
     } catch (emailError) {
       console.error('❌ Email sending error:', emailError);
