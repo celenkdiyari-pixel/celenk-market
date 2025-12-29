@@ -8,6 +8,9 @@ interface Props {
     params: Promise<{ city: string }>;
 }
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 600; // Cache city pages for 10 minutes
+
 // Disable static generation at build time to prevent Quota Exceeded errors
 export async function generateStaticParams() {
     return [];
