@@ -405,6 +405,24 @@ export default function OrdersPage() {
                             <div className="mt-1">{getPaymentStatusBadge(selectedOrder.paymentStatus || 'pending')}</div>
                           </div>
                         </div>
+
+                        <div className="mt-6 pt-4 border-t border-gray-100">
+                          <span className="text-xs text-gray-500 uppercase font-bold mb-2 block">Sipariş Durumunu Değiştir</span>
+                          <select
+                            className="w-full h-10 rounded-lg border border-gray-200 px-3 bg-white text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none"
+                            value={selectedOrder.status}
+                            onChange={(e) => handleUpdateStatus(selectedOrder.id, e.target.value as any)}
+                          >
+                            {Object.entries(ORDER_STATUS_LABELS).map(([status, label]) => (
+                              <option key={status} value={status}>
+                                {label}
+                              </option>
+                            ))}
+                          </select>
+                          <p className="text-xs text-gray-400 mt-2">
+                            * Durumu değiştirdiğinizde müşteriye otomatik güncelleme görünür.
+                          </p>
+                        </div>
                       </CardContent>
                     </Card>
 

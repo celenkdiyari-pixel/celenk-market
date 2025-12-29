@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Search, Package, Calendar, Clock, MapPin, Truck, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Search, Package, Calendar, Clock, MapPin, Truck, CheckCircle, AlertCircle, Loader2, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 
@@ -24,6 +24,11 @@ interface OrderResult {
     createdAt: string;
     delivery_time?: string;
     delivery_date?: string;
+    recipient?: {
+        name: string;
+        city: string;
+        district: string;
+    };
 }
 
 const steps = [
@@ -270,6 +275,20 @@ export default function OrderTrackingPage() {
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="p-6 space-y-4">
+                                    <div className="flex items-start gap-3">
+                                        <User className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                                        <div>
+                                            <span className="block text-sm font-medium text-gray-500">Alıcı</span>
+                                            <span className="text-gray-900 font-medium">
+                                                {order.recipient?.name || 'Belirtilmemiş'}
+                                                {order.recipient?.district && order.recipient?.city && (
+                                                    <span className="text-gray-500 font-normal text-sm ml-1">
+                                                        - {order.recipient.district}/{order.recipient.city}
+                                                    </span>
+                                                )}
+                                            </span>
+                                        </div>
+                                    </div>
                                     <div className="flex items-start gap-3">
                                         <Calendar className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                                         <div>
