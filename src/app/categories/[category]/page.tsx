@@ -88,6 +88,7 @@ export default async function CategoryPage({ params }: PageProps) {
 
   return (
     <CategoryClient
+      key={category}
       initialProducts={initialProducts}
       categorySlug={category}
     />
