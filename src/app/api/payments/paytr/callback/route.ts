@@ -4,6 +4,7 @@ import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs, updateDoc, doc, getDoc, deleteDoc, addDoc, doc as firestoreDoc, writeBatch } from 'firebase/firestore';
 import { getAdminDb } from '@/lib/firebase-admin';
 import { sendEmail } from '@/lib/email';
+import { sendSms } from '@/lib/sms';
 
 // Helper to determine which DB to use
 function getDbStrategy() {
@@ -342,6 +343,13 @@ export async function POST(request: NextRequest) {
         // Wait for emails but don't block the PayTR 'OK' response unnecessarily if they take too long
         // But for reliability, we can wait a bit.
         await Promise.allSettled(emailPromises);
+
+        // Send SMS to admin
+        const adminSmsNumber = '05355612656';
+        const smsMessage = `Ödeme Onaylandı!\nNo: ${callbackData.merchant_oid}\nMüşteri: ${customerName}\nTutar: ${totalAmount.toFixed(2)} TL`;
+
+        await sendSms({ to: adminSmsNumber, message: smsMessage });
+        console.log('✅ SMS notification sent to admin for PayTR success');
       } catch (emailError) {
         console.error('Email sending error (non-blocking):', emailError);
       }
