@@ -7,10 +7,9 @@ interface Props {
     params: Promise<{ city: string }>;
 }
 
+// Disable static generation at build time to prevent Quota Exceeded errors
 export async function generateStaticParams() {
-    return cities.map((city) => ({
-        city: city.slug,
-    }));
+    return [];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
