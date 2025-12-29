@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { useCart } from "@/contexts/CartContext";
 import AnnouncementBanner from '@/components/announcement-banner';
 import FlowerParticles from '@/components/flower-particles';
 import Logo from '@/components/logo';
@@ -119,6 +117,11 @@ export default function CityPageContent({ cityName = "Türkiye", initialProducts
             setIsLoading(false);
         }
     };
+
+    // Robust Filtering Logic
+    const filteredProducts = selectedCategory === 'all'
+        ? products
+        : products.filter(p => p.category?.trim() === selectedCategory?.trim());
 
     return (
         <div className="min-h-screen bg-white relative">
@@ -250,13 +253,18 @@ export default function CityPageContent({ cityName = "Türkiye", initialProducts
                         <div className="flex justify-center py-12">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
                         </div>
-                    ) : (
+                    ) : filteredProducts.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                            {(selectedCategory === 'all' ? products : products.filter(p => p.category === selectedCategory)).map((product) => (
+                            {filteredProducts.map((product) => (
                                 <div key={product.id} className="h-full">
                                     <ProductCard product={product as any} />
                                 </div>
                             ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 text-gray-500">
+                            <p className="text-lg">Bu kategoride henüz ürün bulunmuyor: <strong>{selectedCategory}</strong></p>
+                            <Button variant="link" onClick={() => setSelectedCategory('all')} className="mt-2 text-green-600">Tüm ürünleri gör</Button>
                         </div>
                     )}
                 </div>
