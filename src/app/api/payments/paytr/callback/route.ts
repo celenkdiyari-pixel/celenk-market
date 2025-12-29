@@ -4,7 +4,6 @@ import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs, updateDoc, doc, getDoc, deleteDoc, addDoc, doc as firestoreDoc, writeBatch } from 'firebase/firestore';
 import { getAdminDb } from '@/lib/firebase-admin';
 import { sendEmail } from '@/lib/email';
-import { sendTelegramMessage } from '@/lib/telegram';
 
 // Helper to determine which DB to use
 function getDbStrategy() {
@@ -99,13 +98,10 @@ export async function POST(request: NextRequest) {
         });
       } catch (err) {
         console.error('❌ Transaction failed:', err);
-        // If it's a critical error (not just 'draft not found'), we should probably let PayTR retry
-        // Return 500 to trigger retry if session was missing but might be a delay
         return new Response('FAIL', { status: 500 });
       }
     } else {
-      // Client SDK Logic (Using WriteBatch since multi-collection transactions are harder in client SDK)
-      // Note: WriteBatch doesn't support 'get' inside it, so it's only pseudo-atomic.
+      // Client SDK Logic
       const draftRef = firestoreDoc(db, 'paytr_sessions', callbackData.merchant_oid);
       const draftSnap = await getDoc(draftRef);
 
@@ -136,7 +132,6 @@ export async function POST(request: NextRequest) {
         batch.delete(draftRef);
         await batch.commit();
       } else {
-        // Idempotency: might have already been deleted/moved
         return new Response('OK', { status: 200 });
       }
     }
@@ -144,7 +139,6 @@ export async function POST(request: NextRequest) {
     if (callbackData.status !== PAYTR_STATUS.SUCCESS) {
       return new Response('OK', { status: 200 });
     }
-
 
     let orderStatus = 'pending';
     let paymentStatus = 'pending';
@@ -185,18 +179,12 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Order updated in database:', callbackData.merchant_oid);
 
-    // Send email logic (Client SDK fetch should work as it is external API call)
-    // BUT we should verify env vars are passed to email API as well.
-    // The email API call is internal (fetch to localhost).
-    // ... Copy email logic ...
-
     // Send email notification if payment was successful
     const customerData = (orderData as Record<string, any>)?.customer || {};
     const itemsArr: Array<{ productName?: string; name?: string; quantity?: number; price?: number }> =
       Array.isArray((orderData as any)?.items) ? (orderData as any).items : [];
 
     if (callbackData.status === PAYTR_STATUS.SUCCESS && customerData) {
-      // ... (Keep existing email logic) ...
       try {
         const adminEmail = process.env.ADMIN_EMAIL || 'celenkdiyari@gmail.com';
         const customerEmail = customerData.email || '';
@@ -204,9 +192,7 @@ export async function POST(request: NextRequest) {
           ? `${customerData.firstName} ${customerData.lastName}`
           : customerData.name || 'Müşteri';
         const totalAmount = (orderData as any).total || ((orderData as any).subtotal || 0) + ((orderData as any).shippingCost || 0);
-        const deliveryTime = (orderData as any).delivery_time || '';
 
-        // TASK-09 & TASK-10: Use direct sendEmail call instead of internal fetch
         const emailPromises = [];
         // Send confirmation email to customer
         if (customerEmail) {
@@ -216,54 +202,37 @@ export async function POST(request: NextRequest) {
               subject: `Ödemeniz Onaylandı - ${callbackData.merchant_oid}`,
               role: 'customer',
               templateParams: {
-                // Standard & Snake Case fields for Customer Template
                 order_number: callbackData.merchant_oid,
                 order_date: new Date().toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }),
                 order_status: 'Onaylandı',
                 customer_name: customerName.trim(),
                 customer_email: customerEmail || '',
                 customer_phone: customerData.phone || '',
-
-                // Items
                 items_list: itemsArr.map((item) => {
                   const productName = item.productName || item.name || 'Ürün';
                   const price = item.price || 0;
                   const qty = item.quantity || 1;
                   return `${productName} x${qty} - ${price.toFixed(2)} ₺`;
                 }).join('\n'),
-
-                // Totals
                 subtotal: `${((orderData as any).subtotal || 0).toFixed(2)} ₺`,
                 shipping_cost: `${((orderData as any).shippingCost || 0).toFixed(2)} ₺`,
                 tax_amount: `${((orderData as any).taxAmount || 0).toFixed(2)} ₺`,
                 total_amount: `${totalAmount.toFixed(2)} ₺`,
-
-                // Payment
                 payment_method: 'Kredi Kartı / Banka Kartı',
                 payment_status: 'Ödendi (Başarılı)',
-
-                // Sender & Recipient
                 sender_name: (orderData as any).sender?.name || customerName.trim(),
                 sender_phone: (orderData as any).sender?.phone || customerData.phone || '',
                 recipient_name: (orderData as any).recipient?.name || '',
                 recipient_phone: (orderData as any).recipient?.phone || '',
-
-                // Delivery
                 delivery_address: (orderData as any).recipient?.address || customerData?.address || '',
                 delivery_time: (orderData as any).delivery_time || (orderData as any).recipient?.deliveryTime || '',
                 delivery_date: (orderData as any).delivery_date || (orderData as any).recipient?.deliveryDate || '',
                 delivery_location: (orderData as any).delivery_place_type || (orderData as any).recipient?.deliveryPlaceType || 'Belirtilmemiş',
-
-                // Additional
                 wreath_text: (orderData as any).wreath_text || '',
                 additional_info: (orderData as any).additional_info || (orderData as any).notes || '',
-
-                // Company
                 company_email: 'celenkdiyari@gmail.com',
                 company_phone: '0532 137 81 60',
                 company_website: 'www.celenkdiyari.com',
-
-                // Backward compatibility
                 orderNumber: callbackData.merchant_oid,
                 customerName: customerName.trim(),
                 total: totalAmount.toFixed(2)
@@ -275,7 +244,7 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Send notification email to admin about payment confirmation
+        // Send notification email to admin
         const adminPanelUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/admin`;
         emailPromises.push(
           sendEmail({
@@ -283,33 +252,24 @@ export async function POST(request: NextRequest) {
             subject: `Ödeme Onaylandı - ${callbackData.merchant_oid}`,
             role: 'admin',
             templateParams: {
-              // Standard & Snake Case fields for Admin Template
               order_number: callbackData.merchant_oid,
               order_date: new Date().toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }),
               order_status: 'Ödendi',
               customer_name: customerName.trim(),
               customer_email: customerEmail || '',
               customer_phone: customerData.phone || '',
-
-              // Items
               items_list: itemsArr.map((item) => {
                 const productName = item.productName || item.name || 'Ürün';
                 const price = item.price || 0;
                 const qty = item.quantity || 1;
                 return `${productName} x${qty} - ${price.toFixed(2)} ₺`;
               }).join('\n'),
-
-              // Totals
               subtotal: `${((orderData as any).subtotal || 0).toFixed(2)} ₺`,
               shipping_cost: `${((orderData as any).shippingCost || 0).toFixed(2)} ₺`,
               tax_amount: `${((orderData as any).taxAmount || 0).toFixed(2)} ₺`,
               total_amount: `${totalAmount.toFixed(2)} ₺`,
-
-              // Payment
               payment_method: 'Kredi Kartı / Banka Kartı',
               payment_status: 'Başarılı',
-
-              // Sender & Recipient & Delivery
               sender_name: (orderData as any).sender?.name || customerName.trim(),
               sender_phone: (orderData as any).sender?.phone || customerData.phone || '',
               sender_email: (orderData as any).sender?.email || customerEmail || '',
@@ -319,17 +279,11 @@ export async function POST(request: NextRequest) {
               delivery_time: (orderData as any).delivery_time || (orderData as any).recipient?.deliveryTime || '',
               delivery_date: (orderData as any).delivery_date || (orderData as any).recipient?.deliveryDate || '',
               delivery_location: (orderData as any).delivery_place_type || (orderData as any).recipient?.deliveryPlaceType || 'Belirtilmemiş',
-
-              // Content
               wreath_text: (orderData as any).wreath_text || '',
               additional_info: (orderData as any).additional_info || (orderData as any).notes || '',
               order_note: (orderData as any).notes || '',
-
-              // Admin Specific
               admin_panel_url: adminPanelUrl,
               company_website: 'www.celenkdiyari.com',
-
-              // Backward compatibility
               orderNumber: callbackData.merchant_oid,
               customerName: customerName.trim(),
               total: totalAmount.toFixed(2)
@@ -340,33 +294,16 @@ export async function POST(request: NextRequest) {
           })
         );
 
-        // Wait for emails but don't block the PayTR 'OK' response unnecessarily if they take too long
-        // But for reliability, we can wait a bit.
         await Promise.allSettled(emailPromises);
-
-        // Send Telegram notification to admin
-        const telegramMessage = `
-<b>💳 ÖDEME ONAYLANDI (PayTR)</b>
-──────────────────
-<b>Sipariş No:</b> ${callbackData.merchant_oid}
-<b>Müşteri:</b> ${customerName}
-<b>Tutar:</b> ${totalAmount.toFixed(2)} TL
-──────────────────
-<a href="https://celenkdiyari.com/admin/orders">Siparişi Görüntüle</a>`;
-
-        await sendTelegramMessage(telegramMessage);
-        console.log('✅ Telegram notification sent to admin for PayTR success');
       } catch (emailError) {
         console.error('Email sending error (non-blocking):', emailError);
       }
     }
 
-    // Return success response to PayTR
     return new Response('OK', { status: 200 });
 
   } catch (error) {
     console.error('❌ Error processing PayTR callback:', error);
-    // Still return OK to PayTR to prevent retries
     return new Response('OK', { status: 200 });
   }
 }
