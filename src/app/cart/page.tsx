@@ -94,6 +94,24 @@ export default function CartPage() {
       }
     };
     window.addEventListener('message', handleMessage);
+
+    // TASK-03: Restore Session from local storage
+    const savedSession = localStorage.getItem('paytr_active_session');
+    if (savedSession) {
+      try {
+        const { token, orderNumber, timestamp } = JSON.parse(savedSession);
+        // Token valid for 30 minutes
+        if (Date.now() - timestamp < 30 * 60 * 1000) {
+          setPaytrToken(token);
+          setOrderId(orderNumber);
+        } else {
+          localStorage.removeItem('paytr_active_session');
+        }
+      } catch (e) {
+        console.error('Failed to restore PayTR session');
+      }
+    }
+
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
@@ -148,8 +166,9 @@ export default function CartPage() {
   };
 
   const generateOrderNumber = () => {
-    // Generate 4 digit random number
-    return Math.floor(1000 + Math.random() * 9000).toString();
+    // Generate empty or unique ID holder if needed, but backend will define it
+    // For manual flow, we might still want to show a temporary UI or wait for response
+    return "";
   };
 
   const handleSubmitOrder = async () => {
@@ -159,19 +178,17 @@ export default function CartPage() {
     setIsSubmitting(true);
 
     try {
-      const orderNumber = generateOrderNumber();
       const total = getTotalPrice();
 
-      // Common payload structure
+      // Common payload structure - OrderNumber removed here, backend will generate
       const payload = {
-        orderNumber,
-        customer: { // PayTR expects 'customer' as the paying user
+        customer: {
           firstName: senderInfo.name.split(' ')[0],
           lastName: senderInfo.name.split(' ').slice(1).join(' '),
           name: senderInfo.name,
           email: senderInfo.email,
           phone: senderInfo.phone,
-          address: recipientInfo.address // PayTR requires an address, use delivery address
+          address: recipientInfo.address
         },
         sender: senderInfo,
         recipient: recipientInfo,
@@ -201,11 +218,15 @@ export default function CartPage() {
 
         const data = await response.json();
 
-        if (response.ok && data.status === 'success' && data.token) {
+        if (response.ok && data.token) {
           setPaytrToken(data.token);
-        } else if (data.token) {
-          // Some implementations return token even without explicit status='success' wrapper
-          setPaytrToken(data.token);
+          setOrderId(data.orderNumber);
+          // TASK-03: Persist session to survive refresh
+          localStorage.setItem('paytr_active_session', JSON.stringify({
+            token: data.token,
+            orderNumber: data.orderNumber,
+            timestamp: Date.now()
+          }));
         } else {
           console.error('PayTR Error Detail:', data);
           const errorMsg = data.reason || data.error || (typeof data === 'object' ? JSON.stringify(data) : 'Bilinmeyen hata');
@@ -326,7 +347,10 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
     return (
       <div className="min-h-screen bg-gray-100 py-8 px-4">
         <div className="max-w-4xl mx-auto">
-          <Button variant="ghost" onClick={() => setPaytrToken(null)} className="mb-4">
+          <Button variant="ghost" onClick={() => {
+            setPaytrToken(null);
+            localStorage.removeItem('paytr_active_session');
+          }} className="mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" /> Geri Dön
           </Button>
           <Card className="w-full overflow-hidden shadow-2xl rounded-2xl">

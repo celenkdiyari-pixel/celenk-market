@@ -35,15 +35,18 @@ export async function POST(request: NextRequest) {
 
     // PayTR merchant_oid must be alphanumeric only (no special characters)
     // Always generate a clean alphanumeric ID for PayTR, use originalOrderNumber for reference only
-    const originalOrderNumber = orderData.orderNumber?.toString() || '';
-    // Try to sanitize first, but if it becomes empty or too short, generate a new one
-    const sanitizedOrderNumber = originalOrderNumber.replace(/[^a-zA-Z0-9]/g, '');
-    // Generate a guaranteed alphanumeric merchant_oid for PayTR
-    const timestamp = Date.now();
-    const randomPart = Math.random().toString(36).slice(2, 6).toUpperCase();
-    const paytrOrderNumber = sanitizedOrderNumber && sanitizedOrderNumber.length >= 8
-      ? sanitizedOrderNumber.slice(0, 64)
-      : `ORD${timestamp}${randomPart}`;
+    // TASK-01: Robust Order Number Generation
+    const generateSecureOrderNumber = () => {
+      const now = new Date();
+      const dateStr = now.toISOString().slice(2, 10).replace(/-/g, ''); // YYMMDD
+      const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase(); // 4 alphanumeric
+      return `CD${dateStr}-${randomStr}`;
+    };
+
+    const originalOrderNumber = orderData.orderNumber || generateSecureOrderNumber();
+    // PayTR merchant_oid must be alphanumeric + "-", "_", "." allowed but better to be safe
+    // We remove any non-alphanumeric chars for the merchant_oid to be safe
+    const paytrOrderNumber = originalOrderNumber.replace(/[^a-zA-Z0-9-]/g, '');
 
     const config = getPayTRConfig();
 

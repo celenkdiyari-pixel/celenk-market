@@ -16,13 +16,15 @@ function PaymentFailedContent() {
   useEffect(() => {
     const merchantOid = searchParams.get('merchant_oid');
     const failedReason = searchParams.get('failed_reason_msg');
-    
+
     if (merchantOid) {
       setOrderNumber(merchantOid);
     }
     if (failedReason) {
       setErrorMessage(failedReason);
     }
+    // TASK-03: Clear stale session even on failure so user can start fresh
+    localStorage.removeItem('paytr_active_session');
     setIsLoading(false);
   }, [searchParams]);
 
@@ -43,13 +45,13 @@ function PaymentFailedContent() {
           <p className="text-gray-600 mb-4">
             Ödemeniz işleme alınamadı. Lütfen tekrar deneyin.
           </p>
-          
+
           {orderNumber && (
             <p className="text-sm text-gray-500 mb-2">
               Sipariş numaranız: <span className="font-bold text-gray-700">{orderNumber}</span>
             </p>
           )}
-          
+
           {errorMessage && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
               <p className="text-sm text-red-700">
@@ -57,7 +59,7 @@ function PaymentFailedContent() {
               </p>
             </div>
           )}
-          
+
           <div className="space-y-3 mb-6">
             <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
               <Phone className="h-4 w-4" />
@@ -66,17 +68,17 @@ function PaymentFailedContent() {
           </div>
 
           <div className="space-y-2">
-            <Button 
+            <Button
               onClick={() => window.history.back()}
               className="w-full bg-green-600 hover:bg-green-700 text-white"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
               Tekrar Dene
             </Button>
-            <Link href="/checkout">
+            <Link href="/cart">
               <Button variant="outline" className="w-full">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Siparişe Dön
+                Sepete Dön
               </Button>
             </Link>
             <Link href="/">

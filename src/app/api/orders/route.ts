@@ -5,20 +5,15 @@ export const dynamic = 'force-dynamic';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, getDocs, query, orderBy, limit, doc, getDoc, updateDoc, where, deleteDoc } from 'firebase/firestore';
 
+import { getAdminDb } from '@/lib/firebase-admin';
+
 // Helper to determine which DB to use
-async function getDbStrategy() {
-  try {
-    const { getAdminDb } = await import('@/lib/firebase-admin');
-    const adminDb = getAdminDb();
-    if (!adminDb) {
-      console.warn('⚠️ Admin DB returned null, falling back to client SDK');
-      return { type: 'client' as const, db };
-    }
+function getDbStrategy() {
+  const adminDb = getAdminDb();
+  if (adminDb) {
     return { type: 'admin' as const, db: adminDb };
-  } catch (e) {
-    console.warn('⚠️ Admin DB initialization/import failed, using client SDK:', e instanceof Error ? e.message : 'Unknown error');
-    return { type: 'client' as const, db };
   }
+  return { type: 'client' as const, db };
 }
 
 export async function POST(request: NextRequest) {
@@ -34,7 +29,14 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const orderNumber = orderData.orderNumber || Math.floor(1000 + Math.random() * 9000).toString();
+    const generateSecureOrderNumber = () => {
+      const now = new Date();
+      const dateStr = now.toISOString().slice(2, 10).replace(/-/g, ''); // YYMMDD
+      const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase(); // 4 alphanumeric
+      return `CD${dateStr}-${randomStr}`;
+    };
+
+    const orderNumber = orderData.orderNumber || generateSecureOrderNumber();
 
     const order = {
       ...orderData,
@@ -45,7 +47,7 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date().toISOString()
     };
 
-    const strategy = await getDbStrategy();
+    const strategy = getDbStrategy();
     let docId = '';
 
     if (strategy.type === 'admin') {
@@ -171,7 +173,7 @@ export async function GET(request: NextRequest) {
     const limitParam = searchParams.get('limit');
     const orderLimit = limitParam ? parseInt(limitParam, 10) : 100;
 
-    const strategy = await getDbStrategy();
+    const strategy = getDbStrategy();
     let orders: any[] = [];
 
     if (strategy.type === 'admin') {

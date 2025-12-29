@@ -5,9 +5,11 @@ import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Mail, Phone } from 'lucide-react';
+import { useCart } from '@/contexts/CartContext';
 import Link from 'next/link';
 
 function PaymentSuccessContent() {
+  const { clearCart } = useCart();
   const searchParams = useSearchParams();
   const [orderNumber, setOrderNumber] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
@@ -17,8 +19,11 @@ function PaymentSuccessContent() {
     if (merchantOid) {
       setOrderNumber(merchantOid);
     }
+    // TASK-03: Clear session and cart on success
+    localStorage.removeItem('paytr_active_session');
+    clearCart();
     setIsLoading(false);
-  }, [searchParams]);
+  }, [searchParams, clearCart]);
 
   if (isLoading) {
     return (
@@ -42,7 +47,7 @@ function PaymentSuccessContent() {
               Sipariş numaranız: <span className="font-bold text-green-600">{orderNumber}</span>
             </p>
           )}
-          
+
           <div className="space-y-3 mb-6">
             <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
               <Mail className="h-4 w-4" />

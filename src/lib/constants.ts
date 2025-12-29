@@ -144,3 +144,9 @@ export const CATEGORY_INFO: Record<string, CategoryInfo> = {
         features: ['Bakımı Kolay', 'Hava Temizleyen', 'Dekoratif']
     }
 };
+
+// TASK-07 Helpers
+export const getCategoryBySlug = (slug: string) => CATEGORY_INFO[slug];
+export const getCategoryTitleBySlug = (slug: string) => CATEGORY_INFO[slug]?.title || slug;
+export const getAllCategoryTitles = () => Object.values(CATEGORY_INFO).map(c => c.title);
+export const getAllCategorySlugs = () => Object.keys(CATEGORY_INFO);

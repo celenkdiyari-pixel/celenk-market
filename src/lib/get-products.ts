@@ -108,16 +108,13 @@ export async function getProduct(id: string): Promise<Product | null> {
     }
 }
 
-export async function getProductsByCategory(categoryValue: string): Promise<Product[]> {
+import { getCategoryTitleBySlug } from './constants';
+
+export async function getProductsByCategory(slugOrTitle: string): Promise<Product[]> {
     const productMap = new Map<string, Product>();
 
-    // Helper to add docs to map
-    const addDocsToMap = (docs: DocumentData[], getProductData: (d: any) => Product) => {
-        docs.forEach(d => {
-            const p = getProductData(d);
-            productMap.set(p.id, p);
-        });
-    };
+    // TASK-07: Resolve correct title from slug if needed
+    const categoryTitle = getCategoryTitleBySlug(slugOrTitle);
 
     // 1. Try Admin SDK
     try {
@@ -125,38 +122,43 @@ export async function getProductsByCategory(categoryValue: string): Promise<Prod
         if (db) {
             const productsRef = db.collection('products');
 
-            // Parallel queries
-            const [legacySnap, modernSnap] = await Promise.all([
-                productsRef.where('category', '==', categoryValue).get(),
-                productsRef.where('categories', 'array-contains', categoryValue).get()
-            ]);
+            // TASK-08: Optimized Query - Only query the array-based 'categories' field 
+            // if we trust the data model, otherwise keep fallback but sequentially to save quota
+            const snapshot = await productsRef.where('categories', 'array-contains', categoryTitle).get();
 
-            legacySnap.docs.forEach(doc => productMap.set(doc.id, mapDocToProduct(doc.id, doc.data())));
-            modernSnap.docs.forEach(doc => productMap.set(doc.id, mapDocToProduct(doc.id, doc.data())));
+            // If empty, try legacy string-based 'category' field
+            if (snapshot.empty) {
+                const legacySnap = await productsRef.where('category', '==', categoryTitle).get();
+                legacySnap.docs.forEach(doc => productMap.set(doc.id, mapDocToProduct(doc.id, doc.data())));
+            } else {
+                snapshot.docs.forEach(doc => productMap.set(doc.id, mapDocToProduct(doc.id, doc.data())));
+            }
 
             if (productMap.size > 0) {
                 return Array.from(productMap.values());
             }
-            // If empty, it might be truly empty OR admin sdk issue (less likely if db instance existed)
-            // But we can return here if we trust Admin SDK conectivity.
         }
     } catch (error) {
         console.warn('⚠️ Admin SDK failed for category search, falling back...', error);
     }
 
-    // 2. Fallback to Client SDK (if map is empty or admin failed)
+    // 2. Fallback to Client SDK
     if (productMap.size === 0) {
         try {
-            console.log(`🔄 Fetching category '${categoryValue}' via Client SDK...`);
+            console.log(`🔄 Fetching category '${categoryTitle}' via Client SDK...`);
             const productsRef = collection(clientDb, 'products');
 
-            const q1 = query(productsRef, where('category', '==', categoryValue));
-            const q2 = query(productsRef, where('categories', 'array-contains', categoryValue));
+            // TASK-08: Sequential queries to save Read Quota
+            const q1 = query(productsRef, where('categories', 'array-contains', categoryTitle));
+            const snap1 = await getDocs(q1);
 
-            const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
-
-            snap1.docs.forEach(doc => productMap.set(doc.id, mapDocToProduct(doc.id, doc.data())));
-            snap2.docs.forEach(doc => productMap.set(doc.id, mapDocToProduct(doc.id, doc.data())));
+            if (!snap1.empty) {
+                snap1.docs.forEach(doc => productMap.set(doc.id, mapDocToProduct(doc.id, doc.data())));
+            } else {
+                const q2 = query(productsRef, where('category', '==', categoryTitle));
+                const snap2 = await getDocs(q2);
+                snap2.docs.forEach(doc => productMap.set(doc.id, mapDocToProduct(doc.id, doc.data())));
+            }
 
         } catch (clientError) {
             console.error('❌ Error fetching category products (Client SDK):', clientError);

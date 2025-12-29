@@ -1,17 +1,17 @@
 import { NextRequest } from 'next/server';
 import { getPayTRConfig, verifyPayTRCallback, PayTRCallbackData, PAYTR_STATUS } from '@/lib/paytr';
 import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs, updateDoc, doc, getDoc, deleteDoc, addDoc, doc as firestoreDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, doc, getDoc, deleteDoc, addDoc, doc as firestoreDoc, writeBatch } from 'firebase/firestore';
 import { getAdminDb } from '@/lib/firebase-admin';
+import { sendEmail } from '@/lib/email';
 
 // Helper to determine which DB to use
-async function getDbStrategy() {
-  try {
-    const adminDb = getAdminDb();
+function getDbStrategy() {
+  const adminDb = getAdminDb();
+  if (adminDb) {
     return { type: 'admin' as const, db: adminDb };
-  } catch (e) {
-    return { type: 'client' as const, db };
   }
+  return { type: 'client' as const, db };
 }
 
 // PayTR callback endpoint - ödeme sonucu bildirimi
@@ -45,60 +45,75 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ PayTR callback verified');
 
-    const strategy = await getDbStrategy();
+    const strategy = getDbStrategy();
     let orderDocId: string | null = null;
-    let orderData: Record<string, unknown> | null = null;
-    let createdRefId: string | null = null;
+    let orderData: Record<string, any> | null = null;
 
     if (strategy.type === 'admin') {
-      // Admin SDK Logic
-      const draftRef = strategy.db.collection('paytr_sessions').doc(callbackData.merchant_oid);
-      const draftSnap = await draftRef.get();
+      const db = strategy.db;
 
-      if (draftSnap.exists) {
-        if (callbackData.status === PAYTR_STATUS.SUCCESS) {
+      // TASK-04: Idempotency Check - Has this order already been processed?
+      const existingOrderQuery = await db.collection('orders').where('paymentDetails.paytrTransactionId', '==', callbackData.merchant_oid).get();
+      if (!existingOrderQuery.empty) {
+        console.log('ℹ️ Order already processed (Idempotent):', callbackData.merchant_oid);
+        return new Response('OK', { status: 200 });
+      }
+
+      // TASK-02: Atomic Transaction for Order Creation & Draft Deletion
+      try {
+        await db.runTransaction(async (transaction) => {
+          const draftRef = db.collection('paytr_sessions').doc(callbackData.merchant_oid);
+          const draftSnap = await transaction.get(draftRef);
+
+          if (!draftSnap.exists) {
+            throw new Error('Draft session not found');
+          }
+
           const draft = draftSnap.data();
-          const newOrder = {
-            ...draft,
-            status: 'confirmed',
-            paymentStatus: 'paid',
-            paymentDetails: {
-              paytrTransactionId: callbackData.merchant_oid,
-              paymentType: callbackData.payment_type,
-              paymentAmount: parseFloat(callbackData.payment_amount || '0'),
-              currency: callbackData.currency,
-              testMode: callbackData.test_mode === '1',
-              processedAt: new Date().toISOString()
-            },
-            updatedAt: new Date().toISOString()
-          };
-          const created = await strategy.db.collection('orders').add(newOrder);
-          createdRefId = created.id;
-          orderDocId = created.id;
-          orderData = newOrder;
-        }
-        await draftRef.delete();
-      } else {
-        // Fallback: search by orderNumber
-        const ordersRef = strategy.db.collection('orders');
-        const snapshot = await ordersRef.where('orderNumber', '==', callbackData.merchant_oid).get();
-        if (snapshot.empty) {
-          console.error('❌ Order not found and no draft:', callbackData.merchant_oid);
-          return new Response('OK', { status: 200 });
-        }
-        const orderDoc = snapshot.docs[0];
-        orderDocId = orderDoc.id;
-        orderData = orderDoc.data();
+
+          if (callbackData.status === PAYTR_STATUS.SUCCESS) {
+            const newOrder = {
+              ...draft,
+              status: 'confirmed',
+              paymentStatus: 'paid',
+              paymentDetails: {
+                paytrTransactionId: callbackData.merchant_oid,
+                paymentType: callbackData.payment_type,
+                paymentAmount: parseFloat(callbackData.payment_amount || '0'),
+                currency: callbackData.currency,
+                testMode: callbackData.test_mode === '1',
+                processedAt: new Date().toISOString()
+              },
+              updatedAt: new Date().toISOString()
+            };
+
+            const newOrderRef = db.collection('orders').doc(); // Auto ID
+            transaction.set(newOrderRef, newOrder);
+            orderDocId = newOrderRef.id;
+            orderData = newOrder;
+          }
+
+          // Always delete draft on success/fail after processing
+          transaction.delete(draftRef);
+        });
+      } catch (err) {
+        console.error('❌ Transaction failed:', err);
+        // If it's a critical error (not just 'draft not found'), we should probably let PayTR retry
+        // Return 500 to trigger retry if session was missing but might be a delay
+        return new Response('FAIL', { status: 500 });
       }
     } else {
-      // Client SDK Logic
+      // Client SDK Logic (Using WriteBatch since multi-collection transactions are harder in client SDK)
+      // Note: WriteBatch doesn't support 'get' inside it, so it's only pseudo-atomic.
       const draftRef = firestoreDoc(db, 'paytr_sessions', callbackData.merchant_oid);
       const draftSnap = await getDoc(draftRef);
 
       if (draftSnap.exists()) {
+        const batch = writeBatch(db);
+        const draft = draftSnap.data();
+
         if (callbackData.status === PAYTR_STATUS.SUCCESS) {
-          const draft = draftSnap.data();
-          const ordersRef = collection(db, 'orders');
+          const newOrderRef = firestoreDoc(collection(db, 'orders'));
           const newOrder = {
             ...draft,
             status: 'confirmed',
@@ -113,30 +128,22 @@ export async function POST(request: NextRequest) {
             },
             updatedAt: new Date().toISOString()
           };
-          const created = await addDoc(ordersRef, newOrder);
-          createdRefId = created.id;
-          orderDocId = created.id;
+          batch.set(newOrderRef, newOrder);
+          orderDocId = newOrderRef.id;
           orderData = newOrder;
         }
-        await deleteDoc(draftRef);
+        batch.delete(draftRef);
+        await batch.commit();
       } else {
-        const ordersRef = collection(db, 'orders');
-        const q = query(ordersRef, where('orderNumber', '==', callbackData.merchant_oid));
-        const querySnapshot = await getDocs(q);
-
-        if (querySnapshot.empty) {
-          return new Response('OK', { status: 200 });
-        }
-        const orderDoc = querySnapshot.docs[0];
-        orderDocId = orderDoc.id;
-        orderData = orderDoc.data() as Record<string, unknown>;
+        // Idempotency: might have already been deleted/moved
+        return new Response('OK', { status: 200 });
       }
     }
 
-    if (!orderDocId || !orderData) {
-      console.error('❌ No order created or found for callback:', callbackData.merchant_oid);
+    if (callbackData.status !== PAYTR_STATUS.SUCCESS) {
       return new Response('OK', { status: 200 });
     }
+
 
     let orderStatus = 'pending';
     let paymentStatus = 'pending';
@@ -198,12 +205,12 @@ export async function POST(request: NextRequest) {
         const totalAmount = (orderData as any).total || ((orderData as any).subtotal || 0) + ((orderData as any).shippingCost || 0);
         const deliveryTime = (orderData as any).delivery_time || '';
 
+        // TASK-09 & TASK-10: Use direct sendEmail call instead of internal fetch
+        const emailPromises = [];
         // Send confirmation email to customer
         if (customerEmail) {
-          fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/email`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+          emailPromises.push(
+            sendEmail({
               to: customerEmail,
               subject: `Ödemeniz Onaylandı - ${callbackData.merchant_oid}`,
               role: 'customer',
@@ -263,16 +270,17 @@ export async function POST(request: NextRequest) {
                 customerName: customerName.trim(),
                 total: totalAmount.toFixed(2)
               }
+            }).then(res => {
+              if (res.success) console.log('✅ Confirmation email sent to customer');
+              else console.error('❌ Failed to send customer email:', res.error);
             })
-          }).catch(err => console.error('Failed to send payment confirmation email to customer:', err));
+          );
         }
 
         // Send notification email to admin about payment confirmation
         const adminPanelUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/admin`;
-        fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/email`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+        emailPromises.push(
+          sendEmail({
             to: adminEmail,
             subject: `Ödeme Onaylandı - ${callbackData.merchant_oid}`,
             role: 'admin',
@@ -331,8 +339,15 @@ export async function POST(request: NextRequest) {
               customerName: customerName.trim(),
               total: totalAmount.toFixed(2)
             }
+          }).then(res => {
+            if (res.success) console.log('✅ Admin notification email sent');
+            else console.error('❌ Failed to send admin email:', res.error);
           })
-        }).catch(err => console.error('Failed to send payment confirmation email to admin:', err));
+        );
+
+        // Wait for emails but don't block the PayTR 'OK' response unnecessarily if they take too long
+        // But for reliability, we can wait a bit.
+        await Promise.allSettled(emailPromises);
       } catch (emailError) {
         console.error('Email sending error (non-blocking):', emailError);
       }
