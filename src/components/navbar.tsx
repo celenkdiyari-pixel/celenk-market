@@ -16,12 +16,12 @@ export default function Navbar() {
   const router = useRouter();
 
   const categories = [
-    { name: "Açılış & Tören", category: "Açılış & Tören", slug: "acilistoren", icon: Gift, color: "text-blue-600" },
-    { name: "Cenaze Çelenkleri", category: "Cenaze Çelenkleri", slug: "cenaze", icon: Flower, color: "text-gray-600" },
-    { name: "Ferforjeler", category: "Ferforjeler", slug: "ferforje", icon: Wrench, color: "text-yellow-600" },
-    { name: "Fuar & Stand", category: "Fuar & Stand", slug: "fuarstand", icon: Building, color: "text-purple-600" },
-    { name: "Ofis & Saksı Bitkileri", category: "Ofis & Saksı Bitkileri", slug: "ofisbitki", icon: Leaf, color: "text-green-600" },
-    { name: "Söz & Nişan", category: "Söz & Nişan", slug: "soznisan", icon: HeartIcon, color: "text-red-600" }
+    { name: "Açılış & Tören", category: "Açılış & Tören", slug: "acilis-toren", icon: Gift, color: "text-blue-600" },
+    { name: "Cenaze Çelenkleri", category: "Cenaze Çelenkleri", slug: "cenaze-celenkleri", icon: Flower, color: "text-gray-600" },
+    { name: "Ferforjeler", category: "Ferforjeler", slug: "ferforjeler", icon: Wrench, color: "text-yellow-600" },
+    { name: "Fuar & Stand", category: "Fuar & Stand", slug: "fuar-stand", icon: Building, color: "text-purple-600" },
+    { name: "Ofis & Saksı Bitkileri", category: "Ofis & Saksı Bitkileri", slug: "ofis-saksi-bitkileri", icon: Leaf, color: "text-green-600" },
+    { name: "Söz & Nişan", category: "Söz & Nişan", slug: "soz-nisan", icon: HeartIcon, color: "text-red-600" }
   ];
 
   return (

@@ -86,32 +86,32 @@ export default function Footer() {
             <h3 className="text-lg font-semibold">Kategoriler</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/categories/acilistoren" className="text-gray-300 hover:text-green-400 transition-colors">
+                <Link href="/categories/acilis-toren" className="text-gray-300 hover:text-green-400 transition-colors">
                   Açılış & Tören
                 </Link>
               </li>
               <li>
-                <Link href="/categories/cenaze" className="text-gray-300 hover:text-green-400 transition-colors">
+                <Link href="/categories/cenaze-celenkleri" className="text-gray-300 hover:text-green-400 transition-colors">
                   Cenaze Çelenkleri
                 </Link>
               </li>
               <li>
-                <Link href="/categories/ferforje" className="text-gray-300 hover:text-green-400 transition-colors">
+                <Link href="/categories/ferforjeler" className="text-gray-300 hover:text-green-400 transition-colors">
                   Ferforjeler
                 </Link>
               </li>
               <li>
-                <Link href="/categories/fuarstand" className="text-gray-300 hover:text-green-400 transition-colors">
+                <Link href="/categories/fuar-stand" className="text-gray-300 hover:text-green-400 transition-colors">
                   Fuar & Stand
                 </Link>
               </li>
               <li>
-                <Link href="/categories/ofisbitki" className="text-gray-300 hover:text-green-400 transition-colors">
+                <Link href="/categories/ofis-saksi-bitkileri" className="text-gray-300 hover:text-green-400 transition-colors">
                   Ofis & Saksı Bitkileri
                 </Link>
               </li>
               <li>
-                <Link href="/categories/soznisan" className="text-gray-300 hover:text-green-400 transition-colors">
+                <Link href="/categories/soz-nisan" className="text-gray-300 hover:text-green-400 transition-colors">
                   Söz & Nişan
                 </Link>
               </li>
