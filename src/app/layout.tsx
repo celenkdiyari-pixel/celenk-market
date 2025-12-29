@@ -96,7 +96,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'verification_token', // User should replace this
+    google: 'ry6TLHkHY1iEpTgOgvE0aHzcahiV-0WdaycKrWClM3M',
   },
 };
 
