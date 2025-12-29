@@ -248,13 +248,10 @@ export async function POST(request: NextRequest) {
                 recipient_phone: (orderData as any).recipient?.phone || '',
 
                 // Delivery
-                delivery_address: customerData?.address ?
-                  (typeof customerData.address === 'string'
-                    ? customerData.address
-                    : `${customerData.address.street || ''}, ${customerData.address.district || ''}, ${customerData.address.city || ''}`)
-                  : ((orderData as any).recipient?.address || ''),
-                delivery_time: deliveryTime,
-                delivery_date: (orderData as any).delivery_date || '',
+                delivery_address: (orderData as any).recipient?.address || customerData?.address || '',
+                delivery_time: (orderData as any).delivery_time || (orderData as any).recipient?.deliveryTime || '',
+                delivery_date: (orderData as any).delivery_date || (orderData as any).recipient?.deliveryDate || '',
+                delivery_location: (orderData as any).delivery_place_type || (orderData as any).recipient?.deliveryPlaceType || 'Belirtilmemiş',
 
                 // Additional
                 wreath_text: (orderData as any).wreath_text || '',
@@ -317,13 +314,10 @@ export async function POST(request: NextRequest) {
               sender_email: (orderData as any).sender?.email || customerEmail || '',
               recipient_name: (orderData as any).recipient?.name || '',
               recipient_phone: (orderData as any).recipient?.phone || '',
-              delivery_address: customerData?.address ?
-                (typeof customerData.address === 'string'
-                  ? customerData.address
-                  : `${customerData.address.street || ''}, ${customerData.address.district || ''}, ${customerData.address.city || ''}`)
-                : ((orderData as any).recipient?.address || ''),
-              delivery_time: deliveryTime,
-              delivery_date: (orderData as any).delivery_date || '',
+              delivery_address: (orderData as any).recipient?.address || customerData?.address || '',
+              delivery_time: (orderData as any).delivery_time || (orderData as any).recipient?.deliveryTime || '',
+              delivery_date: (orderData as any).delivery_date || (orderData as any).recipient?.deliveryDate || '',
+              delivery_location: (orderData as any).delivery_place_type || (orderData as any).recipient?.deliveryPlaceType || 'Belirtilmemiş',
 
               // Content
               wreath_text: (orderData as any).wreath_text || '',
