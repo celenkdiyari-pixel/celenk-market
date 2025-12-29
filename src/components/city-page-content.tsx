@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
 import AnnouncementBanner from '@/components/announcement-banner';
@@ -11,26 +10,17 @@ import FlowerParticles from '@/components/flower-particles';
 import Logo from '@/components/logo';
 import {
     ShoppingCart,
-    Heart,
     Truck,
     Shield,
-    Award,
-    Leaf,
     ArrowRight,
     Phone,
-    Flower,
-    Sparkles,
-    Gift,
-    Package,
-    Heart as HeartIcon,
-    Building,
-    Wrench,
     MapPin
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import ProductCard from '@/components/product-card';
 
+// Types duplicated here for safety or import from types/index
 interface Product {
     id: string;
     name: string;
@@ -44,22 +34,23 @@ interface Product {
 
 interface CityPageContentProps {
     cityName?: string;
+    initialProducts?: Product[];
 }
 
-export default function CityPageContent({ cityName = "Türkiye" }: CityPageContentProps) {
+export default function CityPageContent({ cityName = "Türkiye", initialProducts = [] }: CityPageContentProps) {
     const router = useRouter();
-    const [products, setProducts] = useState<Product[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    // Initialize with prop if available, otherwise empty array
+    const [products, setProducts] = useState<Product[]>(initialProducts);
+    // If we have initial products, we are not loading. If not, we are loading.
+    const [isLoading, setIsLoading] = useState(initialProducts.length === 0);
     const [currentSlide, setCurrentSlide] = useState(0);
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
     // SEO variables
-    const marketName = cityName !== "Türkiye" ? `${cityName} Çelenk Siparişi` : "Türkiye'nin En İyi Çelenk Sitesi";
     const heroDescription = cityName !== "Türkiye"
         ? `${cityName} genelinde hızlı ve güvenilir çelenk gönder hizmeti. ${cityName} içi açılış, düğün ve cenaze törenleri için aynı gün teslimat.`
         : "Hızlı ve güvenilir çelenk gönder hizmeti ile duygularınızı en güzel şekilde ifade edin. Açılış, düğün ve cenaze törenleri için profesyonel tasarım çelenkler.";
 
-    // Hero slider images - Çelenk Resimleri
     const heroImages = [
         {
             src: "/images/categories/açılıştören.jpg",
@@ -87,15 +78,16 @@ export default function CityPageContent({ cityName = "Türkiye" }: CityPageConte
         }
     ];
 
+    // Load products ONLY if initialProducts is empty
     useEffect(() => {
-        loadProducts();
-    }, []);
+        if (products.length === 0) {
+            loadProducts();
+        }
+    }, [products.length]);
 
-    // Listen for category selection from navbar
     useEffect(() => {
         const handleCategorySelect = (event: CustomEvent) => {
             setSelectedCategory(event.detail);
-            // Scroll to products section
             setTimeout(() => {
                 const productsSection = document.getElementById('products');
                 if (productsSection) {
@@ -103,26 +95,20 @@ export default function CityPageContent({ cityName = "Türkiye" }: CityPageConte
                 }
             }, 100);
         };
-
         window.addEventListener('categorySelect', handleCategorySelect as EventListener);
-        return () => {
-            window.removeEventListener('categorySelect', handleCategorySelect as EventListener);
-        };
+        return () => window.removeEventListener('categorySelect', handleCategorySelect as EventListener);
     }, []);
 
-    // Auto-slide effect
     useEffect(() => {
         const interval = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % heroImages.length);
-        }, 5000); // Change slide every 5 seconds
-
+        }, 5000);
         return () => clearInterval(interval);
     }, [heroImages.length]);
 
     const loadProducts = async () => {
         try {
             const response = await fetch('/api/products?mode=summary');
-
             if (response.ok) {
                 const data = await response.json();
                 setProducts(data);
@@ -138,28 +124,20 @@ export default function CityPageContent({ cityName = "Türkiye" }: CityPageConte
         <div className="min-h-screen bg-white relative">
             <FlowerParticles />
 
-            {/* Announcement Banner */}
             <div className="w-full bg-white/80 backdrop-blur-sm border-b border-green-100 relative z-20">
                 <div className="container mx-auto px-4 py-3">
                     <AnnouncementBanner page="home" maxAnnouncements={2} />
                 </div>
             </div>
 
-            {/* Hero Section */}
             <section className="relative overflow-hidden bg-gradient-to-br from-white via-green-50/20 to-emerald-50/30 min-h-screen flex items-center z-20">
-                {/* Background Elements omitted for brevity but keeping main structure */}
                 <div className="absolute inset-0 overflow-hidden">
                     <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-br from-green-100/40 to-emerald-100/20 rounded-full blur-3xl animate-pulse"></div>
                     <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-gradient-to-tr from-emerald-100/30 to-teal-100/15 rounded-full blur-3xl animate-pulse delay-1000"></div>
-                    <div
-                        className="absolute inset-0 opacity-20"
-                        style={{ backgroundImage: "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9IiMwNTk2NjkIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz48L3N2Zz4=')" }}
-                    ></div>
                 </div>
 
                 <div className="container mx-auto px-4 relative z-10">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center h-[90vh]">
-
                         <div className="space-y-8 flex flex-col justify-center animate-fade-in-up pl-0 lg:pl-8">
                             <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 px-6 py-3 rounded-full text-sm font-medium w-fit shadow-sm border border-green-100/50 backdrop-blur-sm">
                                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -192,7 +170,6 @@ export default function CityPageContent({ cityName = "Türkiye" }: CityPageConte
                                         <p className="text-xs text-gray-500">{cityName === "Türkiye" ? "81 ile teslimat" : `${cityName} içi teslimat`}</p>
                                     </div>
                                 </div>
-
                                 <div className="group flex items-center space-x-3 p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-green-100/50 hover:shadow-lg hover:bg-white/80 transition-all duration-300">
                                     <div className="w-10 h-10 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl flex items-center justify-center">
                                         <Shield className="h-5 w-5 text-green-600" />
@@ -221,17 +198,13 @@ export default function CityPageContent({ cityName = "Türkiye" }: CityPageConte
                             </div>
                         </div>
 
-                        {/* Right Content - Slider Box */}
                         <div className="relative flex items-center justify-center">
                             <div className="relative w-full max-w-2xl h-[500px] lg:h-[600px] rounded-2xl overflow-hidden shadow-lg bg-white border border-gray-100">
                                 <div className="relative h-full">
                                     {heroImages.map((image, index) => (
                                         <div
                                             key={index}
-                                            className={`absolute inset-0 transition-all duration-1000 ${currentSlide === index
-                                                ? 'opacity-100 scale-100'
-                                                : 'opacity-0 scale-105'
-                                                }`}
+                                            className={`absolute inset-0 transition-all duration-1000 ${currentSlide === index ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
                                         >
                                             <Image
                                                 src={image.src}
@@ -257,8 +230,7 @@ export default function CityPageContent({ cityName = "Türkiye" }: CityPageConte
                 </div>
             </section>
 
-            {/* Categories & Products sections remain mostly same but could have enhanced titles */}
-            <section className="py-20 bg-white">
+            <section id="products" className="py-20 bg-white">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-16">
                         <h2 className="text-4xl font-bold text-gray-900 mb-4">{cityName} Çelenk Çeşitleri</h2>
@@ -267,7 +239,6 @@ export default function CityPageContent({ cityName = "Türkiye" }: CityPageConte
                         </p>
                     </div>
 
-                    {/* Simple filter reuse */}
                     <div className="flex flex-wrap justify-center gap-3 mb-16">
                         <Button variant={selectedCategory === 'all' ? 'default' : 'outline'} onClick={() => setSelectedCategory('all')}>Tümü</Button>
                         {['Açılış & Tören', 'Cenaze Çelenkleri', 'Ferforjeler', 'Fuar & Stand', 'Ofis & Saksı Bitkileri', 'Söz & Nişan'].map((cat) => (
@@ -276,7 +247,9 @@ export default function CityPageContent({ cityName = "Türkiye" }: CityPageConte
                     </div>
 
                     {isLoading ? (
-                        <div className="text-center py-12">Loading...</div>
+                        <div className="flex justify-center py-12">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+                        </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                             {(selectedCategory === 'all' ? products : products.filter(p => p.category === selectedCategory)).map((product) => (
@@ -289,7 +262,6 @@ export default function CityPageContent({ cityName = "Türkiye" }: CityPageConte
                 </div>
             </section>
 
-            {/* SEO Text Section Customized */}
             <section className="py-24 bg-slate-50 relative z-20">
                 <div className="container mx-auto px-4">
                     <div className="max-w-4xl mx-auto space-y-12">

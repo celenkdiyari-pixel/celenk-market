@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { cities, getCityBySlug } from '@/lib/cities';
 import CityPageContent from '@/components/city-page-content';
 import { notFound } from 'next/navigation';
+import { getProducts } from '@/lib/get-products';
 
 interface Props {
     params: Promise<{ city: string }>;
@@ -47,11 +48,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CityPage({ params }: Props) {
     const resolvedParams = await params;
-    const city = getCityBySlug(resolvedParams.city);
+    // Decode URI component to handle Turkish characters correctly
+    const decodedSlug = decodeURIComponent(resolvedParams.city);
+    const city = getCityBySlug(decodedSlug) || getCityBySlug(resolvedParams.city);
+
+    // Fetch products server side
+    const products = await getProducts();
 
     if (!city) {
         notFound();
     }
 
-    return <CityPageContent cityName={city.name} />;
+    return <CityPageContent cityName={city.name} initialProducts={products} />;
 }

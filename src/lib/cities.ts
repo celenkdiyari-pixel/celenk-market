@@ -82,16 +82,36 @@ export const cities = [
     { name: 'Düzce', slug: 'duzce' }
 ];
 
+// Helper to clean Turkish chars
+function simpleSlugify(text: string): string {
+    const trMap: Record<string, string> = {
+        'İ': 'i', 'I': 'i', 'ı': 'i', 'Ş': 's', 'ş': 's', 'Ğ': 'g', 'ğ': 'g',
+        'Ü': 'u', 'ü': 'u', 'Ö': 'o', 'ö': 'o', 'Ç': 'c', 'ç': 'c'
+    };
+    return text
+        .split('')
+        .map(char => trMap[char] || char)
+        .join('')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, '') // Allow alphanumeric and dashes
+        .replace(/-+/g, '-');
+}
+
 export function getCityBySlug(slug: string) {
     if (!slug) return undefined;
-    const decoded = decodeURIComponent(slug);
-    // Try exact match first
-    const exact = cities.find(city => city.slug === decoded);
-    if (exact) return exact;
 
-    // Try normalized match (NFC/NFD)
-    // This handles cases like 'i\u0307stanbul' vs 'istanbul'
-    // Also handle 'İzmir' -> 'izmir'
+    // 1. Direct decode
+    const decoded = decodeURIComponent(slug);
+    let match = cities.find(city => city.slug === decoded);
+    if (match) return match;
+
+    // 2. Slugify check
+    const slugified = simpleSlugify(decoded);
+    match = cities.find(city => city.slug === slugified);
+    if (match) return match;
+
+    // 3. Normalized check (legacy)
     const normalized = decoded.normalize('NFC').replace(/[\u0307]/g, '').toLowerCase();
     return cities.find(city => city.slug === normalized);
 }

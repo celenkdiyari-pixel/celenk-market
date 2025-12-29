@@ -22,6 +22,15 @@ export interface Product {
     reviews?: number;
 }
 
+// Helper to safely convert Firestore timestamps to serializable strings
+const safeDate = (val: any): string | undefined => {
+    if (!val) return undefined;
+    if (typeof val === 'string') return val;
+    if (typeof val?.toDate === 'function') return val.toDate().toISOString(); // Firestore Timestamp
+    if (val instanceof Date) return val.toISOString();
+    return undefined;
+};
+
 // Convert Firestore doc to Product
 const mapDocToProduct = (id: string, data: DocumentData): Product => {
     return {
@@ -33,8 +42,8 @@ const mapDocToProduct = (id: string, data: DocumentData): Product => {
         categories: data.categories || [],
         inStock: data.inStock !== false, // default true
         images: data.images || [],
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt,
+        createdAt: safeDate(data.createdAt),
+        updatedAt: safeDate(data.updatedAt),
         seoTitle: data.seoTitle,
         seoDescription: data.seoDescription,
         seoKeywords: data.seoKeywords,
