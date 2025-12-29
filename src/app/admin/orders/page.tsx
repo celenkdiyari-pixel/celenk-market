@@ -74,6 +74,7 @@ interface Order {
   createdAt: string;
   updatedAt: string;
   delivery_time?: string;
+  delivery_date?: string;
   delivery_place_type?: string;
   paymentDetails?: {
     paytrTransactionId?: string;
@@ -143,6 +144,7 @@ interface RawOrder {
   createdAt?: string;
   updatedAt?: string;
   delivery_time?: string;
+  delivery_date?: string;
   delivery_place_type?: string;
   paymentDetails?: Order['paymentDetails'];
 }
@@ -238,6 +240,7 @@ export default function OrdersPage() {
             createdAt: order.createdAt || new Date().toISOString(),
             updatedAt: order.updatedAt || order.createdAt || new Date().toISOString(),
             delivery_time: order.delivery_time || '',
+            delivery_date: order.delivery_date || '', // Added field
             delivery_place_type: order.delivery_place_type || '', // Added field
             paymentDetails: order.paymentDetails || undefined
           };
@@ -533,7 +536,7 @@ export default function OrdersPage() {
                               <Calendar className="h-4 w-4" />
                               <span>
                                 {order.createdAt
-                                  ? new Date(order.createdAt).toLocaleDateString('tr-TR', {
+                                  ? new Date(order.createdAt).toLocaleString('tr-TR', {
                                     year: 'numeric',
                                     month: 'long',
                                     day: 'numeric',
@@ -731,6 +734,15 @@ export default function OrdersPage() {
                             </p>
                           </div>
                         )}
+                        {selectedOrder.delivery_date && (
+                          <div className="mb-4">
+                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Teslimat Tarihi</label>
+                            <p className="text-gray-900 font-bold mt-1 text-sm bg-blue-50 p-2 rounded flex items-center text-blue-700">
+                              <Calendar className="w-4 h-4 mr-2" />
+                              {new Date(selectedOrder.delivery_date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' })}
+                            </p>
+                          </div>
+                        )}
                         {selectedOrder.delivery_time && (
                           <div>
                             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Teslimat Zamanı</label>
@@ -770,6 +782,12 @@ export default function OrdersPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Sipariş Tarihi</label>
+                      <p className="text-gray-900 mt-1 font-medium">
+                        {new Date(selectedOrder.createdAt).toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
                     <div>
                       <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Durum</label>
                       <div className="mt-1">
