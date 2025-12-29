@@ -82,7 +82,8 @@ export default async function CategoryPage({ params }: PageProps) {
 
   // Fetch products on the server
   // This happens during SSR, so the user sees populated data immediately in HTML
-  const initialProducts = await getProductsByCategory(currentCategory.categoryValue);
+  // Fix: Using 'category' slug directly as 'categoryValue' property does not exist on CategoryInfo type
+  const initialProducts = await getProductsByCategory(category as any);
 
   return (
     <CategoryClient
