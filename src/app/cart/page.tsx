@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import Image from 'next/image';
 import { DELIVERY_PLACES, DELIVERY_TIME_SLOTS } from '@/lib/constants';
 
@@ -55,6 +56,9 @@ export default function CartPage() {
     getTotalPrice,
     getTotalItems
   } = useCart();
+
+  // Error State
+  const [errors, setErrors] = useState<Record<string, boolean>>({});
 
   // Sender (Ödeyen/Gönderen)
   const [senderInfo, setSenderInfo] = useState<CustomerInfo>({
@@ -102,28 +106,42 @@ export default function CartPage() {
   };
 
   const validateForm = () => {
-    // Basic RegEx for email
+    const newErrors: Record<string, boolean> = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     // Sender validation
-    if (!senderInfo.name || !senderInfo.phone || !senderInfo.email) {
-      alert('Lütfen gönderici bilgilerini eksiksiz doldurunuz (Ad Soyad, Telefon, E-posta).');
-      return false;
+    if (!senderInfo.name) newErrors['senderName'] = true;
+    if (!senderInfo.phone) newErrors['senderPhone'] = true;
+    if (!senderInfo.email) newErrors['senderEmail'] = true;
+    else if (!emailRegex.test(senderInfo.email)) {
+      newErrors['senderEmail'] = true;
+      toast.error('Geçerli bir e-posta adresi giriniz.');
     }
 
-    if (!emailRegex.test(senderInfo.email)) {
-      alert('Lütfen geçerli bir e-posta adresi giriniz.');
-      return false;
-    }
-
-    if (senderInfo.phone.replace(/\D/g, '').length < 10) {
-      alert('Lütfen geçerli bir telefon numarası giriniz (Başında 0 olmadan veya 05... şeklinde).');
-      return false;
+    if (senderInfo.phone && senderInfo.phone.replace(/\D/g, '').length < 10) {
+      newErrors['senderPhone'] = true;
+      toast.error('Geçerli bir telefon numarası giriniz.');
     }
 
     // Recipient validation
-    if (!recipientInfo.name || !recipientInfo.phone || !recipientInfo.address || !recipientInfo.district || !recipientInfo.deliveryPlaceType) {
-      alert('Lütfen alıcı bilgilerini eksiksiz doldurunuz (Ad, Telefon, Bölge, Adres, Teslimat Yeri).');
+    if (!recipientInfo.name) newErrors['recipientName'] = true;
+    if (!recipientInfo.phone) newErrors['recipientPhone'] = true;
+    if (!recipientInfo.district) newErrors['recipientDistrict'] = true;
+    if (!recipientInfo.address) newErrors['recipientAddress'] = true;
+    if (!recipientInfo.deliveryPlaceType) newErrors['recipientPlace'] = true;
+    if (!recipientInfo.deliveryDate) newErrors['recipientDate'] = true;
+    if (!recipientInfo.deliveryTime) newErrors['recipientTime'] = true;
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      toast.error('Lütfen eksik alanları doldurunuz.');
+
+      // Auto-scroll to first error (simple logic)
+      const firstError = document.querySelector('.border-red-500');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       return false;
     }
     return true;

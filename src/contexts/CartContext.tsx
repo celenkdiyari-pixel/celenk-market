@@ -1,12 +1,12 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 
 interface ProductVariant {
   id: string;
   name: string;
   price: number;
-
   attributes: {
     [key: string]: string;
   };
@@ -18,7 +18,6 @@ interface Product {
   description: string;
   price: number;
   category: string;
-
   images: string[];
   variants?: ProductVariant[];
   createdAt?: string;
@@ -53,7 +52,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Load from localStorage on mount
   useEffect(() => {
-    // Check if we're on the client side
     if (typeof window === 'undefined') return;
 
     const savedCart = localStorage.getItem('celenk-cart');
@@ -62,37 +60,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (savedCart) {
       try {
         const parsedCart = JSON.parse(savedCart);
-        // Ensure it's an array
-        if (Array.isArray(parsedCart)) {
-          setCartItems(parsedCart);
-        } else {
-          console.warn('Cart data is not an array, resetting to empty array');
-          setCartItems([]);
-        }
+        if (Array.isArray(parsedCart)) setCartItems(parsedCart);
       } catch (error) {
-        console.error('Error loading cart from localStorage:', error);
-        setCartItems([]);
+        console.error('Error loading cart:', error);
       }
     }
 
     if (savedFavorites) {
       try {
         const parsedFavorites = JSON.parse(savedFavorites);
-        // Ensure it's an array
-        if (Array.isArray(parsedFavorites)) {
-          setFavorites(parsedFavorites);
-        } else {
-          console.warn('Favorites data is not an array, resetting to empty array');
-          setFavorites([]);
-        }
+        if (Array.isArray(parsedFavorites)) setFavorites(parsedFavorites);
       } catch (error) {
-        console.error('Error loading favorites from localStorage:', error);
-        setFavorites([]);
+        console.error('Error loading favorites:', error);
       }
     }
   }, []);
 
-  // Save to localStorage whenever cart or favorites change
+  // Sync to localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('celenk-cart', JSON.stringify(cartItems));
@@ -106,29 +90,35 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [favorites]);
 
   const addToCart = (product: Product, variant?: ProductVariant) => {
-    // Normalize/guard product fields to prevent broken cart entries
-    if (!product?.id || !product?.name) {
-      console.warn('addToCart skipped: missing id or name', product);
-      return;
-    }
+    if (!product?.id || !product?.name) return;
 
-    const normalizedPrice =
-      typeof product.price === 'number'
-        ? product.price
-        : parseFloat(product.price as unknown as string) || 0;
+    const normalizedPrice = typeof product.price === 'number'
+      ? product.price
+      : parseFloat(product.price as unknown as string) || 0;
 
     const images = Array.isArray(product.images) ? product.images : [];
 
+    // Check existing item for Toast feedback
+    const cartKey = `${product.id}-${variant?.id || 'default'}`;
+    const existingItem = cartItems.find(item =>
+      `${item.id}-${item.variantId || 'default'}` === cartKey
+    );
+
+    if (existingItem) {
+      toast.success('Sepetinizdeki ürün güncellendi');
+    } else {
+      toast.success('Ürün sepete eklendi');
+    }
+
     setCartItems(prev => {
-      // Ensure prev is an array
       const currentItems = Array.isArray(prev) ? prev : [];
 
-      const cartKey = `${product.id}-${variant?.id || 'default'}`;
-      const existingItem = currentItems.find(item =>
+      // Re-check in state setter for safety logic
+      const existing = currentItems.find(item =>
         `${item.id}-${item.variantId || 'default'}` === cartKey
       );
 
-      if (existingItem) {
+      if (existing) {
         return currentItems.map(item =>
           `${item.id}-${item.variantId || 'default'}` === cartKey
             ? { ...item, quantity: item.quantity + 1 }
@@ -156,6 +146,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         !(item.id === productId && (item.variantId || 'default') === (variantId || 'default'))
       );
     });
+    toast.success('Ürün sepetten çıkarıldı');
   };
 
   const updateQuantity = (productId: string, quantity: number, variantId?: string) => {
@@ -176,14 +167,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = () => {
     setCartItems([]);
+    toast.success('Sepet temizlendi');
   };
 
   const toggleFavorite = (productId: string) => {
     setFavorites(prev => {
       const currentFavorites = Array.isArray(prev) ? prev : [];
-      return currentFavorites.includes(productId)
-        ? currentFavorites.filter(id => id !== productId)
-        : [...currentFavorites, productId];
+      if (currentFavorites.includes(productId)) {
+        toast.success('Favorilerden çıkarıldı');
+        return currentFavorites.filter(id => id !== productId);
+      } else {
+        toast.success('Favorilere eklendi');
+        return [...currentFavorites, productId];
+      }
     });
   };
 

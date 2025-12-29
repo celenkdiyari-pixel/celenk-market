@@ -8,6 +8,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import MaintenanceGuard from "@/components/MaintenanceGuard";
 import { getSiteSettings } from "@/lib/get-settings-server";
 import JsonLd from "@/components/json-ld";
+import { Toaster } from 'react-hot-toast';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,15 +31,15 @@ export const metadata: Metadata = {
   },
   description: "Türkiye'nin en güvenilir online çelenk sipariş sitesi. İstanbul, Ankara, İzmir ve 81 ile aynı gün teslimat. Cenaze, düğün, açılış ve nikah için profesyonel çelenk, ferforje ve çiçek gönderimi. %100 Müşteri Memnuniyeti.",
   keywords: [
-    "çelenk siparişi", 
-    "çelenk gönder", 
-    "online çelenk", 
-    "istanbul çelenk siparişi", 
-    "ankara çelenk siparişi", 
+    "çelenk siparişi",
+    "çelenk gönder",
+    "online çelenk",
+    "istanbul çelenk siparişi",
+    "ankara çelenk siparişi",
     "izmir çelenk siparişi",
-    "cenaze çelengi", 
-    "açılış çelengi", 
-    "düğün çelengi", 
+    "cenaze çelengi",
+    "açılış çelengi",
+    "düğün çelengi",
     "nikah çelengi",
     "ferforje çelenk",
     "çelenk fiyatları",
@@ -124,6 +125,7 @@ export default async function RootLayout({
           MozOsxFontSmoothing: 'grayscale'
         }}
       >
+        <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
         <JsonLd />
         <CartProvider>
           <MaintenanceGuard settings={settings}>
