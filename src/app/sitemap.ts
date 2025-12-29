@@ -37,7 +37,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // Fetch products dynamically
-    const products = await getProducts();
+    let products: any[] = [];
+    try {
+        products = await getProducts();
+    } catch (e) {
+        console.warn('Sitemap: Failed to fetch products', e);
+    }
+
     const productRoutes = products.map((product) => ({
         url: `${baseUrl}/products/${product.id}`,
         lastModified: product.updatedAt ? new Date(product.updatedAt) : new Date(),
