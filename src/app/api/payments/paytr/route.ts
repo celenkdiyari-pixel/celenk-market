@@ -44,9 +44,8 @@ export async function POST(request: NextRequest) {
     };
 
     const originalOrderNumber = orderData.orderNumber || generateSecureOrderNumber();
-    // PayTR merchant_oid must be alphanumeric + "-", "_", "." allowed but better to be safe
-    // We remove any non-alphanumeric chars for the merchant_oid to be safe
-    const paytrOrderNumber = originalOrderNumber.replace(/[^a-zA-Z0-9-]/g, '');
+    // PayTR merchant_oid must be strictly alphanumeric (no special characters like "-")
+    const paytrOrderNumber = originalOrderNumber.replace(/[^a-zA-Z0-9]/g, '');
 
     const config = getPayTRConfig();
 
