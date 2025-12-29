@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Search, Menu, X, User, Heart, Heart as HeartIcon, Gift, Building, Wrench, Flower, Leaf, BookOpen } from "lucide-react";
+import { ShoppingCart, Search, Menu, X, User, Heart, Heart as HeartIcon, Gift, Building, Wrench, Flower, Leaf, BookOpen, Truck } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import Logo from "./logo";
 
@@ -76,6 +76,15 @@ export default function Navbar() {
             </Link>
           </div>
 
+          <div className="hidden lg:flex items-center space-x-1">
+            <Link href="/siparis-takip">
+              <Button variant="ghost" className="text-gray-600 hover:text-green-600 font-medium hover:bg-green-50 rounded-xl px-4">
+                <Truck className="w-4 h-4 mr-2" />
+                Sipariş Takip
+              </Button>
+            </Link>
+          </div>
+
           {/* Action Buttons */}
           <div className="flex items-center space-x-2">
             <Link href="/favorites">
@@ -123,6 +132,15 @@ export default function Navbar() {
                   <Button variant="outline" className="w-full justify-start text-gray-700 hover:text-green-600 hover:bg-green-50 border-gray-200">
                     <BookOpen className="w-4 h-4 mr-2" />
                     Blog Yazıları
+                  </Button>
+                </Link>
+              </div>
+
+              <div className="px-4">
+                <Link href="/siparis-takip" onClick={() => setIsMenuOpen(false)}>
+                  <Button variant="outline" className="w-full justify-start text-gray-700 hover:text-green-600 hover:bg-green-50 border-gray-200">
+                    <Truck className="w-4 h-4 mr-2" />
+                    Sipariş Takip
                   </Button>
                 </Link>
               </div>

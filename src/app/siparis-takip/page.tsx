@@ -103,7 +103,7 @@ export default function OrderTrackingPage() {
                         Sipariş Takibi
                     </h1>
                     <p className="mt-4 text-lg text-gray-600">
-                        Sipariş numaranızı girerek güncel durumu sorgulayabilirsiniz.
+                        Size gönderilen maildeki veya SMS'teki sipariş numarasını giriniz.
                     </p>
                 </div>
 

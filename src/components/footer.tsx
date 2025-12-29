@@ -73,6 +73,11 @@ export default function Footer() {
                   Favorilerim
                 </Link>
               </li>
+              <li>
+                <Link href="/siparis-takip" className="text-gray-300 hover:text-green-400 transition-colors">
+                  Sipariş Takibi
+                </Link>
+              </li>
             </ul>
           </div>
 
