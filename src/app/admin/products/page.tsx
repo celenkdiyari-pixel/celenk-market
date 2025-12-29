@@ -142,7 +142,7 @@ export default function ProductsPage() {
                             {filteredProducts.map((product) => (
                                 <Card key={product.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-md flex flex-col items-center">
                                     <div className="relative w-full aspect-[3/4] bg-white pt-2">
-                                        {product.images && product.images.length > 0 ? (
+                                        {product.images && product.images.length > 0 && (product.images[0].startsWith('http') || product.images[0].startsWith('/')) ? (
                                             <Image
                                                 src={product.images[0]}
                                                 alt={product.name}

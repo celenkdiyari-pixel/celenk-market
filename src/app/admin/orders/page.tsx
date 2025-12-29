@@ -256,7 +256,7 @@ export default function OrdersPage() {
                   <div className="flex flex-col lg:flex-row gap-6">
                     {/* Image Thumbnail */}
                     <div className="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0 relative overflow-hidden border border-gray-200">
-                      {order.items && order.items[0]?.image ? (
+                      {order.items && order.items[0]?.image && (order.items[0].image.startsWith('http') || order.items[0].image.startsWith('/')) ? (
                         <Image src={order.items[0].image} alt="Product" fill className="object-cover" />
                       ) : (
                         <Package className="w-8 h-8 m-auto text-gray-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
@@ -432,7 +432,7 @@ export default function OrdersPage() {
                         {selectedOrder.items?.map((item, idx) => (
                           <div key={idx} className="flex gap-4 p-4 border-b last:border-0 hover:bg-gray-50">
                             <div className="w-16 h-16 bg-gray-100 rounded relative overflow-hidden flex-shrink-0">
-                              {item.image ? (
+                              {item.image && (item.image.startsWith('http') || item.image.startsWith('/')) ? (
                                 <Image src={item.image} alt={item.name} fill className="object-cover" />
                               ) : <Package className="w-6 h-6 m-auto text-gray-300 absolute inset-0" />}
                             </div>
