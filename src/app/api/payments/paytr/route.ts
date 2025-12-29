@@ -12,10 +12,10 @@ export async function POST(request: NextRequest) {
     console.log('📝 Order data for PayTR:', orderData);
 
     // Validate required fields
-    if (!orderData.orderNumber || !orderData.customer || !orderData.total) {
+    if (!orderData.customer || !orderData.total) {
       console.log('❌ Validation failed - missing required fields');
       return NextResponse.json({
-        error: 'Missing required fields: orderNumber, customer, total',
+        error: 'Missing required fields: customer, total',
         received: orderData
       }, { status: 400 });
     }
