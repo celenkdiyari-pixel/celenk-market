@@ -82,8 +82,9 @@ export default async function CategoryPage({ params }: PageProps) {
 
   // Fetch products on the server
   // This happens during SSR, so the user sees populated data immediately in HTML
-  // Fix: Using 'category' slug directly as 'categoryValue' property does not exist on CategoryInfo type
-  const initialProducts = await getProductsByCategory(category as any);
+  // Fix: Use the official Category Title (e.g. "Açılış & Tören") from constants, not the slug (e.g. "acilis-toren")
+  // Because products are stored in DB with full titles.
+  const initialProducts = await getProductsByCategory(currentCategory.title);
 
   return (
     <CategoryClient
