@@ -3,12 +3,15 @@ export const dynamic = 'force-dynamic';
 
 import { db } from '@/lib/firebase';
 import { collection, addDoc, getDocs, query, orderBy, limit, doc, getDoc, updateDoc, where, deleteDoc } from 'firebase/firestore';
-import { getAdminDb } from '@/lib/firebase-admin';
+// import { getAdminDb } from '@/lib/firebase-admin'; // Dynamic import used below
 
 // Helper to determine which DB to use
 async function getDbStrategy() {
   try {
+    // Dynamic import to prevent top-level crashes if firebase-admin has issues
+    const { getAdminDb } = await import('@/lib/firebase-admin');
     const adminDb = getAdminDb();
+
     // Test if admin DB is actually working
     if (!adminDb) {
       console.warn('⚠️ Admin DB returned null, falling back to client SDK');
@@ -16,7 +19,7 @@ async function getDbStrategy() {
     }
     return { type: 'admin' as const, db: adminDb };
   } catch (e) {
-    console.warn('⚠️ Admin DB initialization failed, using client SDK:', e instanceof Error ? e.message : 'Unknown error');
+    console.warn('⚠️ Admin DB initialization/import failed, using client SDK:', e instanceof Error ? e.message : 'Unknown error');
     return { type: 'client' as const, db };
   }
 }
