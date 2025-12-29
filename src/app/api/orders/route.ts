@@ -41,7 +41,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate order number
-    const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
+    // Generate order number (use provided or generate 4-digit random)
+    const orderNumber = orderData.orderNumber || Math.floor(1000 + Math.random() * 9000).toString();
 
     const order = {
       ...orderData,

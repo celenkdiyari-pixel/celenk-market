@@ -490,36 +490,59 @@ export default function OrdersPage() {
                           {getPaymentStatusBadge(order.paymentStatus)}
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-                          <div className="flex items-center space-x-2">
-                            <User className="h-4 w-4" />
-                            <span>
-                              {order.customer?.firstName || 'Bilinmiyor'} {order.customer?.lastName || ''}
-                            </span>
+                        <div className="flex gap-4">
+                          {/* Add Product Image Thumbnail */}
+                          <div className="relative w-20 h-20 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-200">
+                            {order.items && order.items.length > 0 && order.items[0].image ? (
+                              <Image
+                                src={order.items[0].image}
+                                alt={order.items[0].productName || 'Product'}
+                                fill
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Package className="w-8 h-8 text-gray-400" />
+                              </div>
+                            )}
+                            {order.items && order.items.length > 1 && (
+                              <div className="absolute bottom-0 right-0 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded-tl-md">
+                                +{order.items.length - 1}
+                              </div>
+                            )}
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <Mail className="h-4 w-4" />
-                            <span className="truncate max-w-[200px]" title={order.customer?.email || 'N/A'}>
-                              {order.customer?.email || 'N/A'}
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Phone className="h-4 w-4" />
-                            <span>{order.customer?.phone || 'N/A'}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Calendar className="h-4 w-4" />
-                            <span>
-                              {order.createdAt
-                                ? new Date(order.createdAt).toLocaleDateString('tr-TR', {
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })
-                                : 'Tarih yok'}
-                            </span>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 flex-1">
+                            <div className="flex items-center space-x-2">
+                              <User className="h-4 w-4" />
+                              <span>
+                                {order.customer?.firstName || 'Bilinmiyor'} {order.customer?.lastName || ''}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Mail className="h-4 w-4" />
+                              <span className="truncate max-w-[200px]" title={order.customer?.email || 'N/A'}>
+                                {order.customer?.email || 'N/A'}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Phone className="h-4 w-4" />
+                              <span>{order.customer?.phone || 'N/A'}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Calendar className="h-4 w-4" />
+                              <span>
+                                {order.createdAt
+                                  ? new Date(order.createdAt).toLocaleDateString('tr-TR', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })
+                                  : 'Tarih yok'}
+                              </span>
+                            </div>
                           </div>
                         </div>
 

@@ -49,7 +49,7 @@ const generateTimeSlots = () => {
   const slots = [];
   let startHour = 9;
   let startMinute = 0;
-  const endHour = 22;
+  const endHour = 20; // Updated to 20:00
 
   while (startHour < endHour || (startHour === endHour && startMinute === 0)) {
     const timeString = `${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
@@ -172,9 +172,8 @@ export default function CartPage() {
   };
 
   const generateOrderNumber = () => {
-    const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const randomPart = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    return `ORD-${datePart}-${randomPart}`;
+    // Generate 4 digit random number
+    return Math.floor(1000 + Math.random() * 9000).toString();
   };
 
   const handleSubmitOrder = async () => {
