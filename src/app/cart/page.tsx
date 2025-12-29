@@ -310,6 +310,12 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
                 Ana Sayfaya Dön
               </Button>
             </Link>
+            <Link href="/siparis-takip">
+              <Button variant="outline" className="w-full h-12 rounded-xl text-gray-600 border-gray-300 hover:bg-gray-50">
+                <Truck className="w-4 h-4 mr-2" />
+                Siparişimi Takip Et
+              </Button>
+            </Link>
           </div>
         </Card>
       </div>
