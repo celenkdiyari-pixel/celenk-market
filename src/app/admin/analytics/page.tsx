@@ -247,7 +247,7 @@ export default function AnalyticsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Ortalama Sipariş</p>
-                  <p className="text-3xl font-bold text-gray-900">₺{customerAnalytics?.avgOrderValue.toFixed(2)}</p>
+                  <p className="text-3xl font-bold text-gray-900">₺{(Number(customerAnalytics?.avgOrderValue) || 0).toFixed(2)}</p>
                 </div>
                 <div className="p-3 bg-orange-100 rounded-full">
                   <Target className="h-8 w-8 text-orange-600" />
@@ -387,11 +387,11 @@ export default function AnalyticsPage() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Ortalama Sipariş</span>
-                <span className="font-bold text-purple-600">₺{customerAnalytics?.avgOrderValue.toFixed(2)}</span>
+                <span className="font-bold text-purple-600">₺{(Number(customerAnalytics?.avgOrderValue) || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Müşteri Yaşam Değeri</span>
-                <span className="font-bold text-orange-600">₺{customerAnalytics?.customerLifetimeValue.toFixed(2)}</span>
+                <span className="font-bold text-orange-600">₺{(Number(customerAnalytics?.customerLifetimeValue) || 0).toFixed(2)}</span>
               </div>
             </CardContent>
           </Card>

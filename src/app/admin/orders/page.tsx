@@ -295,8 +295,8 @@ export default function OrdersPage() {
                         </div>
                       </div>
                       <div className="flex flex-col items-end justify-center">
-                        <span className="text-2xl font-bold text-green-600">{order.total?.toFixed(2)} ₺</span>
-                        <span className="text-sm text-gray-400">Kargo: {order.shippingCost?.toFixed(2)} ₺</span>
+                        <span className="text-2xl font-bold text-green-600">{(Number(order.total) || 0).toFixed(2)} ₺</span>
+                        <span className="text-sm text-gray-400">Kargo: {(Number(order.shippingCost) || 0).toFixed(2)} ₺</span>
                       </div>
                     </div>
 
@@ -406,6 +406,35 @@ export default function OrdersPage() {
                           </div>
                         </div>
 
+                        {selectedOrder.paymentDetails && (
+                          <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                            <h4 className="text-xs font-bold text-gray-400 uppercase mb-3 flex items-center gap-1">
+                              <CreditCard className="w-3 h-3" /> Ödeme Detayları
+                            </h4>
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">İşlem ID:</span>
+                                <span className="font-mono text-xs">{selectedOrder.paymentDetails.paytrTransactionId || '-'}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">Ödeme Tutarı:</span>
+                                <span className="font-bold text-green-600">
+                                  {(Number(selectedOrder.paymentDetails.paymentAmount) || Number(selectedOrder.total) || 0).toFixed(2)} {selectedOrder.paymentDetails.currency || '₺'}
+                                </span>
+                              </div>
+                              {selectedOrder.paymentDetails.processedAt && (
+                                <div className="flex justify-between">
+                                  <span className="text-gray-500">İşlem Tarihi:</span>
+                                  <span>{new Date(selectedOrder.paymentDetails.processedAt).toLocaleString('tr-TR')}</span>
+                                </div>
+                              )}
+                              {selectedOrder.paymentDetails.testMode && (
+                                <Badge className="w-full justify-center bg-orange-100 text-orange-800 border-0">Test Modu</Badge>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
                         <div className="mt-6 pt-4 border-t border-gray-100">
                           <span className="text-xs text-gray-500 uppercase font-bold mb-2 block">Sipariş Durumunu Değiştir</span>
                           <select
@@ -440,7 +469,7 @@ export default function OrdersPage() {
                               <p className="font-medium text-sm">{item.productName || item.name}</p>
                               <div className="flex justify-between mt-1 text-sm text-gray-500">
                                 <span>x{item.quantity}</span>
-                                <span className="font-bold text-gray-900">{item.price?.toFixed(2)} ₺</span>
+                                <span className="font-bold text-gray-900">{(Number(item.price) || 0).toFixed(2)} ₺</span>
                               </div>
                             </div>
                           </div>
@@ -448,7 +477,7 @@ export default function OrdersPage() {
                         <div className="p-4 bg-gray-50 rounded-b-xl">
                           <div className="flex justify-between text-lg font-bold">
                             <span>Toplam</span>
-                            <span className="text-green-600">{selectedOrder.total?.toFixed(2)} ₺</span>
+                            <span className="text-green-600">{(Number(selectedOrder.total) || 0).toFixed(2)} ₺</span>
                           </div>
                         </div>
                       </CardContent>

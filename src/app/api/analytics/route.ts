@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
       const date = new Date(order.createdAt).toISOString().split('T')[0];
       const existing = salesDataMap.get(date) || { revenue: 0, orders: 0, customers: new Set() };
 
-      existing.revenue += order.total || 0;
+      existing.revenue += Number(order.total || 0);
       existing.orders += 1;
       if (order.customer?.email) {
         existing.customers.add(order.customer.email);
@@ -104,8 +104,8 @@ export async function GET(request: NextRequest) {
 
           if (item.productName) existing.name = item.productName;
 
-          existing.sales += item.quantity || 0;
-          existing.revenue += (item.price || 0) * (item.quantity || 0);
+          existing.sales += Number(item.quantity || 0);
+          existing.revenue += Number(item.price || 0) * Number(item.quantity || 0);
           existing.orders += 1;
 
           productPerformanceMap.set(productId, existing);
@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
     const customerEmails = new Set(filteredOrders.map((order: OrderData) => order.customer?.email).filter(Boolean));
     const returningCustomers = Array.from(customerEmails).length;
 
-    const totalRevenue = filteredOrders.reduce((sum: number, order: OrderData) => sum + (order.total || 0), 0);
+    const totalRevenue = filteredOrders.reduce((sum: number, order: OrderData) => sum + Number(order.total || 0), 0);
     const avgOrderValue = filteredOrders.length > 0 ? totalRevenue / filteredOrders.length : 0;
 
     const customerAnalytics = {
@@ -167,7 +167,7 @@ export async function GET(request: NextRequest) {
 
           const existing = categoryMap.get(category) || { revenue: 0, orders: 0, products: new Set() };
 
-          existing.revenue += (item.price || 0) * (item.quantity || 0);
+          existing.revenue += Number(item.price || 0) * Number(item.quantity || 0);
           existing.orders += 1;
           existing.products.add(item.productId || item.productName);
 
@@ -183,6 +183,7 @@ export async function GET(request: NextRequest) {
       products: data.products.size,
       growth: 0 // Would need historical data to calculate
     })).sort((a, b) => b.revenue - a.revenue);
+
 
     console.log(`✅ Analytics data calculated: ${salesData.length} days, ${productPerformance.length} products`);
 

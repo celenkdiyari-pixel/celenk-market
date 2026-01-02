@@ -40,6 +40,9 @@ export async function POST(request: NextRequest) {
 
     const order = {
       ...orderData,
+      total: Number(orderData.total || 0),
+      subtotal: Number(orderData.subtotal || 0),
+      shippingCost: Number(orderData.shippingCost || 0),
       orderNumber,
       status: 'pending',
       paymentStatus: 'pending',

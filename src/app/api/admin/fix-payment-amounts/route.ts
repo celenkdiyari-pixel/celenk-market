@@ -33,35 +33,53 @@ export async function POST(request: NextRequest) {
 
         snapshot.forEach((doc) => {
             const data = doc.data();
+            const updatesForDoc: any = {};
+            let needsUpdate = false;
 
-            // Check if order has paymentDetails with paymentAmount
+            // 1. Fix paymentDetails.paymentAmount
             if (data.paymentDetails && data.paymentDetails.paymentAmount) {
                 const currentAmount = data.paymentDetails.paymentAmount;
-
-                // If it's a string, convert to number
                 if (typeof currentAmount === 'string') {
                     const numericAmount = parseFloat(currentAmount);
-
                     if (!isNaN(numericAmount)) {
-                        console.log(`🔧 Fixing order ${doc.id}: "${currentAmount}" -> ${numericAmount}`);
-
-                        updates.push(
-                            doc.ref.update({
-                                'paymentDetails.paymentAmount': numericAmount
-                            })
-                        );
-
-                        updatedCount++;
-                    } else {
-                        console.warn(`⚠️  Order ${doc.id}: Invalid amount "${currentAmount}"`);
-                        skippedCount++;
+                        updatesForDoc['paymentDetails.paymentAmount'] = numericAmount;
+                        needsUpdate = true;
                     }
-                } else {
-                    // Already a number or other type, skip
-                    skippedCount++;
                 }
+            }
+
+            // 2. Fix main total
+            if (data.total !== undefined && typeof data.total === 'string') {
+                const numericTotal = parseFloat(data.total);
+                if (!isNaN(numericTotal)) {
+                    updatesForDoc['total'] = numericTotal;
+                    needsUpdate = true;
+                }
+            }
+
+            // 3. Fix subtotal
+            if (data.subtotal !== undefined && typeof data.subtotal === 'string') {
+                const numericSubtotal = parseFloat(data.subtotal);
+                if (!isNaN(numericSubtotal)) {
+                    updatesForDoc['subtotal'] = numericSubtotal;
+                    needsUpdate = true;
+                }
+            }
+
+            // 4. Fix shippingCost
+            if (data.shippingCost !== undefined && typeof data.shippingCost === 'string') {
+                const numericShipping = parseFloat(data.shippingCost);
+                if (!isNaN(numericShipping)) {
+                    updatesForDoc['shippingCost'] = numericShipping;
+                    needsUpdate = true;
+                }
+            }
+
+            if (needsUpdate) {
+                console.log(`🔧 Fixing order ${doc.id}:`, updatesForDoc);
+                updates.push(doc.ref.update(updatesForDoc));
+                updatedCount++;
             } else {
-                // No payment details or amount
                 skippedCount++;
             }
         });

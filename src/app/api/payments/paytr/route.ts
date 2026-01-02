@@ -186,9 +186,9 @@ export async function POST(request: NextRequest) {
         deliveryAddress,
         invoice,
         items: sanitizedItems, // Use sanitized items
-        subtotal: orderData.subtotal || 0,
-        shippingCost,
-        total: orderData.total || strictBasketTotal,
+        subtotal: Number(orderData.subtotal || 0),
+        shippingCost: Number(shippingCost || 0),
+        total: Number(orderData.total || strictBasketTotal),
         notes: orderData.notes || '',
         delivery_time: orderData.delivery_time || orderData.recipient?.deliveryTime || '',
         delivery_date: orderData.delivery_date || orderData.recipient?.deliveryDate || '',

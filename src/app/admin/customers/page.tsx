@@ -61,7 +61,7 @@ export default function CustomersPage() {
   const [editingCustomerId, setEditingCustomerId] = useState<string>('');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  
+
   const [newCustomer, setNewCustomer] = useState({
     firstName: '',
     lastName: '',
@@ -118,14 +118,14 @@ export default function CustomersPage() {
   };
 
   const filteredCustomers = customers.filter(customer => {
-    const matchesSearch = 
+    const matchesSearch =
       customer.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.phone.includes(searchTerm);
-    
+
     const matchesStatus = statusFilter === 'all' || customer.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -136,21 +136,21 @@ export default function CustomersPage() {
     }
 
     try {
-      const url = isEditingCustomer 
+      const url = isEditingCustomer
         ? `/api/customers/${editingCustomerId}`
         : '/api/customers';
-      
+
       const response = await fetch(url, {
         method: isEditingCustomer ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newCustomer)
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to save customer');
       }
-      
+
       const data = await response.json();
       const customerData = data.customer || {
         ...newCustomer,
@@ -168,7 +168,7 @@ export default function CustomersPage() {
 
       setShowSuccessMessage(true);
       setTimeout(() => setShowSuccessMessage(false), 3000);
-      
+
       setIsAddingCustomer(false);
       setIsEditingCustomer(false);
       setEditingCustomerId('');
@@ -219,7 +219,7 @@ export default function CustomersPage() {
       const response = await fetch(`/api/customers/${customerId}`, {
         method: 'DELETE'
       });
-      
+
       if (response.ok) {
         setCustomers(prev => prev.filter(c => c.id !== customerId));
       } else {
@@ -346,32 +346,32 @@ export default function CustomersPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
                     value={newCustomer.address.street}
-                    onChange={(e) => setNewCustomer(prev => ({ 
-                      ...prev, 
+                    onChange={(e) => setNewCustomer(prev => ({
+                      ...prev,
                       address: { ...prev.address, street: e.target.value }
                     }))}
                     placeholder="Sokak/Mahalle"
                   />
                   <Input
                     value={newCustomer.address.district}
-                    onChange={(e) => setNewCustomer(prev => ({ 
-                      ...prev, 
+                    onChange={(e) => setNewCustomer(prev => ({
+                      ...prev,
                       address: { ...prev.address, district: e.target.value }
                     }))}
                     placeholder="İlçe"
                   />
                   <Input
                     value={newCustomer.address.city}
-                    onChange={(e) => setNewCustomer(prev => ({ 
-                      ...prev, 
+                    onChange={(e) => setNewCustomer(prev => ({
+                      ...prev,
                       address: { ...prev.address, city: e.target.value }
                     }))}
                     placeholder="İl"
                   />
                   <Input
                     value={newCustomer.address.postalCode}
-                    onChange={(e) => setNewCustomer(prev => ({ 
-                      ...prev, 
+                    onChange={(e) => setNewCustomer(prev => ({
+                      ...prev,
                       address: { ...prev.address, postalCode: e.target.value }
                     }))}
                     placeholder="Posta Kodu"
@@ -464,7 +464,7 @@ export default function CustomersPage() {
 
         {/* Action Buttons */}
         <div className="mb-6">
-          <Button 
+          <Button
             onClick={() => {
               setIsAddingCustomer(true);
               setIsEditingCustomer(false);
@@ -486,7 +486,7 @@ export default function CustomersPage() {
                 <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Müşteri Bulunamadı</h3>
                 <p className="text-gray-500">
-                  {searchTerm || statusFilter !== 'all' 
+                  {searchTerm || statusFilter !== 'all'
                     ? 'Arama kriterlerinize uygun müşteri bulunamadı.'
                     : 'Henüz hiç müşteri kaydı yok.'
                   }
@@ -508,7 +508,7 @@ export default function CustomersPage() {
                           <Star className="h-4 w-4 text-yellow-500" />
                         )}
                       </div>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
                         <div className="flex items-center space-x-2">
                           <Mail className="h-4 w-4" />
@@ -527,7 +527,7 @@ export default function CustomersPage() {
                           <span>Kayıt: {new Date(customer.registrationDate).toLocaleDateString('tr-TR')}</span>
                         </div>
                       </div>
-                      
+
                       <div className="mt-3 flex items-center space-x-6 text-sm">
                         <div className="flex items-center space-x-1">
                           <ShoppingCart className="h-4 w-4 text-blue-600" />
@@ -535,7 +535,7 @@ export default function CustomersPage() {
                         </div>
                         <div className="flex items-center space-x-1">
                           <DollarSign className="h-4 w-4 text-green-600" />
-                          <span>₺{customer.totalSpent.toFixed(2)}</span>
+                          <span>₺{(Number(customer.totalSpent) || 0).toFixed(2)}</span>
                         </div>
                         {customer.lastOrderDate && (
                           <div className="flex items-center space-x-1">
@@ -646,7 +646,7 @@ export default function CustomersPage() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Toplam Harcama:</span>
-                        <span className="font-medium text-green-600">₺{selectedCustomer.totalSpent.toFixed(2)}</span>
+                        <span className="font-medium text-green-600">₺{(Number(selectedCustomer.totalSpent) || 0).toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Kayıt Tarihi:</span>
