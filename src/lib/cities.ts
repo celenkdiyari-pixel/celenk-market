@@ -113,5 +113,13 @@ export function getCityBySlug(slug: string) {
 
     // 3. Normalized check (legacy)
     const normalized = decoded.normalize('NFC').replace(/[\u0307]/g, '').toLowerCase();
+
+    // Explicit check for i + combining dot (fix for i%CC%87 issue)
+    if (decoded.includes('i\u0307')) {
+        const cleanSlug = decoded.replace(/i\u0307/g, 'i').toLowerCase();
+        const match = cities.find(c => c.slug === cleanSlug);
+        if (match) return match;
+    }
+
     return cities.find(city => city.slug === normalized);
 }

@@ -51,12 +51,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CityPage({ params }: Props) {
     const resolvedParams = await params;
+
+    console.log('CityPage Params:', resolvedParams);
+    console.log('CityPage Params.city (raw):', resolvedParams.city);
+
     // Decode URI component to handle Turkish characters correctly
     const decodedSlug = decodeURIComponent(resolvedParams.city);
-    const city = getCityBySlug(decodedSlug) || getCityBySlug(resolvedParams.city);
+    console.log('CityPage Decoded Slug:', decodedSlug);
 
-    // Fetch products server side
-    const products = await getProducts();
+    const city = getCityBySlug(decodedSlug) || getCityBySlug(resolvedParams.city);
+    console.log('CityPage Found City:', city ? city.name : 'NULL');
+
+    // Fetch products server side with limit to save bandwidth
+    const products = await getProducts({ limit: 50 });
 
     if (!city) {
         notFound();

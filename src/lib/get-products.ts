@@ -52,15 +52,20 @@ const mapDocToProduct = (id: string, data: DocumentData): Product => {
     };
 };
 
-export async function getProducts(): Promise<Product[]> {
+export async function getProducts(options: { limit?: number } = {}): Promise<Product[]> {
+    const limitCount = options.limit || 50; // Default limit to save bandwidth
+
     // 1. Try Admin SDK First (Server-Side)
     try {
         const db = getAdminDb();
         if (db) {
-            const productsRef = db.collection('products');
+            let productsRef: any = db.collection('products');
+            if (options.limit) {
+                productsRef = productsRef.limit(limitCount);
+            }
             const snapshot = await productsRef.get();
             if (snapshot.empty) return [];
-            return snapshot.docs.map(doc => mapDocToProduct(doc.id, doc.data()));
+            return snapshot.docs.map((doc: any) => mapDocToProduct(doc.id, doc.data()));
         }
     } catch (error) {
         console.warn('⚠️ Admin SDK failed in getProducts, falling back to Client SDK:', error);
@@ -69,7 +74,18 @@ export async function getProducts(): Promise<Product[]> {
     // 2. Fallback to Client SDK
     try {
         console.log('🔄 Fetching products via Client SDK...');
-        const productsRef = collection(clientDb, 'products');
+        let productsRef: any = collection(clientDb, 'products');
+        if (options.limit) {
+            // Note: client SDK query with limit needs query() wrapper, simplified here for now as usually admin SDK works
+            // If we really need strict limit on client side we should use query(collection, limit(n))
+            // For now just fetching all on fallback is acceptable or we implement proper query
+            // Let's implement proper query
+            const { limit: firestoreLimit, query } = await import('firebase/firestore');
+            const q = query(productsRef, firestoreLimit(limitCount));
+            const snapshot = await getDocs(q);
+            return snapshot.docs.map(doc => mapDocToProduct(doc.id, doc.data()));
+        }
+
         const snapshot = await getDocs(productsRef);
         return snapshot.docs.map(doc => mapDocToProduct(doc.id, doc.data()));
     } catch (clientError) {
