@@ -295,6 +295,18 @@ export async function POST(request: NextRequest) {
         );
 
         await Promise.allSettled(emailPromises);
+
+        // --- TELEGRAM NOTIFICATION ---
+        try {
+          const { sendTelegramNotification, formatOrderMessage } = await import('@/lib/telegram');
+          // Update orderData with new status to reflect in telegram message
+          const updatedOrder = { ...orderData, status: 'confirmed', paymentStatus: 'paid' };
+          const telegramMessage = formatOrderMessage(updatedOrder);
+          await sendTelegramNotification(telegramMessage);
+        } catch (tgError) {
+          console.error('❌ Failed to send Telegram notification (PayTR):', tgError);
+        }
+
       } catch (emailError) {
         console.error('Email sending error (non-blocking):', emailError);
       }

@@ -152,6 +152,15 @@ export async function POST(request: NextRequest) {
       await Promise.allSettled(promises);
       console.log('✅ Emails processed');
 
+      // --- TELEGRAM NOTIFICATION ---
+      try {
+        const { sendTelegramNotification, formatOrderMessage } = await import('@/lib/telegram');
+        const telegramMessage = formatOrderMessage(order);
+        await sendTelegramNotification(telegramMessage);
+      } catch (tgError) {
+        console.error('❌ Failed to send Telegram notification:', tgError);
+      }
+
     } catch (emailError) {
       console.error('❌ Email sending error:', emailError);
     }
