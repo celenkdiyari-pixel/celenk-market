@@ -110,6 +110,7 @@ export function formatOrderMessage(order: any): string {
 <b>👤 Müşteri:</b> ${customerName} ${recipientName}
 <b>📞 Telefon:</b> ${order.customer?.phone || '-'}
 <b>📍 Adres:</b> ${fullAddress || '-'}
+<b>📅 Teslimat Zamanı:</b> ${order.delivery_date || '-'} / ${order.delivery_time || '-'}
 
 <b>🛒 Ürünler:</b>
 ${itemsList}
