@@ -298,11 +298,12 @@ export async function POST(request: NextRequest) {
 
         // --- TELEGRAM NOTIFICATION ---
         try {
-          const { sendTelegramNotification, formatOrderMessage } = await import('@/lib/telegram');
+          const { sendTelegramNotification, formatOrderMessage, getOrderImage } = await import('@/lib/telegram');
           // Update orderData with new status to reflect in telegram message
           const updatedOrder = { ...orderData, status: 'confirmed', paymentStatus: 'paid' };
           const telegramMessage = formatOrderMessage(updatedOrder);
-          await sendTelegramNotification(telegramMessage);
+          const imageUrl = getOrderImage(updatedOrder);
+          await sendTelegramNotification(telegramMessage, imageUrl);
         } catch (tgError) {
           console.error('❌ Failed to send Telegram notification (PayTR):', tgError);
         }
