@@ -5,6 +5,21 @@ interface TelegramMessage {
     parse_mode?: 'HTML' | 'MarkdownV2';
 }
 
+
+// Helper to extract the main image from order
+export function getOrderImage(order: any): string | undefined {
+    if (Array.isArray(order.items) && order.items.length > 0) {
+        const firstItem = order.items[0];
+        // Check for common image properties
+        const img = firstItem.image || (firstItem.images && firstItem.images[0]);
+        // Allow HTTP URLs or Base64 Data URIs
+        if (img && (img.startsWith('http') || img.startsWith('https') || img.startsWith('data:image'))) {
+            return img;
+        }
+    }
+    return undefined;
+}
+
 export async function sendTelegramNotification(message: string, imageUrl?: string): Promise<boolean> {
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
@@ -16,38 +31,65 @@ export async function sendTelegramNotification(message: string, imageUrl?: strin
 
     try {
         const isPhoto = !!imageUrl;
-        const method = isPhoto ? 'sendPhoto' : 'sendMessage';
-        const url = `https://api.telegram.org/bot${token}/${method}`;
+        const isBase64 = isPhoto && imageUrl?.startsWith('data:');
 
-        const payload: any = {
-            chat_id: chatId,
-            parse_mode: 'HTML',
-        };
+        const url = `https://api.telegram.org/bot${token}/${isPhoto ? 'sendPhoto' : 'sendMessage'}`;
 
-        if (isPhoto) {
-            payload.photo = imageUrl;
-            payload.caption = message;
-            // Truncate caption if too long (Telegram limit 1024)
-            if (payload.caption.length > 1024) {
-                payload.caption = payload.caption.substring(0, 1021) + '...';
+        let body: any;
+        let headers: any = {};
+
+        if (isBase64) {
+            // Handle Base64 Image (Multipart)
+            const formData = new FormData();
+            formData.append('chat_id', chatId);
+            formData.append('caption', message.length > 1024 ? message.substring(0, 1021) + '...' : message);
+            formData.append('parse_mode', 'HTML');
+
+            // Convert Base64 to Blob
+            const base64Data = imageUrl!.split(',')[1];
+            const mimeType = imageUrl!.split(';')[0].split(':')[1];
+            const binaryStr = atob(base64Data);
+            const len = binaryStr.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryStr.charCodeAt(i);
             }
+            const blob = new Blob([bytes], { type: mimeType });
+            formData.append('photo', blob, 'order_image.jpg');
+
+            body = formData;
+            // Fetch handles boundaries for FormData automatically, so no custom Content-Type header needed
         } else {
-            payload.text = message;
+            // Handle URL or Text (JSON)
+            headers['Content-Type'] = 'application/json';
+            const payload: any = {
+                chat_id: chatId,
+                parse_mode: 'HTML',
+            };
+
+            if (isPhoto) {
+                payload.photo = imageUrl;
+                payload.caption = message;
+                if (payload.caption.length > 1024) {
+                    payload.caption = payload.caption.substring(0, 1021) + '...';
+                }
+            } else {
+                payload.text = message;
+            }
+            body = JSON.stringify(payload);
         }
 
         const response = await fetch(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
+            headers: headers,
+            body: body,
         });
 
         if (!response.ok) {
             const errorData = await response.json();
-            console.error(`❌ Telegram ${method} Error:`, errorData);
+            console.error(`❌ Telegram Error (${isPhoto ? 'Photo' : 'Message'}):`, errorData);
 
-            // Fallback: If sending photo fails (e.g. invalid URL), try sending just text
+            // Retry with text only if photo failed
             if (isPhoto) {
                 console.log('🔄 Retrying with text only...');
                 return sendTelegramNotification(message);
@@ -55,7 +97,7 @@ export async function sendTelegramNotification(message: string, imageUrl?: strin
             return false;
         }
 
-        console.log(`✅ Telegram ${method} sent successfully.`);
+        console.log('✅ Telegram notification sent successfully.');
         return true;
     } catch (error) {
         console.error('❌ Failed to send Telegram notification:', error);
@@ -122,15 +164,4 @@ ${note}${wreathText}
     `.trim();
 }
 
-// Helper to extract the main image from order
-export function getOrderImage(order: any): string | undefined {
-    if (Array.isArray(order.items) && order.items.length > 0) {
-        const firstItem = order.items[0];
-        // Check for common image properties
-        const img = firstItem.image || (firstItem.images && firstItem.images[0]);
-        if (img && (img.startsWith('http') || img.startsWith('https'))) {
-            return img;
-        }
-    }
-    return undefined;
-}
+// End of file
