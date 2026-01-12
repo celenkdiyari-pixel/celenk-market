@@ -8,6 +8,8 @@ import { CheckCircle, Mail, Phone } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 function PaymentSuccessContent() {
   const { clearCart } = useCart();
   const searchParams = useSearchParams();

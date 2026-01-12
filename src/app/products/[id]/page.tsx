@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { getProduct } from '@/lib/get-products';
 import ProductDetailClient from './product-detail-client';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{
     id: string;

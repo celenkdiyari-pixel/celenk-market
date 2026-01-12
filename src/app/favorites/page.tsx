@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Heart, 
-  ShoppingCart, 
-  ArrowLeft, 
+import {
+  Heart,
+  ShoppingCart,
+  ArrowLeft,
   Star,
   Package,
   Trash2
@@ -15,6 +15,8 @@ import {
 import { useCart } from '@/contexts/CartContext';
 import Link from 'next/link';
 import Image from 'next/image';
+
+export const dynamic = 'force-dynamic';
 
 interface Product {
   id: string;
@@ -80,7 +82,7 @@ export default function FavoritesPage() {
                 Ana Sayfaya Dön
               </Button>
             </Link>
-            <h1 
+            <h1
               className="text-3xl font-bold text-gray-900"
               style={{
                 fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -96,7 +98,7 @@ export default function FavoritesPage() {
 
           <div className="text-center py-16">
             <Heart className="h-16 w-16 text-gray-400 mx-auto mb-6" />
-            <h2 
+            <h2
               className="text-2xl font-bold text-gray-900 mb-4"
               style={{
                 fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -108,7 +110,7 @@ export default function FavoritesPage() {
             >
               Favori Ürününüz Yok
             </h2>
-            <p 
+            <p
               className="text-lg text-gray-600 mb-8"
               style={{
                 fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -165,7 +167,7 @@ export default function FavoritesPage() {
                   </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                
+
                 <div className="absolute top-3 right-3 flex flex-col gap-2">
                   <Badge variant={product.inStock ? "default" : "destructive"} className="shadow-lg text-xs">
                     {product.inStock ? 'Stokta' : 'Stokta Yok'}
@@ -179,14 +181,14 @@ export default function FavoritesPage() {
                     <Heart className="h-3 w-3 fill-red-500 text-red-500" />
                   </Button>
                 </div>
-                
+
                 <div className="absolute top-3 left-3">
                   <Badge variant="outline" className="bg-white/90 backdrop-blur-sm text-gray-700 border-gray-300 text-xs">
                     {product.category}
                   </Badge>
                 </div>
               </div>
-              
+
               <CardContent className="p-4">
                 <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-green-600 transition-colors duration-300">
                   {product.name}
@@ -194,7 +196,7 @@ export default function FavoritesPage() {
                 <p className="text-gray-600 text-sm mb-3 line-clamp-2 leading-relaxed">
                   {product.description}
                 </p>
-                
+
                 <div className="flex justify-between items-center mb-3">
                   <div>
                     <span className="text-2xl font-bold text-green-600">
@@ -207,10 +209,10 @@ export default function FavoritesPage() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex space-x-2">
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     className="flex-1 bg-green-600 hover:bg-green-700 shadow-lg hover:shadow-xl transition-all duration-300"
                     onClick={() => addToCart(product)}
                     disabled={!product.inStock}

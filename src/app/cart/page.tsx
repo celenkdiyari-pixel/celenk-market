@@ -28,6 +28,8 @@ import toast from 'react-hot-toast';
 import Image from 'next/image';
 import { DELIVERY_PLACES, DELIVERY_TIME_SLOTS } from '@/lib/constants';
 
+export const dynamic = 'force-dynamic';
+
 interface CustomerInfo {
   name: string;
   email: string;
@@ -210,20 +212,20 @@ export default function CartPage() {
       if (paymentMethod === 'credit_card') {
         // PayTR Flow
         console.log('💳 Initiating PayTR payment...', payload);
+        // Google Ads Enhanced Conversions için verileri kaydet
+        localStorage.setItem('gads_user_data', JSON.stringify({
+          email: senderInfo.email,
+          phone: senderInfo.phone,
+          firstName: senderInfo.name.split(' ')[0],
+          lastName: senderInfo.name.split(' ').slice(1).join(' '),
+          address: recipientInfo.address,
+          city: recipientInfo.city,
+          district: recipientInfo.district,
+          value: total
+        }));
+
         const response = await fetch('/api/payments/paytr', {
           method: 'POST',
-          // Google Ads Enhanced Conversions için verileri kaydet
-          localStorage.setItem('gads_user_data', JSON.stringify({
-            email: senderInfo.email,
-            phone: senderInfo.phone,
-            firstName: senderInfo.name.split(' ')[0],
-            lastName: senderInfo.name.split(' ').slice(1).join(' '),
-            address: recipientInfo.address,
-            city: recipientInfo.city,
-            district: recipientInfo.district,
-            value: total
-          }));
-
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });

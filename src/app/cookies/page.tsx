@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   description: 'Çelenk Diyarı çerez politikası ve çerez kullanımı hakkında detaylı bilgiler.',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default function CookiesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -19,7 +21,7 @@ export default function CookiesPage() {
               <h1 className="text-4xl font-bold">Çerez Politikası</h1>
             </div>
             <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-              Web sitemizde çerez kullanımı hakkında detaylı bilgiler ve 
+              Web sitemizde çerez kullanımı hakkında detaylı bilgiler ve
               çerez tercihlerinizi nasıl yönetebileceğiniz.
             </p>
           </div>
@@ -36,7 +38,7 @@ export default function CookiesPage() {
                 Çerez Nedir?
               </h2>
               <p className="text-gray-700 mb-6">
-                Çerezler, web sitelerini ziyaret ettiğinizde tarayıcınızda saklanan küçük metin dosyalarıdır. 
+                Çerezler, web sitelerini ziyaret ettiğinizde tarayıcınızda saklanan küçük metin dosyalarıdır.
                 Bu dosyalar, web sitesinin daha iyi çalışmasını sağlar ve kullanıcı deneyimini iyileştirir.
               </p>
 
@@ -44,7 +46,7 @@ export default function CookiesPage() {
                 <Settings className="h-6 w-6 text-blue-600" />
                 Çerez Türleri
               </h2>
-              
+
               <div className="grid md:grid-cols-2 gap-6 mb-8">
                 <div className="bg-green-50 p-6 rounded-lg">
                   <h3 className="text-lg font-semibold text-green-800 mb-3">Zorunlu Çerezler</h3>
@@ -104,7 +106,7 @@ export default function CookiesPage() {
                 Çerez Yönetimi
               </h2>
               <p className="text-gray-700 mb-6">
-                Çerez tercihlerinizi istediğiniz zaman değiştirebilirsiniz. Ancak, bazı çerezleri devre dışı bırakmanız 
+                Çerez tercihlerinizi istediğiniz zaman değiştirebilirsiniz. Ancak, bazı çerezleri devre dışı bırakmanız
                 web sitesinin bazı özelliklerinin düzgün çalışmamasına neden olabilir.
               </p>
 
@@ -123,7 +125,7 @@ export default function CookiesPage() {
               <p className="text-gray-700 mb-6">
                 Web sitemizde çerez tercihlerinizi kolayca yönetebilirsiniz:
               </p>
-              
+
               <div className="bg-gray-50 p-6 rounded-lg mb-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
@@ -134,7 +136,7 @@ export default function CookiesPage() {
                     Zorunlu
                   </Button>
                 </div>
-                
+
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h4 className="font-semibold text-gray-900">Analitik Çerezler</h4>
@@ -144,7 +146,7 @@ export default function CookiesPage() {
                     Kabul Et
                   </Button>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div>
                     <h4 className="font-semibold text-gray-900">Pazarlama Çerezleri</h4>
@@ -183,7 +185,7 @@ export default function CookiesPage() {
 
               <div className="mt-8 p-6 bg-green-50 rounded-lg">
                 <p className="text-green-800 text-sm">
-                  <strong>Son Güncelleme:</strong> Bu çerez politikası son olarak 2024 yılında güncellenmiştir. 
+                  <strong>Son Güncelleme:</strong> Bu çerez politikası son olarak 2024 yılında güncellenmiştir.
                   Değişiklikler web sitemizde yayınlanacaktır.
                 </p>
               </div>

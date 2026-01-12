@@ -21,6 +21,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 interface Announcement {
   id: string;
   title: string;
@@ -43,7 +45,7 @@ export default function AnnouncementsPage() {
   const [editingAnnouncementId, setEditingAnnouncementId] = useState<string>('');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  
+
   const [newAnnouncement, setNewAnnouncement] = useState({
     title: '',
     content: '',
@@ -65,7 +67,7 @@ export default function AnnouncementsPage() {
       console.log('📢 Loading announcements...');
       const response = await fetch('/api/announcements');
       console.log('📢 Response status:', response.status);
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log('📢 Loaded announcements:', data);
@@ -90,10 +92,10 @@ export default function AnnouncementsPage() {
         return;
       }
 
-      const url = isEditingAnnouncement 
+      const url = isEditingAnnouncement
         ? `/api/announcements/${editingAnnouncementId}`
         : '/api/announcements';
-      
+
       const method = isEditingAnnouncement ? 'PUT' : 'POST';
 
       console.log('📢 Saving announcement:', newAnnouncement);
@@ -111,10 +113,10 @@ export default function AnnouncementsPage() {
       if (response.ok) {
         const result = await response.json();
         console.log('✅ Announcement saved successfully:', result);
-        
+
         setShowSuccessMessage(true);
         setTimeout(() => setShowSuccessMessage(false), 3000);
-        
+
         setIsAddingAnnouncement(false);
         setIsEditingAnnouncement(false);
         setEditingAnnouncementId('');
@@ -128,7 +130,7 @@ export default function AnnouncementsPage() {
           endDate: '',
           targetPages: ['home']
         });
-        
+
         await loadAnnouncements();
       } else {
         const error = await response.json();
@@ -420,7 +422,7 @@ export default function AnnouncementsPage() {
 
         {/* Action Buttons */}
         <div className="mb-6">
-          <Button 
+          <Button
             onClick={() => {
               setIsAddingAnnouncement(true);
               setIsEditingAnnouncement(false);
@@ -459,11 +461,11 @@ export default function AnnouncementsPage() {
                           {announcement.isActive ? 'Aktif' : 'Pasif'}
                         </Badge>
                       </div>
-                      
+
                       <p className="text-gray-600 mb-3 line-clamp-2">
                         {announcement.content}
                       </p>
-                      
+
                       <div className="flex items-center space-x-4 text-sm text-gray-500">
                         <div className="flex items-center space-x-1">
                           <Calendar className="h-4 w-4" />

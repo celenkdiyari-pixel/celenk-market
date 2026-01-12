@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+export const dynamic = 'force-dynamic';
+
 export default function MigratePage() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<any>(null);
@@ -53,8 +55,8 @@ export default function MigratePage() {
                         {result && (
                             <div
                                 className={`p-4 rounded-lg ${result.success
-                                        ? 'bg-green-50 border border-green-200'
-                                        : 'bg-red-50 border border-red-200'
+                                    ? 'bg-green-50 border border-green-200'
+                                    : 'bg-red-50 border border-red-200'
                                     }`}
                             >
                                 <h3

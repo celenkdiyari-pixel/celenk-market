@@ -7,6 +7,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { XCircle, RefreshCw, ArrowLeft, Phone } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 function PaymentFailedContent() {
   const searchParams = useSearchParams();
   const [orderNumber, setOrderNumber] = useState<string>('');

@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   description: 'Çelenk Diyarı gizlilik politikası ve kişisel verilerin korunması hakkında bilgiler.',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-slate-100">
@@ -18,7 +20,7 @@ export default function PrivacyPage() {
               <h1 className="text-4xl font-bold">Gizlilik Politikası</h1>
             </div>
             <p className="text-xl text-gray-200 max-w-2xl mx-auto">
-              Kişisel verilerinizin korunması bizim için önemlidir. 
+              Kişisel verilerinizin korunması bizim için önemlidir.
               Gizlilik politikamızı detaylı olarak inceleyebilirsiniz.
             </p>
           </div>
@@ -35,7 +37,7 @@ export default function PrivacyPage() {
                 Veri Toplama ve Kullanım
               </h2>
               <p className="text-gray-700 mb-6">
-                Çelenk Diyarı olarak, hizmetlerimizi sunabilmek için belirli kişisel verilerinizi topluyoruz. 
+                Çelenk Diyarı olarak, hizmetlerimizi sunabilmek için belirli kişisel verilerinizi topluyoruz.
                 Bu veriler yalnızca belirtilen amaçlar doğrultusunda kullanılır ve üçüncü taraflarla paylaşılmaz.
               </p>
 
@@ -53,7 +55,7 @@ export default function PrivacyPage() {
                 Veri Güvenliği
               </h2>
               <p className="text-gray-700 mb-6">
-                Kişisel verilerinizin güvenliği için endüstri standardı güvenlik önlemleri alıyoruz. 
+                Kişisel verilerinizin güvenliği için endüstri standardı güvenlik önlemleri alıyoruz.
                 Verileriniz şifrelenmiş olarak saklanır ve yetkisiz erişime karşı korunur.
               </p>
 
@@ -71,7 +73,7 @@ export default function PrivacyPage() {
                 Çerezler (Cookies)
               </h2>
               <p className="text-gray-700 mb-6">
-                Web sitemizde kullanıcı deneyimini iyileştirmek için çerezler kullanıyoruz. 
+                Web sitemizde kullanıcı deneyimini iyileştirmek için çerezler kullanıyoruz.
                 Bu çerezler kişisel bilgilerinizi toplamaz ve tarayıcınızda saklanır.
               </p>
 
@@ -87,7 +89,7 @@ export default function PrivacyPage() {
                 Veri Paylaşımı
               </h2>
               <p className="text-gray-700 mb-6">
-                Kişisel verilerinizi üçüncü taraflarla paylaşmayız. Ancak, yasal yükümlülüklerimizi 
+                Kişisel verilerinizi üçüncü taraflarla paylaşmayız. Ancak, yasal yükümlülüklerimizi
                 yerine getirmek veya hizmetlerimizi sunmak için gerekli durumlarda sınırlı paylaşım yapabiliriz.
               </p>
 
@@ -119,7 +121,7 @@ export default function PrivacyPage() {
 
               <div className="mt-8 p-6 bg-blue-50 rounded-lg">
                 <p className="text-blue-800 text-sm">
-                  <strong>Son Güncelleme:</strong> Bu gizlilik politikası son olarak 2024 yılında güncellenmiştir. 
+                  <strong>Son Güncelleme:</strong> Bu gizlilik politikası son olarak 2024 yılında güncellenmiştir.
                   Değişiklikler web sitemizde yayınlanacaktır.
                 </p>
               </div>

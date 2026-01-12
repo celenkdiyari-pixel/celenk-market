@@ -8,6 +8,8 @@ import { Search, Package, Calendar, Clock, MapPin, Truck, CheckCircle, AlertCirc
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 
+export const dynamic = 'force-dynamic';
+
 // Types (simplified from Order)
 interface OrderResult {
     orderNumber: string;

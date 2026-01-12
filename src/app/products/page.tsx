@@ -19,6 +19,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import ProductCard from '@/components/product-card';
 
+export const dynamic = 'force-dynamic';
+
 interface Product {
   id: string;
   name: string;

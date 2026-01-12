@@ -2,6 +2,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Heart, Users, Award, Leaf } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
+
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100">
@@ -9,7 +11,7 @@ export default function AboutPage() {
       <section className="bg-gradient-to-r from-green-600 to-emerald-700 text-white py-20">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h1 
+            <h1
               className="text-4xl lg:text-5xl font-bold mb-6"
               style={{
                 fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -21,7 +23,7 @@ export default function AboutPage() {
             >
               Hakkımızda
             </h1>
-            <p 
+            <p
               className="text-xl text-green-100 max-w-3xl mx-auto"
               style={{
                 fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -29,7 +31,7 @@ export default function AboutPage() {
                 letterSpacing: 'normal'
               }}
             >
-              Doğanın en güzel hediyelerini sevdiklerinize ulaştırmak için yola çıktık. 
+              Doğanın en güzel hediyelerini sevdiklerinize ulaştırmak için yola çıktık.
               Çelenk Diyarı olarak, özel günlerinizi unutulmaz kılmak için buradayız.
             </p>
           </div>
@@ -41,7 +43,7 @@ export default function AboutPage() {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <h2 
+              <h2
                 className="text-3xl font-bold text-gray-900"
                 style={{
                   fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -52,12 +54,12 @@ export default function AboutPage() {
                 Misyonumuz
               </h2>
               <p className="text-lg text-gray-600 leading-relaxed">
-                Çelenk Diyarı olarak, doğanın en güzel hediyelerini sevdiklerinize ulaştırmak 
-                için çalışıyoruz. Her çelengimiz, özenle seçilmiş taze çiçekler ve doğal 
+                Çelenk Diyarı olarak, doğanın en güzel hediyelerini sevdiklerinize ulaştırmak
+                için çalışıyoruz. Her çelengimiz, özenle seçilmiş taze çiçekler ve doğal
                 malzemelerle hazırlanır.
               </p>
               <p className="text-lg text-gray-600 leading-relaxed">
-                Özel günlerinizde sevdiklerinizi mutlu etmek, anlamlı anları paylaşmak 
+                Özel günlerinizde sevdiklerinizi mutlu etmek, anlamlı anları paylaşmak
                 ve doğanın güzelliğini yaşamınıza katmak için buradayız.
               </p>
             </div>
@@ -74,7 +76,7 @@ export default function AboutPage() {
       <section className="py-20 bg-gradient-to-br from-green-50 to-emerald-100">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 
+            <h2
               className="text-3xl font-bold text-gray-900 mb-4"
               style={{
                 fontFeatureSettings: '"kern" 1, "liga" 1',
@@ -152,18 +154,18 @@ export default function AboutPage() {
             <h2 className="text-3xl font-bold text-gray-900 mb-8">Hikayemiz</h2>
             <div className="space-y-6 text-lg text-gray-600 leading-relaxed">
               <p>
-                Çelenk Diyarı, doğanın güzelliğini insanların yaşamına katma tutkusuyla 
-                kuruldu. Kurucumuz, çiçeklerin ve doğal malzemelerin insanlar üzerindeki 
+                Çelenk Diyarı, doğanın güzelliğini insanların yaşamına katma tutkusuyla
+                kuruldu. Kurucumuz, çiçeklerin ve doğal malzemelerin insanlar üzerindeki
                 olumlu etkisini gözlemleyerek bu alanda hizmet vermeye karar verdi.
               </p>
               <p>
-                Yıllar içinde, özel günlerde sevdiklerini mutlu etmek isteyen binlerce 
-                müşterimize hizmet verdik. Her projemizde, doğallık, kalite ve müşteri 
+                Yıllar içinde, özel günlerde sevdiklerini mutlu etmek isteyen binlerce
+                müşterimize hizmet verdik. Her projemizde, doğallık, kalite ve müşteri
                 memnuniyetini ön planda tuttuk.
               </p>
               <p>
-                Bugün, Çelenk Diyarı olarak, Türkiye&apos;nin önde gelen çelenk üreticilerinden 
-                biri olmanın gururunu yaşıyoruz. Gelecekte de aynı kalite ve hizmet 
+                Bugün, Çelenk Diyarı olarak, Türkiye&apos;nin önde gelen çelenk üreticilerinden
+                biri olmanın gururunu yaşıyoruz. Gelecekte de aynı kalite ve hizmet
                 anlayışıyla yolumuza devam edeceğiz.
               </p>
             </div>
@@ -232,7 +234,7 @@ export default function AboutPage() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">Bizimle İletişime Geçin</h2>
           <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-            Özel günleriniz için çelenk ihtiyaçlarınızda yanınızdayız. 
+            Özel günleriniz için çelenk ihtiyaçlarınızda yanınızdayız.
             Size en uygun çözümü birlikte bulalım.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

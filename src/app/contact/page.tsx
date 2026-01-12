@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: "",
