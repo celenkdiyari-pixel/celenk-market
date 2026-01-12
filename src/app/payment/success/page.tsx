@@ -18,6 +18,41 @@ function PaymentSuccessContent() {
     const merchantOid = searchParams.get('merchant_oid');
     if (merchantOid) {
       setOrderNumber(merchantOid);
+
+      // Google Ads Conversion Tracking (Enhanced)
+      const gadsData = localStorage.getItem('gads_user_data');
+      if (gadsData && typeof window !== 'undefined' && (window as any).gtag) {
+        try {
+          const data = JSON.parse(gadsData);
+
+          // 1. Gelişmiş Dönüşümler için kullanıcı verilerini ayarla
+          (window as any).gtag('set', 'user_data', {
+            email: data.email,
+            phone_number: data.phone,
+            address: {
+              first_name: data.firstName,
+              last_name: data.lastName,
+              street: data.address,
+              city: data.city,
+              region: data.district,
+              country: 'TR'
+            }
+          });
+
+          // 2. Dönüşüm etkinliğini gönder
+          // BURAYI GÜNCELLEYİN: 'AW-XXXXXXXXX/YYYYYYYYYYY' kısmını paneldeki değerle değiştirin
+          (window as any).gtag('event', 'conversion', {
+            'send_to': 'AW-XXXXXXXXX/YYYYYYYYYYYYYYYYYYY',
+            'value': data.value || 1.0,
+            'currency': 'TRY',
+            'transaction_id': merchantOid
+          });
+
+          localStorage.removeItem('gads_user_data');
+        } catch (e) {
+          console.error('Google Ads Error:', e);
+        }
+      }
     }
     // TASK-03: Clear session and cart on success
     localStorage.removeItem('paytr_active_session');

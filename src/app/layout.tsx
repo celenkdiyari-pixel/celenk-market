@@ -9,6 +9,7 @@ import MaintenanceGuard from "@/components/MaintenanceGuard";
 import { getSiteSettings } from "@/lib/get-settings-server";
 import JsonLd from "@/components/json-ld";
 import { Toaster } from 'react-hot-toast';
+import GoogleAds from "@/components/google-ads";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -107,6 +108,7 @@ export const viewport = {
 };
 
 
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -125,6 +127,7 @@ export default async function RootLayout({
           MozOsxFontSmoothing: 'grayscale'
         }}
       >
+        <GoogleAds />
         <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
         <JsonLd />
         <CartProvider>

@@ -212,6 +212,18 @@ export default function CartPage() {
         console.log('💳 Initiating PayTR payment...', payload);
         const response = await fetch('/api/payments/paytr', {
           method: 'POST',
+          // Google Ads Enhanced Conversions için verileri kaydet
+          localStorage.setItem('gads_user_data', JSON.stringify({
+            email: senderInfo.email,
+            phone: senderInfo.phone,
+            firstName: senderInfo.name.split(' ')[0],
+            lastName: senderInfo.name.split(' ').slice(1).join(' '),
+            address: recipientInfo.address,
+            city: recipientInfo.city,
+            district: recipientInfo.district,
+            value: total
+          }));
+
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
