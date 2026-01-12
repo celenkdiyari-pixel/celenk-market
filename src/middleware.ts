@@ -31,6 +31,11 @@ export function middleware(request: NextRequest) {
   if (pathname.startsWith('/api/')) {
     const method = request.method;
 
+    // Allow Telegram Test
+    if (pathname.startsWith('/api/telegram-test')) {
+      return NextResponse.next();
+    }
+
     // API: Products
     if (pathname.startsWith('/api/products')) {
       // Public: GET
