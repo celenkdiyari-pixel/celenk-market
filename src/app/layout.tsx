@@ -10,6 +10,7 @@ import { getSiteSettings } from "@/lib/get-settings-server";
 import JsonLd from "@/components/json-ld";
 import { Toaster } from 'react-hot-toast';
 import GoogleAds from "@/components/google-ads";
+import { Suspense } from 'react';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -127,7 +128,11 @@ export default async function RootLayout({
           MozOsxFontSmoothing: 'grayscale'
         }}
       >
-        <GoogleAds />
+
+
+        <Suspense fallback={null}>
+          <GoogleAds />
+        </Suspense>
         <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
         <JsonLd />
         <CartProvider>
