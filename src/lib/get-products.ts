@@ -129,26 +129,46 @@ import { getCategoryTitleBySlug } from './constants';
 export async function getProductsByCategory(slugOrTitle: string): Promise<Product[]> {
     const productMap = new Map<string, Product>();
 
-    // TASK-07: Resolve correct title from slug if needed
-    const categoryTitle = getCategoryTitleBySlug(slugOrTitle);
+    // 1. Determine Title and Slug
+    // If input is a slug (e.g. 'acilis-toren'), get title 'Açılış & Tören'
+    // If input is already a title, slug might be undefined but that's fine
+    const categoryTitle = getCategoryTitleBySlug(slugOrTitle); // "Açılış & Tören"
+    const rawSlug = slugOrTitle; // "acilis-toren"
 
-    // 1. Try Admin SDK
+    const searchTerms = new Set<string>();
+    if (categoryTitle) searchTerms.add(categoryTitle);
+    if (rawSlug) searchTerms.add(rawSlug);
+
+    // Add fallback/variations if needed (e.g. manual mapping for known issues)
+    // if (rawSlug === 'categories') ...
+
+    const db = getAdminDb();
+
+    // ---------------------------------------------------------
+    // STRATEGY: Try fetching by ALL potential keys (Title & Slug)
+    // ---------------------------------------------------------
+
     try {
-        const db = getAdminDb();
         if (db) {
             const productsRef = db.collection('products');
 
-            // TASK-08: Optimized Query - Only query the array-based 'categories' field 
-            // if we trust the data model, otherwise keep fallback but sequentially to save quota
-            const snapshot = await productsRef.where('categories', 'array-contains', categoryTitle).get();
+            // We will run parallel queries for best performance
+            const promises = [];
 
-            // If empty, try legacy string-based 'category' field
-            if (snapshot.empty) {
-                const legacySnap = await productsRef.where('category', '==', categoryTitle).get();
-                legacySnap.docs.forEach(doc => productMap.set(doc.id, mapDocToProduct(doc.id, doc.data())));
-            } else {
-                snapshot.docs.forEach(doc => productMap.set(doc.id, mapDocToProduct(doc.id, doc.data())));
+            for (const term of searchTerms) {
+                // Query 1: 'categories' array contains term
+                promises.push(productsRef.where('categories', 'array-contains', term).get());
+                // Query 2: 'category' string equals term
+                promises.push(productsRef.where('category', '==', term).get());
             }
+
+            const snapshots = await Promise.all(promises);
+
+            snapshots.forEach(snap => {
+                snap.docs.forEach(doc => {
+                    productMap.set(doc.id, mapDocToProduct(doc.id, doc.data()));
+                });
+            });
 
             if (productMap.size > 0) {
                 return Array.from(productMap.values());
@@ -161,20 +181,23 @@ export async function getProductsByCategory(slugOrTitle: string): Promise<Produc
     // 2. Fallback to Client SDK
     if (productMap.size === 0) {
         try {
-            console.log(`🔄 Fetching category '${categoryTitle}' via Client SDK...`);
+            console.log(`🔄 Fetching category '${slugOrTitle}' via Client SDK...`);
             const productsRef = collection(clientDb, 'products');
 
-            // TASK-08: Sequential queries to save Read Quota
-            const q1 = query(productsRef, where('categories', 'array-contains', categoryTitle));
-            const snap1 = await getDocs(q1);
+            const promises = [];
 
-            if (!snap1.empty) {
-                snap1.docs.forEach(doc => productMap.set(doc.id, mapDocToProduct(doc.id, doc.data())));
-            } else {
-                const q2 = query(productsRef, where('category', '==', categoryTitle));
-                const snap2 = await getDocs(q2);
-                snap2.docs.forEach(doc => productMap.set(doc.id, mapDocToProduct(doc.id, doc.data())));
+            for (const term of searchTerms) {
+                const q1 = query(productsRef, where('categories', 'array-contains', term));
+                const q2 = query(productsRef, where('category', '==', term));
+                promises.push(getDocs(q1), getDocs(q2));
             }
+
+            const snapshots = await Promise.all(promises);
+            snapshots.forEach(snap => {
+                snap.docs.forEach(doc => {
+                    productMap.set(doc.id, mapDocToProduct(doc.id, doc.data()));
+                });
+            });
 
         } catch (clientError) {
             console.error('❌ Error fetching category products (Client SDK):', clientError);
