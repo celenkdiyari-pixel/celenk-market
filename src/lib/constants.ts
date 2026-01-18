@@ -57,7 +57,7 @@ export const generateTimeSlots = () => {
     let startMinute = 0;
     const endHour = 20;
 
-    while (startHour < endHour || (startHour === endHour && startMinute === 0)) {
+    while (startHour < endHour) {
         const timeString = `${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
 
         let endH = startHour;

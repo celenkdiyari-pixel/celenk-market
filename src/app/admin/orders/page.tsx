@@ -256,8 +256,8 @@ export default function OrdersPage() {
                   <div className="flex flex-col lg:flex-row gap-6">
                     {/* Image Thumbnail */}
                     <div className="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0 relative overflow-hidden border border-gray-200">
-                      {order.items && order.items[0]?.image ? (
-                        <Image src={order.items[0].image} alt="Product" fill className="object-cover" />
+                      {order.items && (order.items[0]?.image || order.items[0]?.productImage) ? (
+                        <Image src={order.items[0].image || order.items[0].productImage || ''} alt="Product" fill className="object-cover" />
                       ) : (
                         <Package className="w-8 h-8 m-auto text-gray-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
                       )}
@@ -382,6 +382,36 @@ export default function OrdersPage() {
                         </div>
                       </CardContent>
                     </Card>
+
+                    {/* Additional Notes & Wreath Text */}
+                    {(selectedOrder.wreath_text || selectedOrder.notes) && (
+                      <Card className="border-yellow-100 bg-yellow-50/50">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-lg flex items-center text-yellow-800">
+                            <span className="text-2xl mr-2">🎀</span> Özel İstekler
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          {selectedOrder.wreath_text && (
+                            <div className="bg-white p-3 rounded-xl border border-yellow-200 shadow-sm">
+                              <span className="block text-xs font-bold uppercase text-yellow-600 mb-1">Kuşak Yazısı</span>
+                              <p className="font-bold text-lg text-gray-900 leading-tight">
+                                "{selectedOrder.wreath_text}"
+                              </p>
+                            </div>
+                          )}
+
+                          {selectedOrder.notes && (
+                            <div>
+                              <span className="block text-xs font-bold uppercase text-gray-500 mb-1">Sipariş Notu</span>
+                              <p className="text-sm text-gray-700 bg-white p-3 rounded-lg border border-gray-100">
+                                {selectedOrder.notes}
+                              </p>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
 
                   {/* Right Column: Order Info & Items */}
@@ -461,8 +491,8 @@ export default function OrdersPage() {
                         {selectedOrder.items?.map((item, idx) => (
                           <div key={idx} className="flex gap-4 p-4 border-b last:border-0 hover:bg-gray-50">
                             <div className="w-16 h-16 bg-gray-100 rounded relative overflow-hidden flex-shrink-0">
-                              {item.image ? (
-                                <Image src={item.image} alt={item.name} fill className="object-cover" />
+                              {item.image || item.productImage ? (
+                                <Image src={item.image || item.productImage || ''} alt={item.name || item.productName || 'Ürün'} fill className="object-cover" />
                               ) : <Package className="w-6 h-6 m-auto text-gray-300 absolute inset-0" />}
                             </div>
                             <div className="flex-1">

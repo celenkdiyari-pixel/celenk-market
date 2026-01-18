@@ -620,7 +620,29 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
                       className="w-full h-11 rounded-xl bg-gray-50 border-gray-200 px-3 focus:ring-2 focus:ring-green-500 focus:outline-none"
                     >
                       <option value="" disabled>Lütfen Saati Seçiniz</option>
-                      {DELIVERY_TIME_SLOTS.map((slot) => (
+                      {DELIVERY_TIME_SLOTS.filter(slot => {
+                        const today = new Date().toISOString().split('T')[0];
+                        if (recipientInfo.deliveryDate === today) {
+                          const now = new Date();
+                          const currentHour = now.getHours();
+                          const currentMinute = now.getMinutes();
+
+                          // Slot format: "09:00 - 09:30"
+                          const slotStartHour = parseInt(slot.split(':')[0]);
+                          const slotStartMinute = parseInt(slot.split(':')[1]);
+
+                          // Allow slots starting at least 30 mins from now (preparation time)
+                          // Convert to minutes for easier comparison
+                          const currentTotalMinutes = currentHour * 60 + currentMinute;
+                          const slotTotalMinutes = slotStartHour * 60 + slotStartMinute;
+
+                          // Example: current 14:15 (855m). Slot 14:30 (870m). Diff = 15m.
+                          // Let's require at least 30-45 mins lead time?
+                          // Or simply: slot must be in the future.
+                          return slotTotalMinutes > currentTotalMinutes;
+                        }
+                        return true;
+                      }).map((slot) => (
                         <option key={slot} value={slot}>{slot}</option>
                       ))}
                     </select>

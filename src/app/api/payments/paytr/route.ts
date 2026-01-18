@@ -160,14 +160,20 @@ export async function POST(request: NextRequest) {
     // We remove large base64 images from the items array stored in session
     const sanitizedItems = (orderData.items || []).map((item: any) => {
       const newItem = { ...item };
-      // Remove image if it's a data URL (too large)
-      if (typeof newItem.image === 'string' && newItem.image.startsWith('data:')) {
+
+      // Smart Sanitization: Only remove base64 images if they are too large (risk of hitting Firestore 1MB limit)
+      // 500,000 chars is roughly 375KB, leaving plenty of room for other data.
+      const MAX_IMAGE_SIZE = 500000;
+
+      if (typeof newItem.image === 'string' && newItem.image.startsWith('data:') && newItem.image.length > MAX_IMAGE_SIZE) {
+        console.warn('⚠️ Image too large for Firestore, removing:', newItem.productName);
         delete newItem.image;
       }
-      if (typeof newItem.productImage === 'string' && newItem.productImage.startsWith('data:')) {
+      if (typeof newItem.productImage === 'string' && newItem.productImage.startsWith('data:') && newItem.productImage.length > MAX_IMAGE_SIZE) {
+        console.warn('⚠️ ProductImage too large for Firestore, removing:', newItem.productName);
         delete newItem.productImage;
       }
-      // Also check if any other field is unexpectedly huge
+
       return newItem;
     });
 

@@ -7,6 +7,7 @@ import { ShoppingCart, Menu, X, User, Heart, Gift, Building, Wrench, Flower, Lea
 import { useCart } from "@/contexts/CartContext";
 import Logo from "./logo";
 import { cn } from "@/lib/utils";
+import { CATEGORY_INFO } from "@/lib/constants";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,14 +18,12 @@ export default function Navbar() {
     setIsMounted(true);
   }, []);
 
-  const categories = [
-    { name: "Açılış & Tören", slug: "acilis-toren", icon: Gift, color: "text-blue-600" },
-    { name: "Cenaze Çelenkleri", slug: "cenaze-celenkleri", icon: Flower, color: "text-gray-600" },
-    { name: "Ferforjeler", slug: "ferforjeler", icon: Wrench, color: "text-yellow-600" },
-    { name: "Fuar & Stand", slug: "fuar-stand", icon: Building, color: "text-purple-600" },
-    { name: "Ofis & Saksı Bitkileri", slug: "ofis-saksi-bitkileri", icon: Leaf, color: "text-green-600" },
-    { name: "Söz & Nişan", slug: "soz-nisan", icon: Heart, color: "text-red-600" }
-  ];
+  const categories = Object.entries(CATEGORY_INFO).map(([slug, info]) => ({
+    name: info.title,
+    slug: slug,
+    icon: info.icon,
+    color: info.color.replace('from-', 'text-').replace('-500', '-600').split(' ')[0]
+  }));
 
   const cartCount = isMounted ? getTotalItems() : 0;
   const favoriteCount = isMounted ? favorites.length : 0;

@@ -21,11 +21,14 @@ export function getOrderImage(order: any): string | undefined {
 }
 
 export async function sendTelegramNotification(message: string, imageUrl?: string): Promise<boolean> {
-    const token = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
+    // Trim to avoid whitespace issues from copy-paste
+    const token = process.env.TELEGRAM_BOT_TOKEN?.trim();
+    const chatId = process.env.TELEGRAM_CHAT_ID?.trim();
 
     if (!token || !chatId) {
-        console.warn('⚠️ Telegram notification skipped: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set.');
+        console.warn('⚠️ Telegram notification skipped: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set properly (check spaces).');
+        // Debugging without revealing full secrets
+        console.log('DEBUG: Token Length:', token ? token.length : 0, 'ChatID:', chatId);
         return false;
     }
 
@@ -136,8 +139,16 @@ export function formatOrderMessage(order: any): string {
     else if (order.paymentMethod === 'cash') paymentStatus = 'Kapıda Ödeme';
     else paymentStatus = order.paymentMethod || 'Diğer';
 
-    const address = order.customer?.address || {};
-    const fullAddress = `${address.street || ''} ${address.district || ''}/${address.city || ''}`.trim();
+    const address = order.recipient?.address || order.customer?.address || {};
+    const district = order.recipient?.district || (typeof order.customer?.address === 'object' ? order.customer.address.district : '') || '';
+    const city = order.recipient?.city || (typeof order.customer?.address === 'object' ? order.customer.address.city : '') || '';
+
+    let fullAddress = '-';
+    if (typeof address === 'string') {
+        fullAddress = `${address} ${district}/${city}`.trim();
+    } else {
+        fullAddress = `${address.street || ''} ${address.district || ''}/${address.city || ''}`.trim();
+    }
 
     const note = order.notes ? `\n\n<b>📝 Sipariş Notu:</b>\n<i>${order.notes}</i>` : '';
     const wreathText = order.wreath_text ? `\n\n<b>🎀 Çelenk Yazısı:</b>\n<i>${order.wreath_text}</i>` : '';
@@ -150,8 +161,10 @@ export function formatOrderMessage(order: any): string {
 <b>Ödeme:</b> ${paymentStatus}
 
 <b>👤 Müşteri:</b> ${customerName} ${recipientName}
-<b>📞 Telefon:</b> ${order.customer?.phone || '-'}
+<b>📞 Müşteri Tel:</b> ${order.customer?.phone || '-'}
+<b>📱 Alıcı Tel:</b> ${order.recipient?.phone || '-'}
 <b>📍 Adres:</b> ${fullAddress || '-'}
+<b>🏥 Teslimat Yeri:</b> ${order.delivery_place_type || '-'}
 <b>📅 Teslimat Zamanı:</b> ${order.delivery_date || '-'} / ${order.delivery_time || '-'}
 
 <b>🛒 Ürünler:</b>

@@ -28,6 +28,7 @@ export interface RecipientInfo {
     address: string;
     notes: string;
     deliveryTime?: string; // Eski kayıtlarda olmayabilir
+    wreathText?: string;
 }
 
 // Sipariş Kalemi
@@ -77,4 +78,5 @@ export interface Order {
     delivery_date?: string; // Yeni eklenen alan
     delivery_place_type?: string;
     paymentDetails?: PaymentDetails;
+    wreath_text?: string;
 }
