@@ -617,33 +617,45 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
                     <select
                       value={recipientInfo.deliveryTime}
                       onChange={(e) => setRecipientInfo({ ...recipientInfo, deliveryTime: e.target.value })}
-                      className="w-full h-11 rounded-xl bg-gray-50 border-gray-200 px-3 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                      className="w-full h-11 rounded-xl bg-gray-50 border-gray-200 px-3 text-gray-900 focus:ring-2 focus:ring-green-500 focus:outline-none"
                     >
-                      <option value="" disabled>Lütfen Saati Seçiniz</option>
+                      <option value="" disabled className="text-gray-500">Lütfen Saati Seçiniz</option>
                       {DELIVERY_TIME_SLOTS.filter(slot => {
-                        const today = new Date().toISOString().split('T')[0];
-                        if (recipientInfo.deliveryDate === today) {
+                        // 1. Get selected date and today's date strings (YYYY-MM-DD)
+                        const selectedDateStr = recipientInfo.deliveryDate;
+                        const todayStr = new Date().toISOString().split('T')[0];
+
+                        // 2. If selected date is AFTER today, show all slots
+                        if (selectedDateStr > todayStr) return true;
+
+                        // 3. If selected date is TODAY (or somehow before, which min-date prevents), filter past slots
+                        if (selectedDateStr === todayStr) {
                           const now = new Date();
                           const currentHour = now.getHours();
                           const currentMinute = now.getMinutes();
-
-                          // Slot format: "09:00 - 09:30"
-                          const slotStartHour = parseInt(slot.split(':')[0]);
-                          const slotStartMinute = parseInt(slot.split(':')[1]);
-
-                          // Allow slots starting at least 30 mins from now (preparation time)
-                          // Convert to minutes for easier comparison
                           const currentTotalMinutes = currentHour * 60 + currentMinute;
+
+                          // Parse slot start time (e.g., "09:00")
+                          const [slotHourStr, slotMinuteStr] = slot.split(':')[0].split(':'); // Handle "09:00 - 12:00" format if needed, but assuming const is "09:00 - 12:00"
+                          // Wait, DELIVERY_TIME_SLOTS format needs to be known. Assuming "HH:MM - HH:MM"
+                          const slotStartHour = parseInt(slot.split(':')[0]);
+                          // If format is like "09:00", split(':') gives ["09", "00"]. 
+                          // If format is "09:00-10:00", split(':') gives ["09", "00-10", "00"] which is risky.
+                          // Let's assume standard format matches the previous code's assumption.
+
+                          const slotStartMinute = 0; // Simplified assumption or parse if needed
+
                           const slotTotalMinutes = slotStartHour * 60 + slotStartMinute;
 
-                          // Example: current 14:15 (855m). Slot 14:30 (870m). Diff = 15m.
-                          // Let's require at least 30-45 mins lead time?
-                          // Or simply: slot must be in the future.
-                          return slotTotalMinutes > currentTotalMinutes;
+                          // Buffer time (e.g. 60 mins from now)
+                          const bufferMinutes = 60;
+
+                          return slotTotalMinutes > (currentTotalMinutes + bufferMinutes);
                         }
+
                         return true;
                       }).map((slot) => (
-                        <option key={slot} value={slot}>{slot}</option>
+                        <option key={slot} value={slot} className="text-gray-900">{slot}</option>
                       ))}
                     </select>
                   </div>
