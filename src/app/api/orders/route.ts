@@ -152,24 +152,22 @@ export async function POST(request: NextRequest) {
       await Promise.allSettled(promises);
       console.log('✅ Emails processed');
 
-      // --- TELEGRAM NOTIFICATION ---
-      // --- TELEGRAM NOTIFICATION (Robust) ---
-      // We run this in parallel with email sending but wrapped in a way that it never fails the request
+      // --- NOTIFICATIONS ---
       try {
+        // 1. Telegram First (Fast & Reliable)
         const { sendTelegramNotification, formatOrderMessage, getOrderImage } = await import('@/lib/telegram');
         const telegramMessage = formatOrderMessage(order);
         const imageUrl = getOrderImage(order);
-
-        // Fire and forget - but await to ensure Vercel doesn't kill the process immediately,
-        // using the timeout inside sendTelegramNotification to guarantee speed.
         await sendTelegramNotification(telegramMessage, imageUrl);
-      } catch (tgError) {
-        console.error('❌ Failed to invoke Telegram notification:', tgError);
-        // Do NOT re-throw, so order succeeds even if telegram fails
+
+        // 2. Emails Second (Can be slow)
+        // Note: Already attempted to send emails earlier in the block, but ensuring no dangling try blocks
+      } catch (notifyError) {
+        console.error('❌ Notification fallback error:', notifyError);
       }
 
-    } catch (emailError) {
-      console.error('❌ Email sending error:', emailError);
+    } catch (innerError) {
+      console.error('❌ Inner order processing error:', innerError);
     }
 
     return NextResponse.json({
@@ -178,10 +176,9 @@ export async function POST(request: NextRequest) {
       orderNumber,
       order: { id: docId, ...order },
     });
-
   } catch (error) {
-    console.error('❌ Error creating order:', error);
-    return NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
+    console.error('❌ Top-level order error:', error);
+    return NextResponse.json({ error: 'Failed to process order' }, { status: 500 });
   }
 }
 
