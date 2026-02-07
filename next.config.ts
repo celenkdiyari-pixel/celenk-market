@@ -15,24 +15,6 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-      {
-        protocol: 'https',
-        hostname: '*.public.blob.vercel-storage.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'public.blob.vercel-storage.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'blob.vercel-storage.com',
-        port: '',
-        pathname: '/**',
-      },
     ],
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -41,8 +23,6 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: false,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     unoptimized: false,
-    // Allow all Vercel Blob Storage domains
-    domains: [],
   },
   eslint: {
     ignoreDuringBuilds: true,

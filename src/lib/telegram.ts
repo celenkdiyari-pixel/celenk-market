@@ -26,9 +26,7 @@ export async function sendTelegramNotification(message: string, imageUrl?: strin
     const chatId = process.env.TELEGRAM_CHAT_ID?.trim();
 
     if (!token || !chatId) {
-        console.warn('⚠️ Telegram notification skipped: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set properly (check spaces).');
-        // Debugging without revealing full secrets
-        console.log('DEBUG: Token Length:', token ? token.length : 0, 'ChatID:', chatId);
+        console.warn('⚠️ Telegram notification skipped: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set properly.');
         return false;
     }
 
@@ -61,7 +59,6 @@ export async function sendTelegramNotification(message: string, imageUrl?: strin
             formData.append('photo', blob, 'order_image.jpg');
 
             body = formData;
-            // Fetch handles boundaries for FormData automatically, so no custom Content-Type header needed
         } else {
             // Handle URL or Text (JSON)
             headers['Content-Type'] = 'application/json';
@@ -82,26 +79,43 @@ export async function sendTelegramNotification(message: string, imageUrl?: strin
             body = JSON.stringify(payload);
         }
 
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: headers,
-            body: body,
-        });
+        // Add 5-second timeout signal
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error(`❌ Telegram Error (${isPhoto ? 'Photo' : 'Message'}):`, errorData);
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: headers,
+                body: body,
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
 
-            // Retry with text only if photo failed
-            if (isPhoto) {
-                console.log('🔄 Retrying with text only...');
-                return sendTelegramNotification(message);
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error(`❌ Telegram Error (${isPhoto ? 'Photo' : 'Message'}):`, errorData);
+
+                // Retry with text only if photo failed
+                if (isPhoto) {
+                    console.log('🔄 Retrying with text only...');
+                    return sendTelegramNotification(message);
+                }
+                return false;
+            }
+
+            console.log('✅ Telegram notification sent successfully.');
+            return true;
+        } catch (fetchError: any) {
+            clearTimeout(timeoutId);
+            if (fetchError.name === 'AbortError') {
+                console.error('⚠️ Telegram notification timed out (5s limit).');
+            } else {
+                throw fetchError;
             }
             return false;
         }
 
-        console.log('✅ Telegram notification sent successfully.');
-        return true;
     } catch (error) {
         console.error('❌ Failed to send Telegram notification:', error);
         return false;

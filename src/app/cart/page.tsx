@@ -28,7 +28,7 @@ import toast from 'react-hot-toast';
 import Image from 'next/image';
 import { DELIVERY_PLACES, DELIVERY_TIME_SLOTS } from '@/lib/constants';
 
-export const dynamic = 'force-dynamic';
+// export const dynamic = 'force-dynamic'; // Removed for speed (Static Shell)
 
 interface CustomerInfo {
   name: string;

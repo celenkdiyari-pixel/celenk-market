@@ -153,13 +153,19 @@ export async function POST(request: NextRequest) {
       console.log('✅ Emails processed');
 
       // --- TELEGRAM NOTIFICATION ---
+      // --- TELEGRAM NOTIFICATION (Robust) ---
+      // We run this in parallel with email sending but wrapped in a way that it never fails the request
       try {
         const { sendTelegramNotification, formatOrderMessage, getOrderImage } = await import('@/lib/telegram');
         const telegramMessage = formatOrderMessage(order);
         const imageUrl = getOrderImage(order);
+
+        // Fire and forget - but await to ensure Vercel doesn't kill the process immediately,
+        // using the timeout inside sendTelegramNotification to guarantee speed.
         await sendTelegramNotification(telegramMessage, imageUrl);
       } catch (tgError) {
-        console.error('❌ Failed to send Telegram notification:', tgError);
+        console.error('❌ Failed to invoke Telegram notification:', tgError);
+        // Do NOT re-throw, so order succeeds even if telegram fails
       }
 
     } catch (emailError) {

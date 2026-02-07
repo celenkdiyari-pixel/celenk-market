@@ -13,7 +13,8 @@ interface PageProps {
 }
 
 // Use dynamic rendering to avoid oversized ISR pages
-export const dynamic = 'force-dynamic';
+// Use dynamic rendering to avoid oversized ISR pages
+// export const dynamic = 'force-dynamic'; // Removed for ISR (Speed)
 export const revalidate = 60; // Cache for 60 seconds to speed up navigation
 
 // Generate metadata for SEO
@@ -86,11 +87,37 @@ export default async function CategoryPage({ params }: PageProps) {
   // Because products are stored in DB with full titles.
   const initialProducts = await getProductsByCategory(currentCategory.title);
 
+  // Breadcrumb JSON-LD
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Ana Sayfa',
+        item: 'https://celenkdiyari.com'
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: currentCategory.title,
+        item: `https://celenkdiyari.com/categories/${category}`
+      }
+    ]
+  };
+
   return (
-    <CategoryClient
-      key={category}
-      initialProducts={initialProducts}
-      categorySlug={category}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <CategoryClient
+        key={category}
+        initialProducts={initialProducts}
+        categorySlug={category}
+      />
+    </>
   );
 }

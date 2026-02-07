@@ -5,7 +5,10 @@ import { CATEGORY_INFO } from "@/lib/constants";
 
 export default function Footer() {
   // Get popular cities with their proper slugs
-  const popularCityNames = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Mersin'];
+  const popularCityNames = [
+    'İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Mersin',
+    'Gaziantep', 'Şanlıurfa', 'Diyarbakır', 'Kayseri', 'Eskişehir', 'Samsun', 'Denizli'
+  ];
   const popularCities = popularCityNames
     .map(name => cities.find(city => city.name === name))
     .filter((city): city is NonNullable<typeof city> => city !== undefined);

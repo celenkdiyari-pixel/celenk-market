@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { getProducts } from '@/lib/get-products';
 import { blogPosts } from '@/lib/blog-data';
+import { CATEGORY_INFO } from '@/lib/constants';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://celenkdiyari.com';
@@ -20,7 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // Category routes
-    const categorySlugs = ['acilistoren', 'cenaze', 'ferforje', 'fuarstand', 'ofisbitki', 'soznisan'];
+    const categorySlugs = Object.keys(CATEGORY_INFO);
     const categoryRoutes = categorySlugs.map((slug) => ({
         url: `${baseUrl}/categories/${slug}`,
         lastModified: new Date(),
