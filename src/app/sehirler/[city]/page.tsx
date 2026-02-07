@@ -9,7 +9,7 @@ interface Props {
 }
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 600; // Cache city pages for 10 minutes
+export const revalidate = 86400; // Cache city pages for 24 hours to minimize ISR usage
 
 // Disable static generation at build time to prevent Quota Exceeded errors
 export async function generateStaticParams() {

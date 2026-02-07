@@ -4,7 +4,7 @@ import { getProduct } from '@/lib/get-products';
 import ProductDetailClient from './product-detail-client';
 
 // export const dynamic = 'force-dynamic'; // Removed for ISR
-export const revalidate = 60;
+export const revalidate = 3600; // Cache product pages for 1 hour
 
 interface PageProps {
   params: Promise<{

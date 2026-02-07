@@ -15,7 +15,7 @@ interface PageProps {
 // Use dynamic rendering to avoid oversized ISR pages
 // Use dynamic rendering to avoid oversized ISR pages
 // export const dynamic = 'force-dynamic'; // Removed for ISR (Speed)
-export const revalidate = 60; // Cache for 60 seconds to speed up navigation
+export const revalidate = 3600; // Cache for 1 hour to save resources
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: PageProps) {
