@@ -52,7 +52,7 @@ const mapDocToProduct = (id: string, data: DocumentData): Product => {
     };
 };
 
-export async function getProducts(options: { limit?: number } = {}): Promise<Product[]> {
+export async function getProducts(options: { limit?: number; minimal?: boolean } = {}): Promise<Product[]> {
     const limitCount = options.limit || 50; // Default limit to save bandwidth
 
     // 1. Try Admin SDK First (Server-Side)
@@ -62,6 +62,9 @@ export async function getProducts(options: { limit?: number } = {}): Promise<Pro
             let productsRef: any = db.collection('products');
             if (options.limit) {
                 productsRef = productsRef.limit(limitCount);
+            }
+            if (options.minimal) {
+                productsRef = productsRef.select('name', 'id', 'price', 'category', 'images', 'inStock', 'createdAt');
             }
             const snapshot = await productsRef.get();
             if (snapshot.empty) return [];

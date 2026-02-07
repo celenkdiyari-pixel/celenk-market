@@ -7,7 +7,7 @@ import { getProducts } from '@/lib/get-products';
 export const revalidate = 300; // Cache homepage for 5 minutes
 
 export default async function Home() {
-  const products = await getProducts();
+  const products = await getProducts({ minimal: true, limit: 12 });
 
   return (
     <CityPageContent initialProducts={products} />
