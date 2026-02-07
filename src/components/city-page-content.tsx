@@ -161,12 +161,14 @@ export default function CityPageContent({ cityName = "Türkiye", initialProducts
                                 </div>
 
                                 <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight text-center lg:text-left">
-                                    {cityName === "Türkiye" ? "Türkiye'nin En İyi" : `${cityName} İçin En İyi`}
-                                    <span className="block text-green-600">Çelenk Sipariş Sitesi</span>
+                                    {cityName === "Türkiye" ? "Türkiye Geneli" : `${cityName}`}
+                                    <span className="block text-green-600">Çelenk Siparişi & Gönderim</span>
                                 </h1>
 
                                 <p className="text-xl text-gray-600 leading-relaxed max-w-lg text-center lg:text-left animate-fade-in-up delay-300 lg:max-w-none">
-                                    {heroDescription}
+                                    {cityName !== "Türkiye"
+                                        ? `${cityName} içi ve tüm ilçelerine aynı gün teslimatlı cenaze, açılış, düğün ve nikah çelengi siparişi verin. En taze çiçeklerle hazırlanan profesyonel tasarımlar.`
+                                        : "Tüm Türkiye'ye aynı gün teslimat garantisiyle çelenk siparişi verin. Cenaze, açılış ve düğünler için online çelenk gönder."}
                                 </p>
                             </div>
 
@@ -298,8 +300,33 @@ export default function CityPageContent({ cityName = "Türkiye", initialProducts
                         <div className="text-center">
                             <h2 className="text-3xl font-bold text-gray-900 mb-6">{cityName} Online Çelenk Siparişi</h2>
                             <p className="text-lg text-gray-600 leading-relaxed">
-                                Çelenk Diyarı olarak, <strong>{cityName} çelenk siparişi</strong> ihtiyaçlarınızda en taze ve kaliteli çiçeklerle hizmetinizdeyiz.
-                                {cityName} içindeki tüm semtlere ve ilçelere (örneğin {cityName === 'İstanbul' ? 'Kadıköy, Beşiktaş, Şişli' : 'merkez ve ilçelerine'}) aynı gün hızlı teslimat yapıyoruz.
+                                Çelenk Diyarı olarak, <strong>{cityName} çelenk siparişi</strong> ihtiyaçlarınızda profesyonel çözümler sunuyoruz.
+                                {cityName} genelinde açılış, düğün, nikah ve cenaze törenleriniz için aynı gün teslimat garantisi ile hizmetinizdeyiz.
+                            </p>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-8 text-left">
+                            <div>
+                                <h3 className="text-xl font-bold text-gray-800 mb-3">{cityName} Cenaze Çelengi</h3>
+                                <p className="text-gray-600">
+                                    Sevdiklerinize son görevinizi yaparken, saygın ve özenli cenaze çelenklerimizle yanınızdayız. {cityName} içi tüm cami ve mezarlıklara zamanında teslimat sağlıyoruz.
+                                    "Cenaze çelengi fiyatları" ve modelleri için kategori sayfamızı inceleyebilirsiniz.
+                                </p>
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold text-gray-800 mb-3">{cityName} Açılış ve Düğün Çelengi</h3>
+                                <p className="text-gray-600">
+                                    Yeni iş yeri açılışlarında, düğün ve nikah merasimlerinde sevdiklerinizin mutluluğuna ortak olun.
+                                    Gösterişli, taze çiçeklerle hazırlanan {cityName} açılış çelengi modellerimizle fark yaratın.
+                                    Online sipariş vererek, tören alanına tam zamanında teslimatın keyfini çıkarın.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="text-center pt-8 border-t border-gray-200">
+                            <p className="text-sm text-gray-500">
+                                {cityName} çiçekçi arayışınızda, Çelenk Diyarı kalitesi ve güvencesiyle yanınızdayız.
+                                Hemen sipariş verin, {cityName === "Türkiye" ? "81 ilde" : `${cityName} içinde`} sevdiklerinize ulaşın.
                             </p>
                         </div>
                     </div>

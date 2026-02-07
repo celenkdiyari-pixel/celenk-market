@@ -27,19 +27,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 
     return {
-        title: `${city.name} Çelenk Siparişi | Hızlı Teslimat - Çelenk Diyarı`,
-        description: `${city.name} içi ve çevresine aynı gün teslimatlı çelenk siparişi. En taze çiçeklerle hazırlanan cenaze, açılış ve düğün çelenkleri. ${city.name} çiçek gönder.`,
+        title: `${city.name} Çelenk Siparişi - ${city.name} Çelenk Gönder (Aynı Gün Teslimat)`,
+        description: `En uygun fiyatlı ${city.name} çelenk siparişi. Cenaze, açılış ve düğün çelenklerini ${city.name} içi aynı gün teslim ediyoruz. Online sipariş verin.`,
         keywords: [
             `${city.name.toLowerCase()} çelenk siparişi`,
             `${city.name.toLowerCase()} çelenk gönder`,
             `${city.name.toLowerCase()} cenaze çelengi`,
             `${city.name.toLowerCase()} açılış çelengi`,
             `${city.name.toLowerCase()} düğün çelengi`,
-            "online çelenk"
+            `${city.name.toLowerCase()} çiçekçi`,
+            "online çelenk siparişi"
         ],
         openGraph: {
-            title: `${city.name} Çelenk Siparişi | 7/24 Hızlı Teslimat`,
-            description: `${city.name} genelinde açılış, düğün ve cenaze törenleri için profesyonel çelenk hizmeti.`,
+            title: `${city.name} Çelenk Siparişi - Hızlı ve Güvenilir`,
+            description: `${city.name} genelinde en taze çiçeklerle hazırlanan cenaze, açılış ve düğün çelenkleri. Şimdi sipariş verin.`,
             url: `https://celenkdiyari.com/sehirler/${city.slug}`,
             type: 'website',
         },
