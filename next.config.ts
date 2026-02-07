@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 31536000, // 1 year
     dangerouslyAllowSVG: false,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    unoptimized: false,
+    unoptimized: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -34,7 +34,7 @@ const nextConfig: NextConfig = {
   trailingSlash: false,
   generateEtags: true,
   poweredByHeader: false,
-  compress: false, // Vercel handles compression automatically
+  compress: true, // Enable compression to save bandwidth
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
