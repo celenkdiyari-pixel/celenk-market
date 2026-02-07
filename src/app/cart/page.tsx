@@ -635,15 +635,9 @@ Siparişimi oluşturdum, ödeme için IBAN bilgisi alabilir miyim?`;
                           const currentMinute = now.getMinutes();
                           const currentTotalMinutes = currentHour * 60 + currentMinute;
 
-                          // Parse slot start time (e.g., "09:00")
-                          const [slotHourStr, slotMinuteStr] = slot.split(':')[0].split(':'); // Handle "09:00 - 12:00" format if needed, but assuming const is "09:00 - 12:00"
-                          // Wait, DELIVERY_TIME_SLOTS format needs to be known. Assuming "HH:MM - HH:MM"
-                          const slotStartHour = parseInt(slot.split(':')[0]);
-                          // If format is like "09:00", split(':') gives ["09", "00"]. 
-                          // If format is "09:00-10:00", split(':') gives ["09", "00-10", "00"] which is risky.
-                          // Let's assume standard format matches the previous code's assumption.
-
-                          const slotStartMinute = 0; // Simplified assumption or parse if needed
+                          // Parse slot start time (e.g., "09:00" or "09:00 - 10:00")
+                          const slotStartHour = parseInt(slot.split(':')[0], 10);
+                          const slotStartMinute = 0; // Assume slots start at :00 for simplicity
 
                           const slotTotalMinutes = slotStartHour * 60 + slotStartMinute;
 
